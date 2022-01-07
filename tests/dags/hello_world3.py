@@ -15,6 +15,3 @@ dummy_operator = DummyOperator(task_id='dummy_task3', retries=3, dag=dag)
 hello_operator = PythonOperator(task_id='hello_task3', python_callable=print_hello, dag=dag)
 
 dummy_operator >> hello_operator
-© 2022 GitHub, Inc.
-Terms
-Privacy
