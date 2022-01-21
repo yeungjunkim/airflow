@@ -21,7 +21,7 @@ dag = DAG(
 start = DummyOperator(task_id='start', dag=dag)
 
 passing = KubernetesPodOperator(namespace='default',
-                          image="accutuning",
+                          image="accutuning:latest",
 #                           cmds=["python","-c"],
 #                           arguments=["print('hello world')"],
                           labels={"foo": "bar"},
@@ -33,7 +33,7 @@ passing = KubernetesPodOperator(namespace='default',
 
 failing = KubernetesPodOperator(namespace='default',
                           #image="ubuntu:16.04",
-                          image="accutuning/frontend",
+                          image="accutuning/frontend:latest",
 #                           cmds=["python","-c"],
 #                           arguments=["print('hello world')"],
                           labels={"foo": "bar"},
