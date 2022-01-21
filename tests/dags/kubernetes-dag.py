@@ -53,8 +53,8 @@ start = DummyOperator(task_id="start", dag=dag)
 
 run = KubernetesPodOperator(
     task_id="kubernetespodoperator",
-    namespace='development',
-    image='test/image',
+    namespace='airflow',
+    image='accutuning:latest',
     secrets=[
         env
     ],
