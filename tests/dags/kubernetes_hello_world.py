@@ -32,7 +32,8 @@ passing = KubernetesPodOperator(namespace='default',
                           )
 
 failing = KubernetesPodOperator(namespace='default',
-                          image="ubuntu:16.04",
+                          #image="ubuntu:16.04",
+                          image="python:3.6",
                           cmds=["python","-c"],
                           arguments=["print('hello world')"],
                           labels={"foo": "bar"},
