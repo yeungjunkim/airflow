@@ -54,7 +54,7 @@ start = DummyOperator(task_id="start", dag=dag)
 run = KubernetesPodOperator(
     task_id="kubernetespodoperator",
     namespace='airflow',
-    image='accutuning:latest',
+    image='debian',
     secrets=[
         env
     ],
