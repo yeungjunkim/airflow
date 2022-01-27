@@ -26,7 +26,7 @@ cmd = 'pwd;ls -al;uname -a'
 setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 
 worker = KubernetesPodOperator(namespace='default',
-                          image="accutuning/modeler-common:latest",
+                          image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
 #                           cmds=["python","-c"],
 #                           arguments=["print('hello world')"],
                           labels={"ACCUTUNING_LOG_LEVEL": "INFO"},
