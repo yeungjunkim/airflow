@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
+from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 
 default_args = {
     'owner': 'airflow',
@@ -25,11 +26,42 @@ start = DummyOperator(task_id='start', dag=dag)
 cmd = 'pwd;ls -al;uname -a'
 setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 
+#  docker run -it 
+#     -e ACCUTUNING_LOG_LEVEL=INFO 
+#     -e ACCUTUNING_WORKSPACE=/workspace/experiment_0008/experimentprocess_0037 
+#     -v /Users/yeongjunkim/dev/accutuning_gitlab/accutuning/.workspace:/workspace 
+#         accutuning/modeler-common:latest
+
+volume_mount = k8s.V1VolumeMount(
+    name='test-volume', mount_path='/workspace', sub_path=None, read_only=True
+)
+
+volume = k8s.V1Volume(
+    name='test-volume',
+    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
+)
+
+port = k8s.V1ContainerPort(name='http', container_port=80)
+
+init_container_volume_mounts = [
+    k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
+]
+init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='CCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
+
+init_container = k8s.V1Container(
+    name="init-container",
+    image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
+    env=init_environments,
+    volume_mounts=init_container_volume_mounts,
+#     command=["bash", "-cx"],
+#     args=["echo 10"],
+)
+
 worker = KubernetesPodOperator(namespace='default',
                           image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
 #                           cmds=["python","-c"],
 #                           arguments=["print('hello world')"],
-                          labels={"ACCUTUNING_LOG_LEVEL": "INFO"},
+#                           labels={"ACCUTUNING_LOG_LEVEL": "INFO","ACCUTUNING_WORKSPACE","/workspace/experiment_0008/experimentprocess_0037"},
                           name="accutuning-test",
                           task_id="accutuning",
                           get_logs=True,
