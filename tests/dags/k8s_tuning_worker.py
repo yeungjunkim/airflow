@@ -21,7 +21,7 @@ dag = DAG(
 
 start = DummyOperator(task_id='start', dag=dag)
 
-cmd = 'val $(minikube -p minikube docker-env)'
+cmd = 'eval $(/usr/local/bin/minikube -p /usr/local/bin/minikube docker-env)'
 setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 
 worker = KubernetesPodOperator(namespace='default',
