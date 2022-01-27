@@ -46,7 +46,7 @@ port = k8s.V1ContainerPort(name='http', container_port=80)
 init_container_volume_mounts = [
     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
 ]
-init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='CCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
+init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='ACCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
 
 init_container = k8s.V1Container(
     name="init-container",
@@ -59,7 +59,7 @@ init_container = k8s.V1Container(
 
 worker = KubernetesPodOperator(namespace='default',
                           image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
-#                           cmds=["python","-c"],
+                          cmds=["echo","$ACCUTUNING_LOG_LEVEL"],
 #                           arguments=["print('hello world')"],
 #                           labels={"ACCUTUNING_LOG_LEVEL": "INFO","ACCUTUNING_WORKSPACE","/workspace/experiment_0008/experimentprocess_0037"},
                           name="accutuning-test",
