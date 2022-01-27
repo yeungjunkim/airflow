@@ -21,10 +21,10 @@ dag = DAG(
 start = DummyOperator(task_id='start', dag=dag)
 
 worker = KubernetesPodOperator(namespace='default',
-                          image="accutuning:latest",
+                          image="accutuning/modeler-common:latest",
 #                           cmds=["python","-c"],
 #                           arguments=["print('hello world')"],
-                          labels={"foo": "bar"},
+                          labels={"ACCUTUNING_LOG_LEVEL": "INFO"},
                           name="accutuning-test",
                           task_id="accutuning",
                           get_logs=True,
