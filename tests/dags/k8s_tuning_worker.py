@@ -74,4 +74,4 @@ end = DummyOperator(task_id='end', dag=dag)
 # worker.set_upstream(setting)
 # worker.set_upstream(start)
 # worker.set_downstream(end)
-start >> setting >> worker >> end
+start >> setting >> init_container >> worker >> end
