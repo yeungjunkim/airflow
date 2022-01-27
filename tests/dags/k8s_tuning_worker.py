@@ -40,4 +40,4 @@ end = DummyOperator(task_id='end', dag=dag)
 # worker.set_upstream(setting)
 # worker.set_upstream(start)
 # worker.set_downstream(end)
-starting >> setting >> worker >> end
+start >> setting >> worker >> end
