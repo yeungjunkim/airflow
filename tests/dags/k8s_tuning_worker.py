@@ -68,14 +68,16 @@ worker = KubernetesPodOperator(
     volumes=[volume],
     volume_mounts=[volume_mount],
 #     env_from=configmaps,
-    name="airflow-test-pod",
-    task_id="task",
+                          name="accutuning-test",
+                          task_id="accutuning",
 #     affinity=affinity,
 #     is_delete_operator_pod=True,
 #     hostnetwork=False,
 #     tolerations=tolerations,
     init_containers=[init_container],
     priority_class_name="medium",
+                          get_logs=True,
+                          dag=dag    
 )
 
 # worker = KubernetesPodOperator(namespace='default',
