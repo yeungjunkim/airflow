@@ -20,6 +20,9 @@ dag = DAG(
 
 start = DummyOperator(task_id='start', dag=dag)
 
+cmd = 'val $(minikube -p minikube docker-env)'
+setting = BashOperator(task_id='t1', bash_command=cmd, dag=dag)
+
 worker = KubernetesPodOperator(namespace='default',
                           image="accutuning/modeler-common:latest",
 #                           cmds=["python","-c"],
@@ -34,5 +37,7 @@ worker = KubernetesPodOperator(namespace='default',
 end = DummyOperator(task_id='end', dag=dag)
 
 
-worker.set_upstream(start)
-worker.set_downstream(end)
+# worker.set_upstream(setting)
+# worker.set_upstream(start)
+# worker.set_downstream(end)
+starting >> setting >> worker >> end
