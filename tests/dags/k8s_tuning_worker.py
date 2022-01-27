@@ -33,7 +33,7 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 #         accutuning/modeler-common:latest
 
 volume_mount = k8s.V1VolumeMount(
-    name='test-volume', mount_path='/Users/yeongjunkim/dev/accutuning_gitlab/accutuning/.workspace', sub_path=None, read_only=True
+    name='test-volume', mount_path='/workplace', sub_path=None, read_only=True
 )
 
 volume = k8s.V1Volume(
