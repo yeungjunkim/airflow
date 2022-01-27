@@ -41,6 +41,11 @@ volume = k8s.V1Volume(
     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
 )
 
+configmaps = [
+    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-1')),
+    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-2')),
+]
+
 port = k8s.V1ContainerPort(name='http', container_port=80)
 
 init_container_volume_mounts = [
@@ -63,10 +68,11 @@ worker = KubernetesPodOperator(
     cmds=["bash", "-cx"],
     arguments=["echo", "10"],
 #     labels={"foo": "bar"},
-#     secrets=[secret_file, secret_env, secret_all_keys],
+    secrets=[secret_file, secret_env, secret_all_keys],
 #     ports=[port],
     volumes=[volume],
     volume_mounts=[volume_mount],
+    env_from=configmaps,
 #     env_from=configmaps,
                           name="accutuning-test",
                           task_id="accutuning",
