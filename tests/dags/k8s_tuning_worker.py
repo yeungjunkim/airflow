@@ -57,16 +57,37 @@ init_container = k8s.V1Container(
 #     args=["echo 10"],
 )
 
-worker = KubernetesPodOperator(namespace='default',
-                          image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
-                          cmds=["echo","$ACCUTUNING_LOG_LEVEL"],
-#                           arguments=["print('hello world')"],
-#                           labels={"ACCUTUNING_LOG_LEVEL": "INFO","ACCUTUNING_WORKSPACE","/workspace/experiment_0008/experimentprocess_0037"},
-                          name="accutuning-test",
-                          task_id="accutuning",
-                          get_logs=True,
-                          dag=dag
-                          )
+worker = KubernetesPodOperator(
+    namespace='default',
+    image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
+#     cmds=["bash", "-cx"],
+#     arguments=["echo", "10"],
+#     labels={"foo": "bar"},
+#     secrets=[secret_file, secret_env, secret_all_keys],
+#     ports=[port],
+    volumes=[volume],
+    volume_mounts=[volume_mount],
+#     env_from=configmaps,
+    name="airflow-test-pod",
+    task_id="task",
+#     affinity=affinity,
+#     is_delete_operator_pod=True,
+#     hostnetwork=False,
+#     tolerations=tolerations,
+    init_containers=[init_container],
+    priority_class_name="medium",
+)
+
+# worker = KubernetesPodOperator(namespace='default',
+#                           image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
+#                           cmds=["echo","$ACCUTUNING_LOG_LEVEL"],
+# #                           arguments=["print('hello world')"],
+# #                           labels={"ACCUTUNING_LOG_LEVEL": "INFO","ACCUTUNING_WORKSPACE","/workspace/experiment_0008/experimentprocess_0037"},
+#                           name="accutuning-test",
+#                           task_id="accutuning",
+#                           get_logs=True,
+#                           dag=dag
+#                           )
 
 end = DummyOperator(task_id='end', dag=dag)
 
