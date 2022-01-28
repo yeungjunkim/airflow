@@ -48,7 +48,7 @@ volume_mount = k8s.V1VolumeMount(
 volume = k8s.V1Volume(
     name='test-volume',
 #     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
-    host_path('/workspace'),
+    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 )
 
 # configmaps = [
