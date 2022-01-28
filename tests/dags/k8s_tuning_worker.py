@@ -58,8 +58,12 @@ volume = k8s.V1Volume(
 
 port = k8s.V1ContainerPort(name='http', container_port=80)
 
+# init_container_volume_mounts = [
+#     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
+# ]
+
 init_container_volume_mounts = [
-    k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
+    k8s.V1VolumeMount(mount_path='/workspace', name='test-volume')
 ]
 init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='ACCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
 
