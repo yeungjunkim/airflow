@@ -75,9 +75,10 @@ init_container = k8s.V1Container(
     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
     env=init_environments,
     volume_mounts=init_container_volume_mounts,
-    cmds=["sleep", "0.03h"],
-#     command=["bash", "-cx"],
+
+    command=["bash", "-cx"],
 #     args=["echo 10"],
+    args=["sleep 0.03h"],
 )
 
 worker = KubernetesPodOperator(
