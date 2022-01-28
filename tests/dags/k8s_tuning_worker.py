@@ -87,7 +87,7 @@ worker = KubernetesPodOperator(
 #     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
     image="nginx",
 #     cmds=["sleep", "0.03h"],
-    cmds=["bash", "/code/entrypoint.sh"],
+#     cmds=["bash", "/code/entrypoint.sh"],
   
 #    cmds=["bash", "-cx"],
 #     arguments=["echo", "10"],
@@ -110,7 +110,7 @@ worker = KubernetesPodOperator(
 #     is_delete_operator_pod=True,
 #     hostnetwork=False,
 #     tolerations=tolerations,
-    init_containers=[init_container],
+#     init_containers=[init_container],
 #     priority_class_name="medium",
     get_logs=True,
     dag=dag,    
