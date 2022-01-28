@@ -73,7 +73,8 @@ init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8
 init_container = k8s.V1Container(
     name="init-container",
 #     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
-    image="pooh97/accutuning:latest",    
+#     image="pooh97/accutuning:latest",    
+    image="accutuning/modeler-common:latest",    
     env=init_environments,
     volume_mounts=init_container_volume_mounts,
 
@@ -85,7 +86,7 @@ init_container = k8s.V1Container(
 worker = KubernetesPodOperator(
     namespace='default',
 #     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
-    image="pooh97/accutuning:latest",
+    image="accutuning/modeler-commonlatest",
 #     cmds=["sleep", "0.03h"],
 #     cmds=["bash", "/code/entrypoint.sh"],
   
