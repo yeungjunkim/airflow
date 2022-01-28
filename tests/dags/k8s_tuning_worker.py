@@ -73,7 +73,7 @@ init_container = k8s.V1Container(
 
 worker = KubernetesPodOperator(
     namespace='default',
-#     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
+    image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
 #     cmds=["bash", "/code/entry.sh"],
 #    cmds=["bash", "-cx"],
 #     arguments=["echo", "10"],
