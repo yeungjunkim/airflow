@@ -63,14 +63,14 @@ init_container_volume_mounts = [
 ]
 init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='ACCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
 
-# init_container = k8s.V1Container(
-#     name="init-container",
-#     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
-#     env=init_environments,
-#     volume_mounts=init_container_volume_mounts,
-#     command=["bash", "-cx"],
-#     args=["echo 10"],
-# )
+init_container = k8s.V1Container(
+    name="init-container",
+    image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
+    env=init_environments,
+    volume_mounts=init_container_volume_mounts,
+    command=["bash", "-cx"],
+    args=["echo 10"],
+)
 
 worker = KubernetesPodOperator(
     namespace='default',
@@ -83,9 +83,9 @@ worker = KubernetesPodOperator(
 #     secrets=[secret_file, secret_env],
 #     secrets=[secret_all_keys],
 #     ports=[port],
-#     env=init_environments,
+    env=init_environments,
     volumes=[volume],
-#     volume_mounts=[volume_mount],
+    volume_mounts=[volume_mount],
 #     volume_mounts=init_container_volume_mounts,
 #     env=init_environments,
 #     env=[env],
@@ -97,7 +97,7 @@ worker = KubernetesPodOperator(
 #     is_delete_operator_pod=True,
 #     hostnetwork=False,
 #     tolerations=tolerations,
-#     init_containers=[init_container],
+    init_containers=[init_container],
 #     priority_class_name="medium",
     get_logs=True,
     dag=dag,    
