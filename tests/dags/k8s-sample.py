@@ -126,19 +126,19 @@ with DAG(
     )
 
     # [START howto_operator_k8s_private_image]
-    quay_k8s = KubernetesPodOperator(
-        namespace='default',
-        image='quay.io/apache/bash',
-        image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
-        cmds=["bash", "-cx"],
-        arguments=["echo", "10", "echo pwd"],
-        labels={"foo": "bar"},
-        name="airflow-private-image-pod",
-        is_delete_operator_pod=True,
-        in_cluster=True,
-        task_id="task-two",
-        get_logs=True,
-    )
+#     quay_k8s = KubernetesPodOperator(
+#         namespace='default',
+#         image='quay.io/apache/bash',
+#         image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
+#         cmds=["bash", "-cx"],
+#         arguments=["echo", "10", "echo pwd"],
+#         labels={"foo": "bar"},
+#         name="airflow-private-image-pod",
+#         is_delete_operator_pod=True,
+#         in_cluster=True,
+#         task_id="task-two",
+#         get_logs=True,
+#     )
     # [END howto_operator_k8s_private_image]
 
     # [START howto_operator_k8s_write_xcom]
