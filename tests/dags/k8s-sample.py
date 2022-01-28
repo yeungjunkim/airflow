@@ -160,4 +160,5 @@ with DAG(
     )
     # [END howto_operator_k8s_write_xcom]
 
-    write_xcom >> pod_task_xcom_result
+#     write_xcom >> pod_task_xcom_result
+    k >> pod_task_xcom_result
