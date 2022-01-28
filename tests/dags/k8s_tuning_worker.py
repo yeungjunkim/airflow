@@ -47,10 +47,10 @@ volume = k8s.V1Volume(
     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
 )
 
-configmaps = [
-    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-1')),
-    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-2')),
-]
+# configmaps = [
+#     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-1')),
+#     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='test-configmap-2')),
+# ]
 
 port = k8s.V1ContainerPort(name='http', container_port=80)
 
@@ -79,7 +79,9 @@ worker = KubernetesPodOperator(
 #     secrets=[secret_file, secret_env],
 #     ports=[port],
     volumes=[volume],
-    volume_mounts=[volume_mount],
+    # volume_mounts=[volume_mount],
+    volume_mounts=init_container_volume_mounts,
+    env=init_environments,
 #    env_from=configmaps,
 #     env_from=configmaps,
     name="accutuning-test",
@@ -88,7 +90,7 @@ worker = KubernetesPodOperator(
 #     is_delete_operator_pod=True,
 #     hostnetwork=False,
 #     tolerations=tolerations,
-    init_containers=[init_container],
+    # init_containers=[init_container],
 #     priority_class_name="medium",
     get_logs=True,
     dag=dag,    
