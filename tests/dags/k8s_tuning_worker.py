@@ -33,7 +33,8 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 #     -v /Users/yeongjunkim/dev/accutuning_gitlab/accutuning/.workspace:/workspace 
 #         accutuning/modeler-common:latest
 
-secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
+# secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
+secret_file = Secret('volume', '/etc/sql_conn', 'sql_alchemy_conn')
 secret_env = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
 secret_all_keys = Secret('env', None, 'airflow-secrets-2')
 
