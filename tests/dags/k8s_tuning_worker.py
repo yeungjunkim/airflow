@@ -34,9 +34,9 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 #         accutuning/modeler-common:latest
 
 # secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
-secret_file = Secret('volume', '/etc/sql_conn', 'sql_alchemy_conn')
-secret_env = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
-secret_all_keys = Secret('env', None, 'airflow-secrets-2')
+# secret_file = Secret('volume', '/etc/sql_conn', 'sql_alchemy_conn')
+# secret_env = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
+# secret_all_keys = Secret('env', None, 'airflow-secrets-2')
 
 volume_mount = k8s.V1VolumeMount(
     name='test-volume', mount_path='/workspace', sub_path=None, read_only=True
@@ -76,7 +76,7 @@ worker = KubernetesPodOperator(
 #     arguments=["echo", "10"],
 #     labels={"foo": "bar"},
 #     secrets=[secret_file, secret_env, secret_all_keys],
-    secrets=[secret_file, secret_env],
+#     secrets=[secret_file, secret_env],
 #     ports=[port],
     volumes=[volume],
     volume_mounts=[volume_mount],
