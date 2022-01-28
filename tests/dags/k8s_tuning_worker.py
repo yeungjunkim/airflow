@@ -47,8 +47,8 @@ volume_mount = k8s.V1VolumeMount(
 
 volume = k8s.V1Volume(
     name='test-volume',
-#     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
-    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
+    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+#     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 )
 
 # configmaps = [
@@ -62,6 +62,9 @@ port = k8s.V1ContainerPort(name='http', container_port=80)
 #     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
 # ]
 
+# init_container_volume_mounts = [
+#     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', sub_path=None, read_only=True)
+# ]
 init_container_volume_mounts = [
     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', read_only=False)
 ]
