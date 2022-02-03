@@ -91,10 +91,10 @@ worker = KubernetesPodOperator(
     image="pooh97/accutuning:latest",    
 #     cmds=["sleep", "0.03h"],
 #     cmds=["bash", "/code/entrypoint.sh"],
-    cmds=["bash", "-cx"],
+#     cmds=["bash", "-cx"],
 #     cmds=["export", "ACCUTUNING_WORKSPACE='/workspace/experiment_0008/experimentprocess_0037';ACCUTUNING_LOG_LEVEL='INFO'"],
 #     arguments=["export", "ACCUTUNING_LOG_LEVEL='INFO'"],
-    arguments=["export", "ACCUTUNING_WORKSPACE='/workspace/experiment_0008/experimentprocess_0037';ACCUTUNING_LOG_LEVEL='INFO'"],
+#     arguments=["export", "ACCUTUNING_WORKSPACE='/workspace/experiment_0008/experimentprocess_0037';ACCUTUNING_LOG_LEVEL='INFO'"],
 #     cmds=["export"],
 
     #     arguments=["bash", "/code/entrypoint.sh"],
