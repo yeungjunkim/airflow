@@ -92,7 +92,7 @@ worker = KubernetesPodOperator(
 #     cmds=["sleep", "0.03h"],
 #     cmds=["bash", "/code/entrypoint.sh"],
     cmds=["bash", "-cx"],
-    args=["echo 10"],    
+#     args=["echo 10"],    
 #     cmds=["export", "ACCUTUNING_WORKSPACE='/workspace/experiment_0008/experimentprocess_0037';ACCUTUNING_LOG_LEVEL='INFO'"],
 #     arguments=["export", "ACCUTUNING_LOG_LEVEL='INFO'"],
 #     arguments=["export", "ACCUTUNING_WORKSPACE='/workspace/experiment_0008/experimentprocess_0037';ACCUTUNING_LOG_LEVEL='INFO'"],
