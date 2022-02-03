@@ -88,6 +88,7 @@ worker = KubernetesPodOperator(
     namespace='default',
 #     image="harbor.accuinsight.net/accutuning/accutuning/modeler-common:3.0.1",
 #     image="accutuning/modeler-commonlatest",
+    image="pooh97/accutuning:latest",    
 #     cmds=["sleep", "0.03h"],
 #     cmds=["bash", "/code/entrypoint.sh"],
   
