@@ -90,7 +90,9 @@ worker = KubernetesPodOperator(
 #     image="accutuning/modeler-commonlatest",
 #     image="pooh97/accutuning:latest",    
 #     cmds=["sleep", "0.03h"],
-    cmds=["bash", "/code/entrypoint.sh"],
+#     cmds=["bash", "/code/entrypoint.sh"],
+    cmds=["bash", "-cx"],
+    arguments=["bash", "/code/entrypoint.sh"],
   
 #    cmds=["bash", "-cx"],
 #     arguments=["echo", "10"],
