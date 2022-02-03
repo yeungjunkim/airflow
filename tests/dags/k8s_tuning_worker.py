@@ -92,7 +92,8 @@ worker = KubernetesPodOperator(
 #     cmds=["sleep", "0.03h"],
 #     cmds=["bash", "/code/entrypoint.sh"],
     cmds=["bash", "-cx"],
-    arguments=["bash", "/code/entrypoint.sh"],
+#     arguments=["bash", "/code/entrypoint.sh"],
+    arguments=["/code/entrypoint.sh"],
   
 #    cmds=["bash", "-cx"],
 #     arguments=["echo", "10"],
