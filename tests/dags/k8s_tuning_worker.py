@@ -58,7 +58,7 @@ init_container = k8s.V1Container(
 )
     
 worker = KubernetesPodOperator(
-    namespace='airflow',
+    namespace='default',
     image="pooh97/accutuning:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
