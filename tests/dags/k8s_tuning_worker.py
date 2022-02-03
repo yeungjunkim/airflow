@@ -20,7 +20,6 @@ default_args = {
 dag = DAG(
     'accutuning-worker-test', default_args=default_args, schedule_interval=timedelta(minutes=10))
 
-
 start = DummyOperator(task_id='start', dag=dag)
 
 # cmd = 'eval $(/usr/local/bin/minikube -p /usr/local/bin/minikube docker-env)'
@@ -35,8 +34,6 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 
 secret_all_keys = Secret('env', None, 'default-token-8cv8w')
 
-
-
 volume_mount = k8s.V1VolumeMount(
     name='test-volume', mount_path='/workspace', sub_path=None, read_only=False
 )
@@ -46,9 +43,7 @@ volume = k8s.V1Volume(
     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
 )
 
-
 port = k8s.V1ContainerPort(name='http', container_port=80)
-
 
 init_container_volume_mounts = [
     k8s.V1VolumeMount(mount_path='/workspace', name='test-volume', read_only=False)
@@ -61,9 +56,9 @@ init_container = k8s.V1Container(
     env=init_environments,
     volume_mounts=init_container_volume_mounts,
 )
-
+    
 worker = KubernetesPodOperator(
-    namespace='default',
+    namespace='airflow',
     image="pooh97/accutuning:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
