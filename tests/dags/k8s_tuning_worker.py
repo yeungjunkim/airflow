@@ -74,6 +74,7 @@ worker = KubernetesPodOperator(
     hostnetwork=False,
 #     tolerations=tolerations,
     init_containers=[init_container],
+    env=[env],
 #     priority_class_name="medium",
     get_logs=True,
     dag=dag,    
