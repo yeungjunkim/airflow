@@ -32,7 +32,7 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 #     -v /Users/yeongjunkim/dev/accutuning_gitlab/accutuning/.workspace:/workspace 
 #         accutuning/modeler-common:latest 
 
-secret_all_keys = Secret('env', None, 'default-token-8cv8w')
+# secret_all_keys = Secret('env', None, 'default-token-8cv8w')
 
 volume_mount = k8s.V1VolumeMount(
     name='test-volume', mount_path='/workspace', sub_path=None, read_only=False
@@ -44,7 +44,7 @@ volume = k8s.V1Volume(
 )
 
 configmaps = [
-    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test')),
+    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]
 
 
