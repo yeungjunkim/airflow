@@ -58,8 +58,8 @@ init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8
 init_container = k8s.V1Container(
     name="init-container",
     image="pooh97/accutuning:latest",    
-#     command=["bash", "-cx"],
-#     args=["export ACCUTUNING_LOG_LEVEL=INFO;ACCUTUNING_WORKSPACE=/workspace/experiment_0008/experimentprocess_0037"],
+    command=["bash", "-cx"],
+    args=["pwd;ls -al /workspace"],
 #     env=init_environments,
     volume_mounts=init_container_volume_mounts,
 )
