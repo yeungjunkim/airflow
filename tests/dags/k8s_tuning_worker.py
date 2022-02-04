@@ -71,7 +71,7 @@ worker = KubernetesPodOperator(
     volume_mounts=[volume_mount],
     name="accutuning-test",
     task_id="accutuning",
-    env_from=configmaps,
+#     env_from=configmaps,
 #     command=["bash", "-cx"],
 #     args=["export"], 
 #     cmds=["bash", "-cx"],
@@ -83,6 +83,7 @@ worker = KubernetesPodOperator(
     init_containers=[init_container],
 #     env=init_environments,
 #     priority_class_name="medium",
+    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', 'ACCUTUNING_WORKSPACE':'/workspace/experiment_0008/experimentprocess_0037'},
     get_logs=True,
     dag=dag,    
 )
