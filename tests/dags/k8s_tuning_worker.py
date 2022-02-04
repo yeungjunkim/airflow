@@ -30,7 +30,7 @@ setting = BashOperator(task_id='setting', bash_command=cmd, dag=dag)
 #     -e ACCUTUNING_LOG_LEVEL=INFO 
 #     -e ACCUTUNING_WORKSPACE=/workspace/experiment_0008/experimentprocess_0037 
 #     -v /Users/yeongjunkim/dev/accutuning_gitlab/accutuning/.workspace:/workspace 
-#         accutuning/modeler-common:latest
+#         accutuning/modeler-common:latest 
 
 secret_all_keys = Secret('env', None, 'default-token-8cv8w')
 
@@ -66,6 +66,10 @@ worker = KubernetesPodOperator(
     volume_mounts=[volume_mount],
     name="accutuning-test",
     task_id="accutuning",
+#     command=["bash", "-cx"],
+#     args=["export"], 
+    cmds=["bash", "-cx"],
+    arguments=["export"],   
 #     affinity=affinity,
 #     is_delete_operator_pod=True,
     hostnetwork=False,
