@@ -43,6 +43,11 @@ volume = k8s.V1Volume(
     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
 )
 
+configmaps = [
+    k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test')),
+]
+
+
 port = k8s.V1ContainerPort(name='http', container_port=80)
 
 init_container_volume_mounts = [
@@ -53,9 +58,9 @@ init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8
 init_container = k8s.V1Container(
     name="init-container",
     image="pooh97/accutuning:latest",    
-    command=["bash", "-cx"],
-    args=["export ACCUTUNING_LOG_LEVEL=INFO;ACCUTUNING_WORKSPACE=/workspace/experiment_0008/experimentprocess_0037"],
-    env=init_environments,
+#     command=["bash", "-cx"],
+#     args=["export ACCUTUNING_LOG_LEVEL=INFO;ACCUTUNING_WORKSPACE=/workspace/experiment_0008/experimentprocess_0037"],
+#     env=init_environments,
     volume_mounts=init_container_volume_mounts,
 )
     
@@ -66,6 +71,7 @@ worker = KubernetesPodOperator(
     volume_mounts=[volume_mount],
     name="accutuning-test",
     task_id="accutuning",
+    env_from=configmaps,
 #     command=["bash", "-cx"],
 #     args=["export"], 
     cmds=["bash", "-cx"],
