@@ -85,10 +85,10 @@ def main_task(ti, **context):
 #     SQL = SQL.format(gid, sid, date_start, date_end)
 #     df = rs.redshift_to_pandas(SQL)
 
-    _experiment = context['dag_run'].conf['--experiment']
-    _type = context['dag_run'].conf['--type']
-    _uuid = context['dag_run'].conf['--uuid']
-    _timeout = context['dag_run'].conf['--timeout']    
+#     _experiment = context['dag_run'].conf['--experiment']
+#     _type = context['dag_run'].conf['--type']
+#     _uuid = context['dag_run'].conf['--uuid']
+#     _timeout = context['dag_run'].conf['--timeout']    
    
     # do more things and 
     
