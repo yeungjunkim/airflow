@@ -59,10 +59,7 @@ init_container_volume_mounts = [
 #     '--uuid':experiment_uuid,
 #     '--timeout':timeout
 
-_experiment = context['dag_run'].conf['--experiment']
-_type = context['dag_run'].conf['--type']
-_uuid = context['dag_run'].conf['--uuid']
-_timeout = context['dag_run'].conf['--timeout']
+
 
 
 init_container = k8s.V1Container(
@@ -73,6 +70,28 @@ init_container = k8s.V1Container(
     volume_mounts=init_container_volume_mounts,
 )
     
+def main_task(ti, **context):
+    
+    # connect to redshift
+#     rs = connect_redshift()  
+    
+    # extract the parameters passed from the REST API Trigger 
+#     gid = context['dag_run'].conf['gid']
+#     sid = context['dag_run'].conf['sid']
+#     date_start = context['dag_run'].conf['date_start']
+#     date_end = context['dag_run'].conf['date_end']
+    
+#     # build the SQL and get the data
+#     SQL = SQL.format(gid, sid, date_start, date_end)
+#     df = rs.redshift_to_pandas(SQL)
+
+    _experiment = context['dag_run'].conf['--experiment']
+    _type = context['dag_run'].conf['--type']
+    _uuid = context['dag_run'].conf['--uuid']
+    _timeout = context['dag_run'].conf['--timeout']    
+   
+    # do more things and 
+    
 worker = KubernetesPodOperator(
     namespace='default',
     image="pooh97/accutuning:latest",    
@@ -81,10 +100,13 @@ worker = KubernetesPodOperator(
     name="accutuning-test",
     task_id="accutuning",
     init_containers=[init_container],
-    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', 'ACCUTUNING_WORKSPACE':'/workspace/experiment_0008/experimentprocess_0037'},
+    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', '--experiment':{{ dag_run.conf["--experiment"] if dag_run else "" }}},
     get_logs=True,
     dag=dag,    
 )
+
 end = DummyOperator(task_id='end', dag=dag)
+
+
 
 start >> setting  >> worker >> end
