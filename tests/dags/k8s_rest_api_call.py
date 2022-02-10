@@ -64,11 +64,6 @@ _type = context['dag_run'].conf['--type']
 _uuid = context['dag_run'].conf['--uuid']
 _timeout = context['dag_run'].conf['--timeout']
 
-print("_experiment = [" + _experiment + "]")
-print("_type = [" + _type + "]")
-print("_uuid = [" + _uuid + "]")
-print("_timeout = [" + _timeout + "]")
-
 
 init_container = k8s.V1Container(
     name="init-container",
