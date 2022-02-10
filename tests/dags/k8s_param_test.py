@@ -100,7 +100,7 @@ worker = KubernetesPodOperator(
     name="accutuning-test",
     task_id="accutuning",
     init_containers=[init_container],
-    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', '--experiment':'{{dag_run.conf["--experiment"]}}'},
+    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', 'test_env':'{{dag_run.conf["test_env"] if dag_run else "" }}'},
     get_logs=True,
     dag=dag,    
 )
