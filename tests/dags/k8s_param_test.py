@@ -54,13 +54,6 @@ init_container_volume_mounts = [
 ]
 # init_environments = [k8s.V1EnvVar(name='ACCUTUNING_LOG_LEVEL', value='INFO'), k8s.V1EnvVar(name='ACCUTUNING_WORKSPACE', value='/workspace/experiment_0008/experimentprocess_0037')]
 
-#     "conf": {'--experiment':experiment_id,
-#     '--type':experiment_process_type,
-#     '--uuid':experiment_uuid,
-#     '--timeout':timeout
-
-
-
 
 init_container = k8s.V1Container(
     name="init-container",
@@ -69,28 +62,6 @@ init_container = k8s.V1Container(
     args=["pwd;ls -al /workspace"],
     volume_mounts=init_container_volume_mounts,
 )
-    
-# def main_task(ti, **context):
-    
-    # connect to redshift
-#     rs = connect_redshift()  
-    
-    # extract the parameters passed from the REST API Trigger 
-#     gid = context['dag_run'].conf['gid']
-#     sid = context['dag_run'].conf['sid']
-#     date_start = context['dag_run'].conf['date_start']
-#     date_end = context['dag_run'].conf['date_end']
-    
-#     # build the SQL and get the data
-#     SQL = SQL.format(gid, sid, date_start, date_end)
-#     df = rs.redshift_to_pandas(SQL)
-
-#     _experiment = context['dag_run'].conf['--experiment']
-#     _type = context['dag_run'].conf['--type']
-#     _uuid = context['dag_run'].conf['--uuid']
-#     _timeout = context['dag_run'].conf['--timeout']    
-   
-    # do more things and 
     
 worker = KubernetesPodOperator(
     namespace='default',
