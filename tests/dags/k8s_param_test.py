@@ -70,7 +70,7 @@ init_container = k8s.V1Container(
     volume_mounts=init_container_volume_mounts,
 )
     
-def main_task(ti, **context):
+# def main_task(ti, **context):
     
     # connect to redshift
 #     rs = connect_redshift()  
