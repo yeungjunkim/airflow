@@ -71,7 +71,7 @@ worker = KubernetesPodOperator(
     name="accutuning-test",
     task_id="accutuning",
     init_containers=[init_container],
-    env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
+    env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     get_logs=True,
     dag=dag,    
 )
