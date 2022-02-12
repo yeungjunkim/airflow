@@ -18,7 +18,7 @@ default_args = {
 }
 
 dag = DAG(
-    'accutuning-rest-api-call', default_args=default_args, schedule_interval=timedelta(minutes=10))
+    'accutuning-app-call', default_args=default_args, schedule_interval=timedelta(minutes=10))
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -59,17 +59,17 @@ init_container = k8s.V1Container(
     name="init-container",
     image="pooh97/accutuning:latest",    
     command=["bash", "-cx"],
-    args=["pwd;ls -al /workspace"],
+    args=["pwd;ls -al /workspace;cd /code;python3 manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],
     volume_mounts=init_container_volume_mounts,
 )
     
 worker = KubernetesPodOperator(
     namespace='default',
-    image="pooh97/accutuning:latest",    
+    image="pooh97/accu-app:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="accutuning-test",
-    task_id="accutuning",
+    name="accutuning-app",
+    task_id="accutuning-app",
     init_containers=[init_container],
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     get_logs=True,
