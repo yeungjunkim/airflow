@@ -57,7 +57,7 @@ init_container_volume_mounts = [
 
 init_container = k8s.V1Container(
     name="init-container",
-    image="pooh97/accutuning:latest",    
+    image="pooh97/accu-app:latest,    
     command=["bash", "-cx"],
     args=["pwd;ls -al /workspace;cd /code;python3 manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],
     volume_mounts=init_container_volume_mounts,
