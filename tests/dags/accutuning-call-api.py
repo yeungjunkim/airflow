@@ -76,7 +76,10 @@ worker = KubernetesPodOperator(
     env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE', 
               'ACCUTUNING_EXPERIMENT_ID': '19',
               'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
-              'ACCUTUNING_TIMEOUT': '200'
+              'ACCUTUNING_TIMEOUT': '200',
+              'ACCUTUNING_HOST_API_URL' : '10.111.173.192:8080',
+              'ACCUTUNING_WORKSPACE':'/workspace/experiment_0019/experimentprocess_0050',
+              'ACCUTUNING_LOG_LEVEL':'INFO'
              },
     get_logs=True,
     dag=dag,    
