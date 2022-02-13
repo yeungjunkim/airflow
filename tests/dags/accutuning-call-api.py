@@ -85,7 +85,7 @@ worker = KubernetesPodOperator(
               'ACCUTUNING_AUTH':'0',
               'ACCUTUNING_NOTEBOOK':'0',
               'ACCUTUNING_DB_ENGINE':'sqlite',
-              'ACCUTUNING_K8S_USE':'0',
+              'ACCUTUNING_K8S_USE':'1',
               'ACCUTUNING_K8S_VOLUME_MOUNT_PATH':'${PWD}/.workspace',
               'ACCUTUNING_CELERY_ONLY':'0',
               'ACCUTUNING_CELERY':'0',
