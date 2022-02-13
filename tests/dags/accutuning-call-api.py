@@ -93,8 +93,6 @@ worker = KubernetesPodOperator(
               'ACCUTUNING_USE_LABELER':'1',
               'ACCUTUNING_USE_CLUSTERING':'1',
               'DJANGO_SETTINGS_MODULE':'accutuning.settings',
-              'AWS_ACCESS_KEY_ID':'AKIA2ALTSNVIY4ZBYXQE',
-              'AWS_SECRET_ACCESS_KEY':'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',
               'AWS_S3_DEFAULT_BUCKET':'accutuningawsbucket',
               'AWS_DEFAULT_REGION':'ap-northeast-2',
               'ACCUTUNING_USE_SSO':'0'
