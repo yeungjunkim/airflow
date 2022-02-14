@@ -149,7 +149,7 @@ failure = DummyOperator(
 ## one_success로 해야 skip된 task를 무시함
 end = DummyOperator(
     task_id='end',
-    trigger_rule='dummy',
+    trigger_rule='one_success',
     dag=dag,
 )
 
