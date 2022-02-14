@@ -49,8 +49,8 @@ ml_parse_pre = KubernetesPodOperator(
     image="pooh97/accu-app:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="accutuning-app",
-    task_id="accutuning-app",
+    name="ml_parse_pre",
+    task_id="ml_parse_pre",
     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_PRE', 
@@ -88,8 +88,8 @@ ml_parse_main = KubernetesPodOperator(
     image="pooh97/accu-app:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="accutuning-app",
-    task_id="accutuning-app",
+    name="ml_parse_main",
+    task_id="ml_parse_main",
     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_MAIN', 
@@ -127,8 +127,8 @@ ml_parse_post = KubernetesPodOperator(
     image="pooh97/accu-app:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="accutuning-app",
-    task_id="accutuning-app",
+    name="ml_parse_post",
+    task_id="ml_parse_post",
     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_MAIN', 
@@ -162,7 +162,5 @@ ml_parse_post = KubernetesPodOperator(
 )
 
 end = DummyOperator(task_id='end', dag=dag)
-
-
 
 start >> ml_parse_pre >> ml_parse_main >> ml_parse_post >> end
