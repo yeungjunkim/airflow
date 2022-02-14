@@ -173,7 +173,7 @@ finish = DummyOperator(
 
 end = DummyOperator(task_id='end', dag=dag)
 
-start >> ml_parse_pre >> ml_parse_main >> ml_parse_post >> end
+start >> ml_parse_pre >> ml_parse_main >> ml_parse_post >> (success, faile) >> end 
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
