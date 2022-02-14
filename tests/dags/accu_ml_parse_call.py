@@ -105,7 +105,7 @@ ml_parse_post = KubernetesPodOperator(
     task_id="ml_parse_post",
 #     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
-    env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_MAIN', 
+    env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_POST', 
               'ACCUTUNING_EXPERIMENT_ID': '19',
               'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
               'ACCUTUNING_TIMEOUT': '200',
