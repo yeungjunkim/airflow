@@ -85,7 +85,7 @@ ml_parse_pre = KubernetesPodOperator(
 
 ml_parse_main = KubernetesPodOperator(
     namespace='default',
-    image="pooh97/accutuning:latest",    
+    image="pooh97/accu-worker:latest",    
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="ml_parse_main",
