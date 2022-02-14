@@ -7,6 +7,8 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 from airflow.operators.python_operator import BranchPythonOperator
 
+from airflow.models import TaskInstance
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -134,44 +136,46 @@ ml_parse_post = KubernetesPodOperator(
              },
     get_logs=True,
     dag=dag,    
+    trigger_rule='all_success',
 )
 
 
 failure = DummyOperator(
     task_id='failure',
+    trigger_rule='one_failed',    
     dag=dag,
 )
 
 ## one_success로 해야 skip된 task를 무시함
 end = DummyOperator(
     task_id='end',
-    trigger_rule='one_success',
+    trigger_rule='dummy',
     dag=dag,
 )
 
 options = ['ml_parse_post', 'failure']
 
-def which_path():
-  '''
-  return the task_id which to be executed
-  '''
-  if True:
-    task_id = 'ml_parse_post'
-  else:
-    task_id = 'failure'
-  return task_id
+# def which_path():
+#   '''
+#   return the task_id which to be executed
+#   '''
+#   if True:
+#     task_id = 'ml_parse_post'
+#   else:
+#     task_id = 'failure'
+#   return task_id
 
-def task_state(args):
-    dag = get_dag(args)
-    task = dag.get_task(task_id=args.task_id)
-    ti = TaskInstance(task, args.execution_date)
-    print(ti.current_state())
+#  dag_instance = kwargs['dag']
+#  operator_instance = dag_instance.get_task("task_id")
+#  task_status = TaskInstance(operator_instance, execution_date).current_state()
     
-check_situation = BranchPythonOperator(
-    task_id='check_situation',
-    python_callable=task_state,
-    dag=dag,
-    )
+
+    
+# check_situation = BranchPythonOperator(
+#     task_id='check_situation',
+#     python_callable=task_state,
+#     dag=dag,
+#     )
 
 start >> ml_parse_pre >> ml_parse_main >> check_situation >> (ml_parse_post, failure) >> end 
 
