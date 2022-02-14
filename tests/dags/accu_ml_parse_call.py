@@ -92,6 +92,7 @@ ml_parse_main = KubernetesPodOperator(
     task_id="ml_parse_main",
 #     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     env_vars={'ACCUTUNING_LOG_LEVEL': 'INFO', 'ACCUTUNING_WORKSPACE':'/workspace/experiment_0019/experimentprocess_0050'},
+    python_callable=branching,
     get_logs=True,
     dag=dag,    
 )
@@ -135,6 +136,36 @@ ml_parse_post = KubernetesPodOperator(
     dag=dag,    
 )
 
-end = DummyOperator(task_id='end', dag=dag)
+check_situation = BranchPythonOperator(
+    task_id='branching',
+    python_callable=branching,
+    dag=dag,
+)
 
-start >> ml_parse_pre >> ml_parse_main >> ml_parse_post >> end
+success = DummyOperator(
+    task_id='success',
+    dag=dag,
+)
+
+failure = DummyOperator(
+    task_id='failure',
+    dag=dag,
+)
+
+send_error = DummyOperator(
+    task_id='send_error',
+    dag=dag,
+)
+
+## one_success로 해야 skip된 task를 무시함
+finish = DummyOperator(
+    task_id='finish',
+    trigger_rule='one_success',
+    dag=dag,
+)
+
+# start >> ml_parse_pre >> ml_parse_main check_situation >> ml_parse_post >> finish
+
+start >> ml_parse_pre >> ml_parse_main check_situation
+check_situation >> ml_parse_post >> success >> finish 
+check_situation >> failure >> send_error >> finish  
