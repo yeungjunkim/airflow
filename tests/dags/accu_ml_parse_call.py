@@ -166,6 +166,6 @@ finish = DummyOperator(
 
 # start >> ml_parse_pre >> ml_parse_main check_situation >> ml_parse_post >> finish
 
-start >> ml_parse_pre >> ml_parse_main check_situation
+start >> ml_parse_pre >> ml_parse_main >> check_situation
 check_situation >> ml_parse_post >> success >> finish 
 check_situation >> failure >> send_error >> finish  
