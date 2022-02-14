@@ -172,8 +172,10 @@ finish = DummyOperator(
     dag=dag,
 )
 
-# start >> ml_parse_pre >> ml_parse_main check_situation >> ml_parse_post >> finish
+end = DummyOperator(task_id='end', dag=dag)
 
-start >> ml_parse_pre >> ml_parse_main >> check_situation
-check_situation >> ml_parse_post >> success >> finish 
-check_situation >> failure >> send_error >> finish  
+start >> ml_parse_pre >> ml_parse_main check_situation >> ml_parse_post >> end
+
+# start >> ml_parse_pre >> ml_parse_main >> check_situation
+# check_situation >> ml_parse_post >> success >> finish 
+# check_situation >> failure >> send_error >> finish  
