@@ -137,6 +137,10 @@ ml_parse_post = KubernetesPodOperator(
     dag=dag,    
 )
 
+def branching():
+    return 'success'
+
+
 check_situation = BranchPythonOperator(
     task_id='branching',
     python_callable=branching,
@@ -157,6 +161,7 @@ send_error = DummyOperator(
     task_id='send_error',
     dag=dag,
 )
+
 
 ## one_success로 해야 skip된 task를 무시함
 finish = DummyOperator(
