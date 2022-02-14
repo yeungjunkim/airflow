@@ -7,6 +7,10 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 from airflow.operators.python_operator import BranchPythonOperator
 
+def branching():
+    return 'success'
+
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -137,8 +141,6 @@ ml_parse_post = KubernetesPodOperator(
     dag=dag,    
 )
 
-def branching():
-    return 'success'
 
 
 check_situation = BranchPythonOperator(
