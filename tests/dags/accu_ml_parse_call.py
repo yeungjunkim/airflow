@@ -7,10 +7,6 @@ from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 from airflow.operators.python_operator import BranchPythonOperator
 
-def branching():
-    return 'success'
-
-
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -141,28 +137,10 @@ ml_parse_post = KubernetesPodOperator(
 )
 
 
-
-check_situation = BranchPythonOperator(
-    task_id='branching',
-    python_callable=branching,
-    dag=dag,
-)
-
-success = DummyOperator(
-    task_id='success',
-    dag=dag,
-)
-
 failure = DummyOperator(
     task_id='failure',
     dag=dag,
 )
-
-send_error = DummyOperator(
-    task_id='send_error',
-    dag=dag,
-)
-
 
 ## one_success로 해야 skip된 task를 무시함
 finish = DummyOperator(
@@ -173,7 +151,25 @@ finish = DummyOperator(
 
 end = DummyOperator(task_id='end', dag=dag)
 
-start >> ml_parse_pre >> ml_parse_main >> ml_parse_post >> (success, failure) >> end 
+options = ['ml_parse_post', 'failure']
+
+def which_path():
+  '''
+  return the task_id which to be executed
+  '''
+  if True:
+    task_id = 'ml_parse_post'
+  else:
+    task_id = 'failure'
+  return task_id
+
+check_situation = BranchPythonOperator(
+    task_id='check_situation',
+    python_callable=which_path,
+    dag=dag,
+    )
+
+start >> ml_parse_pre >> ml_parse_main >> check_situation >> (ml_parse_post, failure) >> end 
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
