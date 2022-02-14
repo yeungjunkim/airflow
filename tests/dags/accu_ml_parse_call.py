@@ -161,9 +161,15 @@ def which_path():
     task_id = 'failure'
   return task_id
 
+def task_state(args):
+    dag = get_dag(args)
+    task = dag.get_task(task_id=args.task_id)
+    ti = TaskInstance(task, args.execution_date)
+    print(ti.current_state())
+    
 check_situation = BranchPythonOperator(
     task_id='check_situation',
-    python_callable=which_path,
+    python_callable=task_state,
     dag=dag,
     )
 
