@@ -143,13 +143,11 @@ failure = DummyOperator(
 )
 
 ## one_success로 해야 skip된 task를 무시함
-finish = DummyOperator(
-    task_id='finish',
+end = DummyOperator(
+    task_id='end',
     trigger_rule='one_success',
     dag=dag,
 )
-
-end = DummyOperator(task_id='end', dag=dag)
 
 options = ['ml_parse_post', 'failure']
 
