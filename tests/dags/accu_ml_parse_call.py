@@ -6,6 +6,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 from airflow.operators.python_operator import BranchPythonOperator
+from airflow.utils.edgemodifier import Label #label 쓰기 위한 library
 
 from airflow.models import TaskInstance
 
@@ -177,7 +178,10 @@ options = ['ml_parse_post', 'failure']
 #     dag=dag,
 #     )
 
-start >> ml_parse_pre >> ml_parse_main >> (ml_parse_post, failure) >> end 
+start >> Label("accutuning app 중 ml_parse_pre Call") >> ml_parse_pre >> Label("common_module worker 중 Call") >> ml_parse_main 
+
+ml_parse_main >> Label("worker 작업 성공시") >> ml_parse_post >> end
+ml_parse_main >> Label("worker 작업 실패시") >> failure >> end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
