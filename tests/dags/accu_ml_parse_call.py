@@ -178,9 +178,9 @@ options = ['ml_parse_post', 'failure']
 #     dag=dag,
 #     )
 
-start >> Label("accutuning app 중 ml_parse_pre Call") >> ml_parse_pre >> Label("common_module worker 중 Call") >> ml_parse_main 
+start >> Label("app 중 ml_parse_pre Call") >> ml_parse_pre >> Label("common_module worker 중 Call") >> ml_parse_main 
 
-ml_parse_main >> Label("worker 작업 성공시") >> ml_parse_post >> end
+ml_parse_main >> Label("worker 작업 성공시(app 중 ml_parse_post Call)") >> ml_parse_post >> end
 ml_parse_main >> Label("worker 작업 실패시") >> failure >> end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
