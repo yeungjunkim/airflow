@@ -90,7 +90,7 @@ ml_parse_pre = KubernetesPodOperator(
               'ACCUTUNING_USE_SSO':'0'
              },
     cmds=["bash", "-cx"],
-    arguments=["python3", "/code/manage.py", "ml_parse_pre", "--experiment=19", "--uuid='4043104546ca4c0597ba5341607ba06f'","--timeout=200"],
+    arguments=["python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],
     get_logs=True,
     dag=dag,    
 )
@@ -150,7 +150,7 @@ ml_parse_post = KubernetesPodOperator(
 #               'ACCUTUNING_USE_SSO':'0'
              },
     cmds=["bash", "-cx"],
-    arguments=["python3", "/code/manage.py", "ml_parse_post", "--experiment=19", "--uuid='4043104546ca4c0597ba5341607ba06f'","--timeout=200"],    
+    arguments=["python3 /code/manage.py ml_parse_post --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],   
     get_logs=True,
     dag=dag,        
     trigger_rule='all_success',
