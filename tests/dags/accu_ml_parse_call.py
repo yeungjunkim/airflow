@@ -48,6 +48,11 @@ init_container_volume_mounts = [
 #     volume_mounts=init_container_volume_mounts,
 # )
    
+# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200
+# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
+# env
+# python3 /code/manage.py ml_parse_pre --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
+    
 ml_parse_pre = KubernetesPodOperator(
     namespace='default',
     image="pooh97/accu-app:latest",    
@@ -57,10 +62,11 @@ ml_parse_pre = KubernetesPodOperator(
     task_id="ml_parse_pre",
 #     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
-    env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_PRE', 
-              'ACCUTUNING_EXPERIMENT_ID': '19',
-              'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
-              'ACCUTUNING_TIMEOUT': '200',
+    env_vars={
+#         'ACCUTUNING_CALL_API_KIND': 'PARSE_PRE', 
+#               'ACCUTUNING_EXPERIMENT_ID': '19',
+#               'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
+#               'ACCUTUNING_TIMEOUT': '200',
               'ACCUTUNING_HOST_API_URL' : '10.100.92.116:8080',
 #               'ACCUTUNING_HOST_API_URL' : 'host.minikube.internal:8080',
               'ACCUTUNING_WORKSPACE':'/workspace/',
@@ -83,6 +89,8 @@ ml_parse_pre = KubernetesPodOperator(
               'AWS_DEFAULT_REGION':'ap-northeast-2',
               'ACCUTUNING_USE_SSO':'0'
              },
+    cmds=["bash", "-cx"],
+    arguments=["python3", "/code/manage.py", "ml_parse_pre", "--experiment=19", "--uuid='4043104546ca4c0597ba5341607ba06f'","--timeout=200"],
     get_logs=True,
     dag=dag,    
 )
@@ -100,6 +108,11 @@ ml_parse_main = KubernetesPodOperator(
     dag=dag,    
 )
 
+
+# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200
+# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
+# env
+# python3 /code/manage.py ml_parse_post --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
 ml_parse_post = KubernetesPodOperator(
     namespace='default',
     image="pooh97/accu-app:latest",    
@@ -109,10 +122,11 @@ ml_parse_post = KubernetesPodOperator(
     task_id="ml_parse_post",
 #     init_containers=[init_container],
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
-    env_vars={'ACCUTUNING_CALL_API_KIND': 'PARSE_POST', 
-              'ACCUTUNING_EXPERIMENT_ID': '19',
-              'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
-              'ACCUTUNING_TIMEOUT': '200',
+    env_vars={
+#         'ACCUTUNING_CALL_API_KIND': 'PARSE_POST', 
+#               'ACCUTUNING_EXPERIMENT_ID': '19',
+#               'ACCUTUNING_UUID': '4043104546ca4c0597ba5341607ba06f',
+#               'ACCUTUNING_TIMEOUT': '200',
               'ACCUTUNING_HOST_API_URL' : '10.100.92.116:8080',
 #               'ACCUTUNING_HOST_API_URL' : 'host.minikube.internal:8080',
               'ACCUTUNING_WORKSPACE':'/workspace/',
@@ -135,8 +149,10 @@ ml_parse_post = KubernetesPodOperator(
 #               'AWS_DEFAULT_REGION':'ap-northeast-2',
 #               'ACCUTUNING_USE_SSO':'0'
              },
+    cmds=["bash", "-cx"],
+    arguments=["python3", "/code/manage.py", "ml_parse_post", "--experiment=19", "--uuid='4043104546ca4c0597ba5341607ba06f'","--timeout=200"],    
     get_logs=True,
-    dag=dag,    
+    dag=dag,        
     trigger_rule='all_success',
 )
 
