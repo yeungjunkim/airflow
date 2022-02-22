@@ -72,7 +72,7 @@ optuna_pre = KubernetesPodOperator(
 #     cmds=["bash", "-cx"],
 #     arguments=["python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],
     cmds=["bash", "-cx", "python3"],
-    arguments=["/code/manage.py", "{{dag_run.conf["ACCUTUNING_COMMAND"] if dag_run else "" }}", "--experiment={{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"] if dag_run else "" }}",  "--uuid='{{dag_run.conf["ACCUTUNING_UUID"] if dag_run else "" }}'", "--timeout={{dag_run.conf["TIMEOUT"] if dag_run else "" }}"],     
+    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_COMMAND'] if dag_run else "" }}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID'] if dag_run else "" }}",  "--uuid='{{dag_run.conf['ACCUTUNING_UUID'] if dag_run else "" }}'", "--timeout={{dag_run.conf['TIMEOUT'] if dag_run else "" }}"],     
 #     arguments=["/code/manage.py", "{{dag_run.conf["ACCUTUNING_COMMAND"] if dag_run else "" }}", "--experiment={{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"] if dag_run else "" }}",  "--uuid='{{dag_run.conf["ACCUTUNING_UUID"] if dag_run else "" }}'", "--timeout=200"],   
     
     get_logs=True,
