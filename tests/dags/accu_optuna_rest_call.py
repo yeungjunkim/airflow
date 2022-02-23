@@ -81,7 +81,8 @@ optuna_pre = KubernetesPodOperator(
 
 optuna_main = KubernetesPodOperator(
     namespace='default',
-    image="pooh97/accu-worker:latest",    
+#     image="pooh97/accu-worker:latest",    
+    image="{{dag_run.conf['ACCUTUNING_WORKER_IMAGE']}}",    
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="optuna_main",
@@ -161,7 +162,8 @@ options = ['ml_parse_post', 'failure']
 #     dag=dag,
 #     )
 
-start >> Label("app 중 ml_parse_pre Call") >> optuna_pre >> Label("common_module worker 중 Call") >> optuna_main >> end
+# start >> Label("app 중 ml_parse_pre Call") >> optuna_pre >> Label("common_module worker 중 Call") >> optuna_main >> end
+start >> Label("common_module worker 중 Call") >> optuna_main >> end
 
 # ml_parse_main >> Label("worker 작업 성공시(app 중 ml_parse_post Call)") >> ml_parse_post >> end
 # ml_parse_main >> Label("worker 작업 실패시") >> failure >> end
