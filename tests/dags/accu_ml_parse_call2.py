@@ -96,7 +96,7 @@ ml_parse_main = KubernetesPodOperator(
 # python3 /code/manage.py ml_parse_pre --experiment=19 --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
 # env
 # python3 /code/manage.py ml_parse_post --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
-ml_parse_post = KubernetesPodOperator(
+ml_parse_success = KubernetesPodOperator(
     namespace='default',
     image="pooh97/accu-app:latest",    
     volumes=[volume],
@@ -120,7 +120,7 @@ ml_parse_post = KubernetesPodOperator(
     trigger_rule='all_success',
 )
 
-ml_parse_post = KubernetesPodOperator(
+ml_parse_fail = KubernetesPodOperator(
     namespace='default',
     image="pooh97/accu-app:latest",    
     volumes=[volume],
