@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.operators.subdag_operator import SubDagOperator
-from dags.subdag import sub_dag
+# from dags.subdag import sub_dag
 from airflow.operators.dummy_operator import DummyOperator
 
 
