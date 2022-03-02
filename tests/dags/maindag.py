@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 from airflow.operators.subdag_operator import SubDagOperator
-# from mk_subdag import random_subdag
+from mk_subdag import random_subdag
 
 default_args = {
     "owner": "mk",
