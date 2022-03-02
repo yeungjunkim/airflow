@@ -37,4 +37,5 @@ def sub_dag(parent_dag_name, child_dag_name, start_date, schedule_interval):
     dag=dag,
   )
   
- main_dag
+  
+main_dag   
