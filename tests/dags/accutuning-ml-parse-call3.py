@@ -80,7 +80,7 @@ ml_parse_pre = KubernetesPodOperator(
 
 ml_parse_main = KubernetesPodOperator(
     namespace='default',
-    image="{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}",    
+    image="{{dag_run.conf['ACCUTUNING_WORKER_IMAGE']}}",    
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="ml_parse_main",
