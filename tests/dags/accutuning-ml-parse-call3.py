@@ -32,8 +32,26 @@ volume_mount = k8s.V1VolumeMount(
 )
 volume = k8s.V1Volume(
     name='test-volume',
-    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+#     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 )
+
+
+# volume = k8s.V1Volume(
+#     name='workspace-3-volume',
+#     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='workspace-volume-3-claim'),
+#     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
+# )
+
+# volume_mounts = [
+#     k8s.V1VolumeMount(
+#         mount_path='/workspace', name='workspace-3-volume', sub_path=None,
+#         read_only=False
+#     )
+# ]
+
+
+
 configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]  
