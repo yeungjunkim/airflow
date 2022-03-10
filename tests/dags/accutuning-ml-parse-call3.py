@@ -135,7 +135,7 @@ ml_parse_success = KubernetesPodOperator(
 #     cmds=["bash", "-cx"],
 #     cmds=["bash", "-cx", "python3"],
     cmds=["python3"],
-    arguments=["/code/manage.py", "ml_parse_success", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
+    arguments=["/code/manage.py", "ml_parse_post", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
     get_logs=True,
     dag=dag,        
     trigger_rule='all_success',
