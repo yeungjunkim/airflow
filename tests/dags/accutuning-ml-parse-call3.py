@@ -73,7 +73,8 @@ init_container_volume_mounts = [
     
 ml_parse_pre = KubernetesPodOperator(
     namespace='default',
-    image='{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',    
+#     image='{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',    
+    image='pooh97/accu-app:latest',    
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="ml_parse_pre",
