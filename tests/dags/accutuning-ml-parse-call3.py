@@ -90,7 +90,8 @@ ml_parse_pre = KubernetesPodOperator(
              },
 #     cmds=["bash", "-cx"],
 #     arguments=["python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200"],
-    cmds=["bash", "-cx", "python3"],
+#     cmds=["bash", "-cx", "python3"],
+    cmds=["python3"],
     arguments=["/code/manage.py", "ml_parse_pre", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
     
     get_logs=True,
