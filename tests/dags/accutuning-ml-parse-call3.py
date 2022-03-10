@@ -133,7 +133,8 @@ ml_parse_success = KubernetesPodOperator(
               'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'     
              },
 #     cmds=["bash", "-cx"],
-    cmds=["bash", "-cx", "python3"],
+#     cmds=["bash", "-cx", "python3"],
+    cmds=["python3"],
     arguments=["/code/manage.py", "ml_parse_success", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
     get_logs=True,
     dag=dag,        
