@@ -46,7 +46,7 @@ configmaps = [
 # env
 # python3 /code/manage.py ml_parse_pre --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
     
-ml_run_before = KubernetesPodOperator(
+ml_run_pre = KubernetesPodOperator(
     namespace='default',
     image='{{dag_run.conf.accutuning_image}}',    
     # image='pooh97/accu-app:latest',    
