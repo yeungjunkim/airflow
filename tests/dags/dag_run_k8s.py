@@ -48,7 +48,7 @@ configmaps = [
     
 ml_run_pre = KubernetesPodOperator(
     namespace='default',
-    image='{{dag_run.conf.accutuning_image}}',    
+    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',    
     # image='pooh97/accu-app:latest',    
     volumes=[volume],
     volume_mounts=[volume_mount],
@@ -74,7 +74,7 @@ ml_run_pre = KubernetesPodOperator(
 
 ml_run_main = KubernetesPodOperator(
     namespace='default',
-    image="{{dag_run.conf.worker_image}}",    
+    image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",    
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="ml_run_main",
@@ -117,7 +117,7 @@ ml_run_success = KubernetesPodOperator(
 
 ml_run_fail = KubernetesPodOperator(
     namespace='default',
-    image='{{dag_run.conf.accutuning_image}}',        
+    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',        
     volumes=[volume],
     volume_mounts=[volume_mount],
     name="ml_run_fail",
