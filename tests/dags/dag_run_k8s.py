@@ -28,13 +28,13 @@ start = DummyOperator(task_id='start', dag=dag)
 
 
 volume_mount = k8s.V1VolumeMount(
-    name='test-volume', mount_path='{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}', sub_path=None, read_only=False
+    name='test-volume', mount_path='/workspace', sub_path=None, read_only=False
 )
 
 volume = k8s.V1Volume(
     name='test-volume',
 #     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-    host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}'),
+    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 )
 
 configmaps = [
