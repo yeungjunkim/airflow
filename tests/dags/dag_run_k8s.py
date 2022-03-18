@@ -46,7 +46,7 @@ configmaps = [
 # env
 # python3 /code/manage.py ml_parse_pre --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
     
-ml_parse_pre = KubernetesPodOperator(
+ml_run_pre = KubernetesPodOperator(
     namespace='default',
     image='{{dag_run.conf.accutuning_image}}',    
     # image='pooh97/accu-app:latest',    
@@ -168,10 +168,10 @@ options = ['ml_parse_post', 'failure']
 #     dag=dag,
 #     )
 
-start >> Label("app 중 ml_parse_pre Call") >> ml_parse_pre >> Label("common_module worker 중 Call") >> ml_parse_main 
+start >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
 
-ml_parse_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_parse_success >> end
-ml_parse_main >> Label("worker 작업 실패시(app 중 ml_parse_fail Call)") >> ml_parse_fail >> end
+ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end
+ml_run_main >> Label("worker 작업 실패시(app 중 ml_parse_fail Call)") >> ml_run_fail >> end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
