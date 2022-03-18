@@ -62,7 +62,7 @@ ml_run_pre = KubernetesPodOperator(
               'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'     
              },
     cmds=["python"],
-    arguments=["/code/manage.py", "ml_parse_pre", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
+    arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=before"],   
 #     cmds=['{{dag_run.conf.before_command1}}'],
 #     arguments=['{{dag_run.conf.before_command2}}'],   
     
@@ -105,7 +105,7 @@ ml_run_success = KubernetesPodOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", "ml_parse_post", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
     cmds=["python3"],
-    arguments=["/code/manage.py", "ml_parse_post", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
+    arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
 #     cmds=['{{dag_run.conf.after_command1}}'],
 #     arguments=['{{dag_run.conf.after_command2}}'],       
     get_logs=True,
@@ -129,7 +129,8 @@ ml_run_fail = KubernetesPodOperator(
               'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'        
              },
     cmds=["python"],
-    arguments=["/code/manage.py", "ml_parse_fail", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
+    arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
+#     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
 #     cmds=['{{dag_run.conf.after_command1}}'],
 #     arguments=['{{dag_run.conf.after_command2}}'],  
     get_logs=True,
