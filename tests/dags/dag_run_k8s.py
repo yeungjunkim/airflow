@@ -62,10 +62,10 @@ ml_run_pre = KubernetesPodOperator(
                'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'     
     },
 #     env_vars='{{dag_run.conf.worker_env_vars}}',
-    cmds=["python3"],
-    arguments="{{dag_run.conf.before_command}}",   
+    cmds=["python"],
+#     arguments="[{{dag_run.conf.before_command}}]",   
 
-#     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=before"],   
+    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=before"],   
 #     cmds=['{{dag_run.conf.before_command1}}'],
 #     arguments=['{{dag_run.conf.before_command2}}'],   
     
