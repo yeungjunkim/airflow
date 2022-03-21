@@ -105,9 +105,9 @@ ml_run_success = KubernetesPodOperator(
              },
 #     env_vars='{{dag_run.conf.worker_env_vars}}',   
     # cmds=["python3"],
-    # arguments=["/code/manage.py", "ml_parse_post", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
+    # arguments=["/code/manage.py", ""{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
     cmds=["python3"],
-    arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
+    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
 #     arguments="{{dag_run.conf.after_command}}",       
 #     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
     
@@ -138,7 +138,7 @@ ml_run_fail = KubernetesPodOperator(
 #     cmds=["python"],
 #     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
     cmds=["python3"],
-    arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
+    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
     
 #     arguments="{{dag_run.conf.after_command}}",       
 
@@ -157,29 +157,6 @@ end = DummyOperator(
     dag=dag,
 )
 
-options = ['ml_parse_post', 'failure']
-
-# def which_path():
-#   '''
-#   return the task_id which to be executed
-#   '''
-#   if True:
-#     task_id = 'ml_parse_post'
-#   else:
-#     task_id = 'failure'
-#   return task_id
-
-#  dag_instance = kwargs['dag']
-#  operator_instance = dag_instance.get_task("task_id")
-#  task_status = TaskInstance(operator_instance, execution_date).current_state()
-    
-
-    
-# check_situation = BranchPythonOperator(
-#     task_id='check_situation',
-#     python_callable=task_state,
-#     dag=dag,
-#     )
 
 start >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
 
