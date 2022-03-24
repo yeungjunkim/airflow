@@ -79,7 +79,6 @@ def make_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
 
-
 def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, experiment_target, proceed_next):
     return f"python /code/manage.py {django_command} "\
         + f"--experiment {experiment_id} --uuid {container_uuid} --execute_range {execute_range} "\
@@ -280,10 +279,29 @@ trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
                                 dag=dag)
 
 
+def chk_ml_parse():
+    django_command = '{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}'
+    if django_command!="ml_parse":
+        return 'trigger'
+
+A_task = DummyOperator(task_id='branch_a', dag=dag)
+B_task = DummyOperator(task_id='branch_false', dag=dag)
+
+branch_task = BranchPythonOperator(
+    task_id='branching',
+    python_callable=chk_ml_parse,
+    dag=dag,
+)
+
+branch_end = DummyOperator(task_id='branch_end', dag=dag)
+
 start >> Label("parameter") >> parameters >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
 
-ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end >> trigger 
+ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end >> branch_task
 ml_run_main >> Label("worker 작업 실패시(app 중 ml_parse_fail Call)") >> ml_run_fail >> end
+
+branch_task >> trigger
+branch_task >> branch_end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
