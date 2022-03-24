@@ -31,7 +31,6 @@ dag = DAG(
 
 start = DummyOperator(task_id='start', dag=dag)
 
-
 volume_mount = k8s.V1VolumeMount(
     name='test-volume', mount_path='/workspace', sub_path=None, read_only=False
 )
@@ -45,7 +44,6 @@ volume = k8s.V1Volume(
 configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]  
-
 
 def get_command_name(experiment_process_type):
     command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
@@ -84,21 +82,21 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
         + f"--experiment {experiment_id} --uuid {container_uuid} --execute_range {execute_range} "\
         + f"--experiment_process_type {experiment_process_type} --experiment_target {experiment_target} --proceed_next {proceed_next}"
 
-
 def make_parameters(**kwargs):
-    # experiment_id = kwargs['dag_run'].conf['experiment_id']
-    # experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
-    # experiment_target = kwargs['dag_run'].conf['experiment_target']
-    # proceed_next = kwargs['dag_run'].conf['proceed_next']
-    experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
-    experiment_process_type = kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']
+    experiment_id = kwargs['dag_run'].conf['experiment_id']
+    experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
+    experiment_target = kwargs['dag_run'].conf['experiment_target']
+    proceed_next = kwargs['dag_run'].conf['proceed_next']
+    # experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
+    # experiment_process_type = kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']
     # experiment_target = kwargs['dag_run'].conf['experiment_target']
     # proceed_next = kwargs['dag_run'].conf['proceed_next']
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     container_uuid = make_uuid()
-    django_command = experiment_process_type
-    django_next_command = get_next_command_name(experiment_process_type)
+    django_command = get_command_name(experiment_process_type)
+    kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = django_command
+    django_next_command = get_next_command_name(django_command)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
@@ -126,34 +124,29 @@ def make_worker_env(**kwargs):
 
 
 
-pp = pprint.PrettyPrinter(indent=4)
+# pp = pprint.PrettyPrinter(indent=4)
 
-def conditionally_trigger(context, dag_run_obj):
-    """This function decides whether or not to Trigger the remote DAG"""
-    c_p =context['params']['condition_param']
-    print("Controller DAG : conditionally_trigger = {}".format(c_p))
-    if context['params']['condition_param']:
-        dag_run_obj.payload = {'message': context['params']['message']}
-        pp.pprint(dag_run_obj.payload)
-        return dag_run_obj
+# def conditionally_trigger(context, dag_run_obj):
+#     """This function decides whether or not to Trigger the remote DAG"""
+#     c_p =context['params']['condition_param']
+#     print("Controller DAG : conditionally_trigger = {}".format(c_p))
+#     if context['params']['condition_param']:
+#         dag_run_obj.payload = {'message': context['params']['message']}
+#         pp.pprint(dag_run_obj.payload)
+#         return dag_run_obj
 
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
    
-# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200
-# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
-# env
-# python3 /code/manage.py ml_parse_pre --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
-    
-ml_run_pre = KubernetesPodOperator(
+before_worker = KubernetesPodOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',    
     # image='pooh97/accu-app:latest',    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="ml_run_before",
-    task_id="ml_run_before",
+    name="before_worker",
+    task_id="before_worker",
     env_vars={
                'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
                'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}',
@@ -161,40 +154,44 @@ ml_run_pre = KubernetesPodOperator(
                'ACCUTUNING_USE_CLUSTERING':'{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}',
                'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'     
     },
-#     env_vars='{{dag_run.conf.worker_env_vars}}',
     cmds=["python3"],
-    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=before"],  
-#     arguments="{{dag_run.conf.before_command}}",   
-#     cmds=['{{dag_run.conf.before_command1}}'],
-#     arguments=['{{dag_run.conf.before_command2}}'],   
+    arguments=["/code/manage.py", 
+               "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", 
+               "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  
+               "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", 
+               "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}",
+               "--execute_range=before",
+               "--experiment_process_type={{dag_run.conf['experiment_process_type']}", 
+               "--experiment_targe={{dag_run.conf['experiment_target']}", 
+               "--proceed_next={{dag_run.conf['proceed_next']}", 
+               ],  
+    do_xcom_push=True,
     get_logs=True,
     dag=dag,    
 )
 
-ml_run_main = KubernetesPodOperator(
+
+worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
+
+worker = KubernetesPodOperator(
     namespace='default',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",    
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="ml_run_main",
-    task_id="ml_run_main",
+    name="worker",
+    task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKER_WORKSPACE"]}}'},
     get_logs=True,
     dag=dag,    
 )
 
-
-# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid='4043104546ca4c0597ba5341607ba06f' --timeout=200
-# python3 /code/manage.py ml_parse_pre --experiment=19 --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
-# env
-# python3 /code/manage.py ml_parse_post --experiment=$ACCUTUNING_EXPERIMENT_ID --uuid=$ACCUTUNING_UUID --timeout=$ACCUTUNING_TIMEOUT
-ml_run_success = KubernetesPodOperator(
+worker_success = KubernetesPodOperator(
     namespace='default',
     image='{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',        
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="ml_run_success",
-    task_id="ml_run_success",
+    name="worker_success",
+    task_id="worker_success",
     env_vars={
               'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
               'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}',
@@ -218,13 +215,13 @@ ml_run_success = KubernetesPodOperator(
     trigger_rule='all_success',
 )
 
-ml_run_fail = KubernetesPodOperator(
+worker_fail = KubernetesPodOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',        
     volumes=[volume],
     volume_mounts=[volume_mount],
-    name="ml_run_fail",
-    task_id="ml_run_fail",
+    name="worker_fail",
+    task_id="worker_fail",
     #env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
     env_vars={
               'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
@@ -237,7 +234,16 @@ ml_run_fail = KubernetesPodOperator(
 #     cmds=["python"],
 #     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
     cmds=["python3"],
-    arguments=["/code/manage.py", "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}","--execute_range=after"],   
+    arguments=["/code/manage.py",
+               "{{dag_run.conf['ACCUTUNING_DJANGO_COMMAND']}}", 
+               "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  
+               "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", 
+               "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}",
+               "--execute_range=after"
+               "--experiment_process_type={{dag_run.conf['experiment_process_type']}", 
+               "--experiment_targe={{dag_run.conf['experiment_target']}", 
+               "--proceed_next={{dag_run.conf['proceed_next']}",                
+               ],   
     
 #     arguments="{{dag_run.conf.after_command}}",       
 
@@ -300,10 +306,10 @@ branch_task = BranchPythonOperator(
 
 
 
-start >> Label("parameter") >> parameters >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
+start >> Label("parameter") >> parameters >> Label("app 중 before_worker Call") >> before_worker >> Label("common_module worker 중 Call") >> worker_env >> worker 
 
-ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end >> branch_task
-ml_run_main >> Label("worker 작업 실패시(app 중 ml_parse_fail Call)") >> ml_run_fail >> end
+worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end >> branch_task
+worker >> Label("worker 작업 실패시(app 중 worker_fail Call)") >> worker_fail >> end
 
 branch_task >> trigger
 branch_task >> branch_end
