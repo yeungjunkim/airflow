@@ -64,7 +64,7 @@ def get_command_name(experiment_process_type):
 
 def get_next_command_name(experiment_process_type):
     command_list = [
-        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
+        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -96,7 +96,7 @@ def make_parameters(**kwargs):
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     container_uuid = make_uuid()
-    django_command = get_command_name(experiment_process_type)
+    django_command = experiment_process_type
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
