@@ -62,6 +62,16 @@ def get_command_name(experiment_process_type):
     }
     return command_dict[experiment_process_type]
 
+def get_next_experiment_process_type(experiment_process_type):
+    command_list = [
+        'parse', 'preprocess', '_optuna', 'ensemble', 'deploy', 'predict'
+    ]
+
+    if command_list.index(experiment_process_type) < 4:
+        return command_list[command_list.index(experiment_process_type) + 1] 
+    else:
+        return ''
+
 def get_next_command_name(experiment_process_type):
     command_list = [
         'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
@@ -106,11 +116,13 @@ def make_parameters(**kwargs):
     # print("kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']))
 
     django_next_command = get_next_command_name(django_command)
+    django_next_process = get_next_experiment_process_type(experiment_process_type)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
     kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_UUID', value=container_uuid)
     kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
+    kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_PROCESS', value=django_next_process)
     
     # kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     # kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
@@ -297,9 +309,14 @@ trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
                                         'ACCUTUNING_APP_IMAGE':'{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',
                                         'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}',                                        
                                         'ACCUTUNING_WORKER_WORKSPACE':'{{ti.xcom_pull(key=\'ACCUTUNING_WORKER_WORKSPACE\')}}',                                        
+                                        'experiment_id':'{{dag_run.conf["experiment_id"]}}',                                        
+                                        'experiment_process_type':'{{ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_PROCESS\")}}',                                        
+                                        'experiment_target':'{{dag_run.conf["experiment_target"]}}',                                        
+                                        'proceed_next':'{{dag_run.conf["proceed_next"]}}',                                        
                                         },
                                 trigger_rule='one_success',
                                 dag=dag)
+
 
 
 branch_end = DummyOperator(task_id='branch_end', dag=dag)
