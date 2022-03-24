@@ -281,14 +281,14 @@ trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
 
 branch_end = DummyOperator(task_id='branch_end', dag=dag)
 
-def chk_ml_parse():
-    django_command = '{{dag_run.conf["ACCUTUNING_DJANGO_COMMAND"]}}'
+def chk_ml_parse(**kwargs):
+    django_command = kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']
     print("chk_ml_parse django_command = {}".format(django_command))
-    
-    if django_command!="ml_parse":
-        return 'trigger_dagrun'
-    else:
+
+    if django_command=="ml_parse":
         return 'branch_end'
+    else:
+        return 'trigger_dagrun'
 
 
 
