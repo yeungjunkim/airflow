@@ -295,6 +295,7 @@ trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
                                         'ACCUTUNING_TIMEOUT':'{{dag_run.conf["ACCUTUNING_TIMEOUT"]}}',
                                         'ACCUTUNING_APP_IMAGE':'{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',
                                         'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}',                                        
+                                        'ACCUTUNING_WORKER_WORKSPACE':'{{ti.xcom_pull(key=\'ACCUTUNING_WORKER_WORKSPACE\')}}',                                        
                                         },
                                 trigger_rule='one_success',
                                 dag=dag)
