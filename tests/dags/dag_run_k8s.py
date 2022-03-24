@@ -133,13 +133,13 @@ def make_worker_env(**kwargs):
     print(f'workspace_path:{workspace_path}')
     # print(f'worker_env_vars:{worker_env_vars_str}')
 
-    env_dict = json.loads(worker_env_vars_str)
+    # env_dict = json.loads(worker_env_vars_str)
     # env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
     # worker_env_vars = json.dumps(env_dict)
 
-    print(f'worker_env_vars:{worker_env_vars}')
+    # print(f'worker_env_vars:{worker_env_vars}')
 
     # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
