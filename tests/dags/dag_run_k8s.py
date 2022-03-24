@@ -274,12 +274,13 @@ trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
                                         'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
                                         'ACCUTUNING_TIMEOUT':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'
                                         },
+                                trigger_rule='one_success',
                                 dag=dag)
 
 
 start >> Label("parameter") >> parameters >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
 
-ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end
+ml_run_main >> Label("worker 작업 성공시(app 중 ml_parse_success Call)") >> ml_run_success >> end >> trigger 
 ml_run_main >> Label("worker 작업 실패시(app 중 ml_parse_fail Call)") >> ml_run_fail >> end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
