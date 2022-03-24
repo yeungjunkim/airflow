@@ -8,8 +8,8 @@ from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s # you should write this sentence when you could use volume, etc 
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.utils.edgemodifier import Label #label 쓰기 위한 library
-
 from airflow.models import TaskInstance
+import json
 
 default_args = {
     'owner': 'airflow',
@@ -85,10 +85,14 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-    experiment_id = kwargs['dag_run'].conf['experiment_id']
-    experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
-    experiment_target = kwargs['dag_run'].conf['experiment_target']
-    proceed_next = kwargs['dag_run'].conf['proceed_next']
+    # experiment_id = kwargs['dag_run'].conf['experiment_id']
+    # experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
+    # experiment_target = kwargs['dag_run'].conf['experiment_target']
+    # proceed_next = kwargs['dag_run'].conf['proceed_next']
+    experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
+    experiment_process_type = kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']
+    # experiment_target = kwargs['dag_run'].conf['experiment_target']
+    # proceed_next = kwargs['dag_run'].conf['proceed_next']
 
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
