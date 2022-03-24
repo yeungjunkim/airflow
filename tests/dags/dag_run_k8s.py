@@ -97,10 +97,7 @@ def make_parameters(**kwargs):
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
     experiment_target = kwargs['dag_run'].conf['experiment_target']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
-    # experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
-    # experiment_process_type = kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']
-    # experiment_target = kwargs['dag_run'].conf['experiment_target']
-    # proceed_next = kwargs['dag_run'].conf['proceed_next']
+
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     container_uuid = make_uuid()
@@ -131,20 +128,20 @@ def make_parameters(**kwargs):
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["key1"]
 
-    worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
+    # worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
     print(f'workspace_path:{workspace_path}')
-    print(f'worker_env_vars:{worker_env_vars_str}')
+    # print(f'worker_env_vars:{worker_env_vars_str}')
 
     env_dict = json.loads(worker_env_vars_str)
-    env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+    # env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    worker_env_vars = json.dumps(env_dict)
+    # worker_env_vars = json.dumps(env_dict)
 
     print(f'worker_env_vars:{worker_env_vars}')
 
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
+    # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
 
 
