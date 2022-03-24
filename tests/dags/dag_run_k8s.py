@@ -259,7 +259,7 @@ end = DummyOperator(
 )
 
 
-trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
+trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
                                 trigger_dag_id="ml_run_k8s",
                                 # python_callable=conditionally_trigger,
                                 conf={'condition_param': True,
@@ -279,13 +279,16 @@ trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
                                 dag=dag)
 
 
+branch_end = DummyOperator(task_id='branch_end', dag=dag)
+
 def chk_ml_parse():
     django_command = '{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}'
     if django_command!="ml_parse":
-        return 'trigger'
+        return 'trigger_dagrun'
+    else:
+        return 'branch_end'
 
-A_task = DummyOperator(task_id='branch_a', dag=dag)
-B_task = DummyOperator(task_id='branch_false', dag=dag)
+
 
 branch_task = BranchPythonOperator(
     task_id='branching',
@@ -293,7 +296,7 @@ branch_task = BranchPythonOperator(
     dag=dag,
 )
 
-branch_end = DummyOperator(task_id='branch_end', dag=dag)
+
 
 start >> Label("parameter") >> parameters >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
 
