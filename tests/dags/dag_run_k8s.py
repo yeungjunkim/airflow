@@ -272,7 +272,9 @@ trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
                                         'ACCUTUNING_DJANGO_COMMAND':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_COMMAND\") }}",
                                         'ACCUTUNING_EXPERIMENT_ID':'{{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"]}}',
                                         'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
-                                        'ACCUTUNING_TIMEOUT':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'
+                                        'ACCUTUNING_TIMEOUT':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}',
+                                        'ACCUTUNING_APP_IMAGE':'{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',
+                                        'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}',                                        
                                         },
                                 trigger_rule='one_success',
                                 dag=dag)
