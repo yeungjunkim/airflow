@@ -10,6 +10,8 @@ from airflow.operators.python_operator import BranchPythonOperator
 from airflow.utils.edgemodifier import Label #label 쓰기 위한 library
 from airflow.models import TaskInstance
 import json
+from airflow.operators.dagrun_operator import TriggerDagRunOperator
+
 
 default_args = {
     'owner': 'airflow',
@@ -97,10 +99,13 @@ def make_parameters(**kwargs):
     print("experiment_process_type = {}".format(experiment_process_type))
     container_uuid = make_uuid()
     django_command = experiment_process_type
+    django_next_command = get_next_command_name(experiment_process_type)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
-    kwargs['task_instance'].xcom_push(key='uuid', value=container_uuid)
+    kwargs['task_instance'].xcom_push(key='ACCUTUNING_NEXT_UUID', value=container_uuid)
+    kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
+    
     # kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     # kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
@@ -121,6 +126,17 @@ def make_worker_env(**kwargs):
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
 
+
+pp = pprint.PrettyPrinter(indent=4)
+
+def conditionally_trigger(context, dag_run_obj):
+    """This function decides whether or not to Trigger the remote DAG"""
+    c_p =context['params']['condition_param']
+    print("Controller DAG : conditionally_trigger = {}".format(c_p))
+    if context['params']['condition_param']:
+        dag_run_obj.payload = {'message': context['params']['message']}
+        pp.pprint(dag_run_obj.payload)
+        return dag_run_obj
 
 
 
@@ -242,6 +258,23 @@ end = DummyOperator(
     trigger_rule='one_success',
     dag=dag,
 )
+
+
+trigger = TriggerDagRunOperator(task_id='test_trigger_dagrun',
+                                trigger_dag_id="ml_run_k8s",
+                                python_callable=conditionally_trigger,
+                                params={'condition_param': True,
+                                        'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
+                                        'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}',
+                                        'ACCUTUNING_USE_LABELER':'{{dag_run.conf["ACCUTUNING_USE_LABELER"]}}',
+                                        'ACCUTUNING_USE_CLUSTERING':'{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}',
+                                        'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}',
+                                        'ACCUTUNING_DJANGO_COMMAND':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_COMMAND\") }}",
+                                        'ACCUTUNING_EXPERIMENT_ID':'{{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"]}}',
+                                        'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
+                                        'ACCUTUNING_TIMEOUT':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}'
+                                        },
+                                dag=dag)
 
 
 start >> Label("parameter") >> parameters >> Label("app 중 ml_parse_pre Call") >> ml_run_pre >> Label("common_module worker 중 Call") >> ml_run_main 
