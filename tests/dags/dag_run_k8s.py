@@ -64,7 +64,7 @@ def get_command_name(experiment_process_type):
 
 def get_next_experiment_process_type(experiment_process_type):
     command_list = [
-        'parse', 'preprocess', '_optuna', 'ensemble', 'deploy', 'predict'
+        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
