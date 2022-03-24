@@ -97,12 +97,12 @@ def make_parameters(**kwargs):
     print("experiment_process_type = {}".format(experiment_process_type))
     container_uuid = make_uuid()
     django_command = experiment_process_type
-    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
-    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
+    # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
+    # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
     kwargs['task_instance'].xcom_push(key='uuid', value=container_uuid)
-    kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
-    kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
+    # kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
+    # kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
 
 def make_worker_env(**kwargs):
