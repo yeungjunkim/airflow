@@ -11,7 +11,7 @@ from airflow.utils.edgemodifier import Label #label 쓰기 위한 library
 from airflow.models import TaskInstance
 import json
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
-
+import pprint
 
 default_args = {
     'owner': 'airflow',
