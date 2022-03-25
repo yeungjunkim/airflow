@@ -64,7 +64,7 @@ def get_command_name(experiment_process_type):
 
 def get_next_experiment_process_type(experiment_process_type):
     command_list = [
-        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
+        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -74,7 +74,7 @@ def get_next_experiment_process_type(experiment_process_type):
 
 def get_next_command_name(experiment_process_type):
     command_list = [
-        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
+        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -187,6 +187,7 @@ before_worker = KubernetesPodOperator(
                "--proceed_next={{dag_run.conf['proceed_next']}}", 
                ],  
     do_xcom_push=True,
+    image_pull_policy='Always',
     get_logs=True,
     dag=dag,    
 )
@@ -202,6 +203,7 @@ worker = KubernetesPodOperator(
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}', 'ACCUTUNING_WORKSPACE':'{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
+    image_pull_policy='Always',
     get_logs=True,
     dag=dag,    
 )
@@ -234,7 +236,7 @@ worker_success = KubernetesPodOperator(
                "--experiment_targe={{dag_run.conf['experiment_target']}}", 
                "--proceed_next={{dag_run.conf['proceed_next']}}", 
                ],   
-   
+    image_pull_policy='Always',
     get_logs=True,
     dag=dag,        
     trigger_rule='all_success',
@@ -275,6 +277,7 @@ worker_fail = KubernetesPodOperator(
 #     arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf['ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf['ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}"],   
 #     cmds=['{{dag_run.conf.after_command1}}'],
 #     arguments=['{{dag_run.conf.after_command2}}'],  
+    image_pull_policy='Always',
     get_logs=True,
     dag=dag,        
     trigger_rule='one_failed',
@@ -322,7 +325,7 @@ def chk_ml_parse(**kwargs):
     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
     print("chk_ml_parse django_command = {}".format(django_command))
 
-    if django_command=="ml_parse":
+    if django_command=="ml_parse" or django_command=="ml_deploy":
         return 'branch_end'
     else:
         return 'trigger_dagrun'
