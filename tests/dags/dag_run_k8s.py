@@ -125,6 +125,9 @@ def make_parameters(**kwargs):
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
+    print("django_next_command = {}".format(django_next_command))
+    print("django_next_process = {}".format(django_next_process))
+    
     kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_UUID', value=container_uuid)
     kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
     kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_PROCESS', value=django_next_process)
