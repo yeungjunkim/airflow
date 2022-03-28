@@ -62,23 +62,29 @@ def get_command_name(experiment_process_type):
     }
     return command_dict[experiment_process_type]
 
-def get_next_experiment_process_type(experiment_process_type):
+def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     command_list = [
         'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
-        return command_list[command_list.index(experiment_process_type) + 1] 
+        if command_list == 'optuna' and not use_ensemble:  # to deploy
+            return command_list[command_list.index(experiment_process_type) + 2] 
+        else:
+            return command_list[command_list.index(experiment_process_type) + 1] 
     else:
         return ''
 
-def get_next_command_name(experiment_process_type):
+def get_next_command_name(experiment_process_type, use_ensemble):
     command_list = [
         'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
-        return command_list[command_list.index(experiment_process_type) + 1] 
+        if experiment_process_type == 'ml_optuna' and not use_ensemble:  # to deploy
+            return command_list[command_list.index(experiment_process_type) + 2] 
+        else: 
+            return command_list[command_list.index(experiment_process_type) + 1] 
     else:
         return ''
 
@@ -97,9 +103,11 @@ def make_parameters(**kwargs):
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
     experiment_target = kwargs['dag_run'].conf['experiment_target']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
+    use_ensemble = kwargs['dag_run'].conf['use_ensemble']
 
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
+    print("use_ensemble = {}".format(use_ensemble))
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
     # kwargs['dag_run'].conf['ACCUTUNING_UUID'] = container_uuid
@@ -112,8 +120,8 @@ def make_parameters(**kwargs):
     # print("kwargs['dag_run'].conf['ACCUTUNING_UUID'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_UUID']))
     # print("kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']))
 
-    django_next_command = get_next_command_name(django_command)
-    django_next_process = get_next_experiment_process_type(experiment_process_type)
+    django_next_command = get_next_command_name(django_command, use_ensemble)
+    django_next_process = get_next_experiment_process_type(experiment_process_type, use_ensemble)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
@@ -127,12 +135,10 @@ def make_parameters(**kwargs):
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
-    use_ensemble = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["use_ensemble"]
 
     # worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
     print(f'workspace_path:{workspace_path}')
-    print(f'use_ensemble:{use_ensemble}')
     # print(f'worker_env_vars:{worker_env_vars_str}')
 
     # env_dict = json.loads(worker_env_vars_str)
@@ -146,17 +152,6 @@ def make_worker_env(**kwargs):
     # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
 
-
-# pp = pprint.PrettyPrinter(indent=4)
-
-# def conditionally_trigger(context, dag_run_obj):
-#     """This function decides whether or not to Trigger the remote DAG"""
-#     c_p =context['params']['condition_param']
-#     print("Controller DAG : conditionally_trigger = {}".format(c_p))
-#     if context['params']['condition_param']:
-#         dag_run_obj.payload = {'message': context['params']['message']}
-#         pp.pprint(dag_run_obj.payload)
-#         return dag_run_obj
 
 
 
