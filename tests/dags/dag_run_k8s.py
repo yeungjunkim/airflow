@@ -64,7 +64,7 @@ def get_command_name(experiment_process_type):
 
 def get_next_experiment_process_type(experiment_process_type):
     command_list = [
-        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy'
+        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -74,7 +74,7 @@ def get_next_experiment_process_type(experiment_process_type):
 
 def get_next_command_name(experiment_process_type):
     command_list = [
-        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy'
+        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -325,7 +325,7 @@ def chk_ml_parse(**kwargs):
     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
     print("chk_ml_parse django_command = {}".format(django_command))
 
-    if django_command=="ml_parse" or django_command=="ml_deploy":
+    if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
         return 'branch_end'
     else:
         return 'trigger_dagrun'
