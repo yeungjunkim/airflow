@@ -126,11 +126,13 @@ def make_parameters(**kwargs):
 
 
 def make_worker_env(**kwargs):
-    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["key1"]
+    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+    use_ensemble = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["use_ensemble"]
 
     # worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
     print(f'workspace_path:{workspace_path}')
+    print(f'use_ensemble:{use_ensemble}')
     # print(f'worker_env_vars:{worker_env_vars_str}')
 
     # env_dict = json.loads(worker_env_vars_str)
