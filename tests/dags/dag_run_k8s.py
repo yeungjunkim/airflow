@@ -63,15 +63,15 @@ def get_command_name(experiment_process_type):
     return command_dict[experiment_process_type]
 
 def get_next_experiment_process_type(experiment_process_type, use_ensemble):
-    type_list = [
+    command_list = [
         'labeling', 'lb_predict', 'modelstat','dataset_eda', 'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
     ]
 
-    if type_list.index(experiment_process_type) < 4:
+    if command_list.index(experiment_process_type) < 4:
         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
-            return type_list[type_list.index(experiment_process_type) + 2] 
+            return command_list[command_list.index(experiment_process_type) + 2] 
         else:
-            return type_list[type_list.index(experiment_process_type) + 1] 
+            return command_list[command_list.index(experiment_process_type) + 1] 
     else:
         return ''
 
