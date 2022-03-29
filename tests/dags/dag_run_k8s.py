@@ -325,16 +325,15 @@ branch_end = DummyOperator(task_id='branch_end', dag=dag)
 def chk_ml_parse(**kwargs):
     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
     print("chk_ml_parse django_command = {}".format(django_command))
-    
-    if django_command == 'ml_preprocess' or django_command == 'ml_optuna' or django_command == 'ml_ensemble':
+
+    if django_command=="ml_preprocess" or django_command=="ml_optuna" or django_command=="ml_ensemble":
         return 'trigger_dagrun'
     else:
         return 'branch_end'
-    
-#     if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
-#         return 'branch_end'
-#     else:
-#         return 'trigger_dagrun'
+    # if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
+    #     return 'branch_end'
+    # else:
+    #     return 'trigger_dagrun'
 
 
 
