@@ -64,7 +64,7 @@ def get_command_name(experiment_process_type):
 
 def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     command_list = [
-        'labeling', 'lb_predict', 'modelstat','dataset_eda', 'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
+        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict', 'labeling', 'lb_predict', 'modelstat','dataset_eda',
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -75,18 +75,18 @@ def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     else:
         return ''
 
-def get_next_command_name(experiment_process_type, use_ensemble):
-    command_list = [
-        'lb_tagtext', 'lb_predict', 'ml_modelstat','ml_dataset_eda', 'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
-    ]
+# def get_next_command_name(experiment_process_type, use_ensemble):
+#     command_list = [
+#         'lb_tagtext', 'lb_predict', 'ml_modelstat','ml_dataset_eda', 'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
+#     ]
 
-    if command_list.index(experiment_process_type) < 4:
-        if experiment_process_type == 'ml_optuna' and use_ensemble == 'False':  # to deploy
-            return command_list[command_list.index(experiment_process_type) + 2] 
-        else: 
-            return command_list[command_list.index(experiment_process_type) + 1] 
-    else:
-        return ''
+#     if command_list.index(experiment_process_type) < 4:
+#         if experiment_process_type == 'ml_optuna' and use_ensemble == 'False':  # to deploy
+#             return command_list[command_list.index(experiment_process_type) + 2] 
+#         else: 
+#             return command_list[command_list.index(experiment_process_type) + 1] 
+#     else:
+#         return ''
 
 def make_uuid():
     import uuid
@@ -120,7 +120,7 @@ def make_parameters(**kwargs):
     # print("kwargs['dag_run'].conf['ACCUTUNING_UUID'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_UUID']))
     # print("kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']))
 
-    django_next_command = get_next_command_name(django_command, use_ensemble)
+    django_next_command = get_command_name(get_next_experiment_process_type(experiment_process_type, use_ensemble))
     django_next_process = get_next_experiment_process_type(experiment_process_type, use_ensemble)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
