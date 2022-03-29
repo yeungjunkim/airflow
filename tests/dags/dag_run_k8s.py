@@ -59,6 +59,7 @@ def get_command_name(experiment_process_type):
         'cluster': 'cl_run',
         'cl_predict': 'cl_predict',
         'dataset_eda': 'ml_dataset_eda',
+        'None':'None',
     }
     return command_dict[experiment_process_type]
 
@@ -71,7 +72,7 @@ def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     print("experiment_process_type == 'optuna' = {}".format(experiment_process_type == 'optuna'))
     print("use_ensemble == 'False' = {}".format(use_ensemble == 'False'))
 
-    if command_list.index(experiment_process_type) < 4:
+    if experiment_process_type=="preprocess" or experiment_process_type=="optuna" or experiment_process_type=="ml_ensemble":
         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
             return command_list[command_list.index(experiment_process_type) + 2] 
         else:
