@@ -73,7 +73,7 @@ def get_next_experiment_process_type(experiment_process_type, use_ensemble):
         else:
             return command_list[command_list.index(experiment_process_type) + 1] 
     else:
-        return ''
+        return 'None'
 
 # def get_next_command_name(experiment_process_type, use_ensemble):
 #     command_list = [
