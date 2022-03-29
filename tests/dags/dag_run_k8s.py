@@ -63,21 +63,21 @@ def get_command_name(experiment_process_type):
     return command_dict[experiment_process_type]
 
 def get_next_experiment_process_type(experiment_process_type, use_ensemble):
-    command_list = [
-        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
+    type_list = [
+        'labeling', 'lb_predict', 'modelstat','dataset_eda', 'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict'
     ]
 
-    if command_list.index(experiment_process_type) < 4:
+    if type_list.index(experiment_process_type) < 4:
         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
-            return command_list[command_list.index(experiment_process_type) + 2] 
+            return type_list[type_list.index(experiment_process_type) + 2] 
         else:
-            return command_list[command_list.index(experiment_process_type) + 1] 
+            return type_list[type_list.index(experiment_process_type) + 1] 
     else:
         return ''
 
 def get_next_command_name(experiment_process_type, use_ensemble):
     command_list = [
-        'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
+        'lb_tagtext', 'lb_predict', 'ml_modelstat','ml_dataset_eda', 'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
     ]
 
     if command_list.index(experiment_process_type) < 4:
@@ -325,11 +325,16 @@ branch_end = DummyOperator(task_id='branch_end', dag=dag)
 def chk_ml_parse(**kwargs):
     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
     print("chk_ml_parse django_command = {}".format(django_command))
-
-    if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
-        return 'branch_end'
-    else:
+    
+    if django_command == 'ml_preprocess' or django_command == 'ml_optuna' or django_command == 'ml_ensemble':
         return 'trigger_dagrun'
+    else:
+        return 'branch_end'
+    
+#     if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
+#         return 'branch_end'
+#     else:
+#         return 'trigger_dagrun'
 
 
 
