@@ -66,6 +66,10 @@ def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     command_list = [
         'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict', 'labeling', 'lb_predict', 'modelstat','dataset_eda',
     ]
+    print("experiment_process_type = {}".format(experiment_process_type))
+    print("use_ensemble = {}".format(use_ensemble))
+    print("experiment_process_type == 'optuna' = {}".format(experiment_process_type == 'optuna'))
+    print("use_ensemble == 'False' = {}".format(use_ensemble == 'False'))
 
     if command_list.index(experiment_process_type) < 4:
         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
