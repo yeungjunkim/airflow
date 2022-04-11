@@ -58,9 +58,10 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['trigger_dag_id'] = 'ml_run_k8s'
-        use_ensemble = kwargs['dag_run'].conf['use_ensemble']
-        print("////// use_ensemble = {}".format(use_ensemble))
         kwargs['conf'] = dict(experiment_process_type=kwargs['task_id'])
+        print("//////////")
+        print(" kwargs['conf'] = {}".format( kwargs['conf']))
+        print("//////////")
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
