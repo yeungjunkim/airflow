@@ -76,21 +76,19 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
 def which_path(*args, **kwargs):
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
+
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['params'].get('use_ensemble')
-    print(" use_ensemble = {}".format( use_ensemble))
-    
+    # print(" use_ensemble = {}".format( use_ensemble))
+
     if use_ensemble:
         next_process = 'ensemble'
-        print("next_process is ensemble")
-    else: 
+    else:
         next_process = 'deploy'
-        print("next_process is deploy")
 
+    # return kwargs['params'].get('experiment_process_type', next_process)
+    return next_process
 
-    print("next_process = {}".format(next_process))
-    return kwargs['params'].get('experiment_process_type', next_process)
-    # return next_process
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
@@ -112,13 +110,13 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start = DummyOperator(task_id='start')
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
-    end = DummyOperator(task_id='end',trigger_rule='one_success')
+    end = DummyOperator(task_id='end', trigger_rule='one_success')
 
     ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
-    start_branch >> preprocess >> optuna  >> ensemble_branch 
+
+    start_branch >> preprocess >> optuna >> ensemble_branch
     ensemble_branch >> ensemble >> deploy >> end
     ensemble_branch >> deploy >> end
-
