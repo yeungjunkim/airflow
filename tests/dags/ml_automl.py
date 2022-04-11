@@ -82,11 +82,11 @@ def which_path_b(*args, **kwargs):
     print("use_ensemble = {}".format(use_ensemble))
 
     if use_ensemble:
-        print("ensemble")
-        next_process = 'ensemble'
+        print("dummy_a")
+        next_process = 'dummy_a'
     else:
-        print("deploy")
-        next_process = 'deploy'
+        print("dummy_b")
+        next_process = 'dummy_b'
 
     # return kwargs['params'].get('experiment_process_type', next_process)
     return next_process
@@ -114,6 +114,9 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
+    dummy_a = DummyOperator(task_id='dummy_a')
+    dummy_b = DummyOperator(task_id='dummy_b')
+    
     ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path_b)
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
@@ -121,5 +124,5 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start_branch >> preprocess >> optuna >> ensemble_branch
 
-    ensemble_branch >> ensemble >> deploy >> end
-    ensemble_branch >> deploy >> end
+    ensemble_branch >> dummy_a >> ensemble >> deploy >> end
+    ensemble_branch >> dummy_b >> deploy >> end
