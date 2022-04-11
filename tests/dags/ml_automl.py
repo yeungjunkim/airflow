@@ -59,9 +59,6 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['reset_dag_run'] = True
         kwargs['trigger_dag_id'] = 'ml_run_k8s'
         kwargs['conf'] = dict(experiment_process_type=kwargs['task_id'])
-        print("//////////")
-        print(" kwargs['conf'] = {}".format( kwargs['conf']))
-        print("//////////")
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -81,6 +78,11 @@ def which_path(*args, **kwargs):
 
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
+    print("//////////")
+    print(" kwargs['conf'] = {}".format( kwargs['conf']))
+    conf = kwargs['context'].get('params', {})
+    print(" conf = {}".format( conf))
+    print("//////////")
     
     print("use_ensemble = []".format(use_ensemble))
     
