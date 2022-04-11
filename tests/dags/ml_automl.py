@@ -77,13 +77,18 @@ def which_path(*args, **kwargs):
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 
+use_ensemble = ''
+
+
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['params'].get('use_ensemble')
     # print(" use_ensemble = {}".format( use_ensemble))
 
     if use_ensemble:
+        print("ensemble")
         next_process = 'ensemble'
     else:
+        print("deploy")
         next_process = 'deploy'
 
     # return kwargs['params'].get('experiment_process_type', next_process)
@@ -118,5 +123,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
 
     start_branch >> preprocess >> optuna >> ensemble_branch
-    ensemble_branch >> ensemble >> deploy >> end
-    ensemble_branch >> deploy >> end
+    if use_ensemble:
+        ensemble_branch >> ensemble >> deploy >> end
+    else:
+        ensemble_branch >> deploy >> end
