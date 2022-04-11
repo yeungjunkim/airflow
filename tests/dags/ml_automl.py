@@ -78,10 +78,8 @@ def which_path(*args, **kwargs):
 
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
-    print("//////////")
-    print(" kwargs['conf'] = {}".format( kwargs['conf']))
-    conf = kwargs['context'].get('params', {})
-    print(" conf = {}".format( conf))
+    print(" kwargs['dag_run'] = {}".format( kwargs['dag_run']))
+    print(" kwargs['conf']['use_ensemble'] = {}".format( kwargs['conf']['use_ensemble']))
     print("//////////")
     
     print("use_ensemble = []".format(use_ensemble))
