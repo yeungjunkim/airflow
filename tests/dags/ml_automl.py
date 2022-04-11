@@ -79,13 +79,8 @@ def which_path(*args, **kwargs):
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['params'].get('use_ensemble')
     print(" use_ensemble = {}".format( use_ensemble))
-    # print(" kwargs['conf']['use_ensemble'] = {}".format( kwargs['conf']['use_ensemble']))
-    print("//////////")
     
-    print("use_ensemble = []".format(use_ensemble))
-    
-    
-    if use_ensemble == 'True':
+    if use_ensemble:
         next_process = 'ensemble'
     else: 
         next_process = 'deploy'
