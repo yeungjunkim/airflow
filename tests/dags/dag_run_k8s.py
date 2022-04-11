@@ -82,18 +82,6 @@ def get_next_experiment_process_type(experiment_process_type, use_ensemble):
     else:
         return 'None'
 
-# def get_next_command_name(experiment_process_type, use_ensemble):
-#     command_list = [
-#         'lb_tagtext', 'lb_predict', 'ml_modelstat','ml_dataset_eda', 'ml_parse', 'ml_preprocess', 'ml_optuna', 'ml_ensemble', 'ml_deploy', 'ml_predict'
-#     ]
-
-#     if command_list.index(experiment_process_type) < 4:
-#         if experiment_process_type == 'ml_optuna' and use_ensemble == 'False':  # to deploy
-#             return command_list[command_list.index(experiment_process_type) + 2] 
-#         else: 
-#             return command_list[command_list.index(experiment_process_type) + 1] 
-#     else:
-#         return ''
 
 def make_uuid():
     import uuid
@@ -300,66 +288,61 @@ end = DummyOperator(
 )
 
 
-trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
-#                                 trigger_dag_id="ml_run_k8s",
-                                trigger_dag_id="ml_automl",
-                                # python_callable=conditionally_trigger,
-                                conf={'condition_param': True,
-                                        'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
-                                        'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}',
-                                        'ACCUTUNING_USE_LABELER':'{{dag_run.conf["ACCUTUNING_USE_LABELER"]}}',
-                                        'ACCUTUNING_USE_CLUSTERING':'{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}',
-                                        'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}',
-                                        'ACCUTUNING_DJANGO_COMMAND':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_COMMAND\") }}",
-                                        'ACCUTUNING_EXPERIMENT_ID':'{{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"]}}',
-                                        'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
-                                        'ACCUTUNING_TIMEOUT':'{{dag_run.conf["ACCUTUNING_TIMEOUT"]}}',
-                                        'ACCUTUNING_APP_IMAGE':'{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',
-                                        'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}',                                        
-                                        'ACCUTUNING_WORKER_WORKSPACE':'{{ti.xcom_pull(key=\'ACCUTUNING_WORKER_WORKSPACE\')}}',                                        
-                                        'experiment_id':'{{dag_run.conf["experiment_id"]}}',                                        
-                                        'experiment_process_type':'{{ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_PROCESS\")}}',                                        
-                                        'experiment_target':'{{dag_run.conf["experiment_target"]}}',                                        
-                                        'proceed_next':'{{dag_run.conf["proceed_next"]}}',                                        
-                                        'use_ensemble':'{{dag_run.conf["use_ensemble"]}}',                                        
-                                        },
-                                trigger_rule='one_success',
-                                dag=dag)
+# trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
+#                                 # trigger_dag_id="ml_run_k8s",
+#                                 trigger_dag_id="ml_automl",
+#                                 # python_callable=conditionally_trigger,
+#                                 conf={'condition_param': True,
+#                                         'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
+#                                         'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf["ACCUTUNING_LOG_LEVEL"]}}',
+#                                         'ACCUTUNING_USE_LABELER':'{{dag_run.conf["ACCUTUNING_USE_LABELER"]}}',
+#                                         'ACCUTUNING_USE_CLUSTERING':'{{dag_run.conf["ACCUTUNING_USE_CLUSTERING"]}}',
+#                                         'DJANGO_SETTINGS_MODULE':'{{dag_run.conf["DJANGO_SETTINGS_MODULE"]}}',
+#                                         'ACCUTUNING_DJANGO_COMMAND':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_COMMAND\") }}",
+#                                         'ACCUTUNING_EXPERIMENT_ID':'{{dag_run.conf["ACCUTUNING_EXPERIMENT_ID"]}}',
+#                                         'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
+#                                         'ACCUTUNING_TIMEOUT':'{{dag_run.conf["ACCUTUNING_TIMEOUT"]}}',
+#                                         'ACCUTUNING_APP_IMAGE':'{{dag_run.conf["ACCUTUNING_APP_IMAGE"]}}',
+#                                         'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf["ACCUTUNING_WORKER_IMAGE"]}}',                                        
+#                                         'ACCUTUNING_WORKER_WORKSPACE':'{{ti.xcom_pull(key=\'ACCUTUNING_WORKER_WORKSPACE\')}}',                                        
+#                                         'experiment_id':'{{dag_run.conf["experiment_id"]}}',                                        
+#                                         'experiment_process_type':'{{ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_PROCESS\")}}',                                        
+#                                         'experiment_target':'{{dag_run.conf["experiment_target"]}}',                                        
+#                                         'proceed_next':'{{dag_run.conf["proceed_next"]}}',                                        
+#                                         'use_ensemble':'{{dag_run.conf["use_ensemble"]}}',                                        
+#                                         },
+#                                 trigger_rule='one_success',
+#                                 dag=dag)
 
 
 
-branch_end = DummyOperator(task_id='branch_end', dag=dag)
+# branch_end = DummyOperator(task_id='branch_end', dag=dag)
 
-def chk_ml_parse(**kwargs):
-    django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
-    print("chk_ml_parse django_command = {}".format(django_command))
+# def chk_ml_parse(**kwargs):
+#     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
+#     print("chk_ml_parse django_command = {}".format(django_command))
 
-    if django_command=="ml_preprocess" or django_command=="ml_optuna" or django_command=="ml_ensemble":
-        return 'trigger_dagrun'
-    else:
-        return 'branch_end'
-    # if django_command=="ml_parse" or django_command=="ml_deploy" or django_command=="ml_predict":
-    #     return 'branch_end'
-    # else:
-    #     return 'trigger_dagrun'
+#     if django_command=="ml_preprocess" or django_command=="ml_optuna" or django_command=="ml_ensemble":
+#         return 'trigger_dagrun'
+#     else:
+#         return 'branch_end'
 
-
-
-branch_task = BranchPythonOperator(
-    task_id='branching',
-    python_callable=chk_ml_parse,
-    dag=dag,
-)
+# branch_task = BranchPythonOperator(
+#     task_id='branching',
+#     python_callable=chk_ml_parse,
+#     dag=dag,
+# )
 
 
 
 start >> Label("parameter") >> parameters >> Label("app 중 before_worker Call") >> before_worker >> Label("common_module worker 중 Call") >> worker_env >> worker 
 
-worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end >> branch_task
+# worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end >> branch_task
+worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end
 worker >> Label("worker 작업 실패시(app 중 worker_fail Call)") >> worker_fail >> end
 
-branch_task >> trigger
-branch_task >> branch_end
+# branch_task >> trigger
+# branch_task >> branch_end
 
 # start >> ml_parse_pre >> ml_parse_main >> check_situation
 # check_situation >> ml_parse_post >> success >> finish 
