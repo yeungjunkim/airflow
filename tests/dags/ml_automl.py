@@ -8,7 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-# from custom_operator import DockerExOperator
+from custom_operator import DockerExOperator
 
 # from airflow.operators.bash_operator import BashOperator
 # from airflow.operators.python_operator import PythonOperator
@@ -57,7 +57,6 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['wait_for_completion'] = True
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
-#         kwargs['trigger_dag_id'] = 'ml_run_docker'
         kwargs['trigger_dag_id'] = 'ml_run_k8s'
         kwargs['conf'] = dict(experiment_process_type=kwargs['task_id'])
         super().__init__(*args, **kwargs)
@@ -83,9 +82,9 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     parse = TriggerDagRunWithConfigOperator(task_id='parse')
     preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess')
     optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
-#     optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
-#     optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
-#     optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
+    optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
+    optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
+    optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
@@ -100,6 +99,19 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
     end = DummyOperator(task_id='end',trigger_rule='one_success')
 
+    # def chk_ml_parse(**kwargs):
+    #     if django_command=="ml_preprocess" or django_command=="ml_optuna" or django_command=="ml_ensemble":
+    #         return 'trigger_dagrun'
+    #     else:
+    #         return 'branch_end'
+
+    # branch_task = BranchPythonOperator(
+    #     task_id='branching',
+    #     python_callable=chk_ml_parse,
+    #     dag=dag,
+    # )
+
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
-#     start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
+    # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
     start_branch >> preprocess >> optuna >> ensemble >> deploy >> end
+    start_branch >> preprocess >> optuna >> deploy >> end
