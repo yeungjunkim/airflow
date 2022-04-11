@@ -98,7 +98,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start = DummyOperator(task_id='start')
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
-    end = DummyOperator(task_id='end')
+    end = DummyOperator(task_id='end',trigger_rule='one_success')
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
 #     start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
