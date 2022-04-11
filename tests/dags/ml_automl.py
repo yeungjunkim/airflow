@@ -71,29 +71,26 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         return super().pre_execute(*args, **kwargs)
-use_ensemble = ''
+
 
 def which_path(*args, **kwargs):
-    use_ensemble = kwargs['params'].get('use_ensemble')
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 
+def which_path2(*args, **kwargs):
+    use_ensemble = kwargs['params'].get('use_ensemble')
+    print("use_ensemble = {}".format(use_ensemble))
 
+    if use_ensemble:
+        print("ensemble")
+        next_process = 'ensemble'
+    else:
+        print("deploy")
+        next_process = 'deploy'
 
+    return kwargs['params'].get('experiment_process_type', next_process)
+    # return next_process
 
-# def which_path2(*args, **kwargs):
-
-#     # print(" use_ensemble = {}".format( use_ensemble))
-
-#     if use_ensemble:
-#         print("ensemble")
-#         next_process = 'ensemble'
-#     else:
-#         print("deploy")
-#         next_process = 'deploy'
-
-#     # return kwargs['params'].get('experiment_process_type', next_process)
-#     return next_process
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
@@ -103,8 +100,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
     # optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
-    if use_ensemble:
-        ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
+    ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
     lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
@@ -118,16 +114,12 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
-    # ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
+    ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
 
+    start_branch >> preprocess >> optuna >> ensemble_branch
 
-    start_branch >> preprocess >> optuna 
-
-
-    if use_ensemble:
-        optuna >> ensemble >> deploy >> end
-    else:
-        optuna >> deploy >> end
+    ensemble_branch >> optuna >> ensemble >> deploy >> end
+    ensemble_branch >> optuna >> deploy >> end
