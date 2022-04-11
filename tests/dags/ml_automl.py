@@ -82,9 +82,13 @@ def which_path2(*args, **kwargs):
     
     if use_ensemble:
         next_process = 'ensemble'
+        print("next_process is ensemble")
     else: 
         next_process = 'deploy'
+        print("next_process is deploy")
 
+
+    print("next_process = {}".format(next_process))
     return kwargs['params'].get('experiment_process_type', next_process)
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
