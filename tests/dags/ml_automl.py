@@ -58,6 +58,8 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['trigger_dag_id'] = 'ml_run_k8s'
+        use_ensemble = kwargs['dag_run'].conf['use_ensemble']
+        print("////// use_ensemble = {}".format(use_ensemble))
         kwargs['conf'] = dict(experiment_process_type=kwargs['task_id'])
         super().__init__(*args, **kwargs)
 
@@ -114,3 +116,4 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
     start_branch >> preprocess >> optuna >> ensemble_branch >> ensemble >> deploy >> end
     start_branch >> preprocess >> optuna >> ensemble_branch >> deploy >> end
+
