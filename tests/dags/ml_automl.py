@@ -57,7 +57,8 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['wait_for_completion'] = True
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
-        kwargs['trigger_dag_id'] = 'ml_run_docker'
+#         kwargs['trigger_dag_id'] = 'ml_run_docker'
+        kwargs['trigger_dag_id'] = 'ml_run_k8s'
         kwargs['conf'] = dict(experiment_process_type=kwargs['task_id'])
         super().__init__(*args, **kwargs)
 
