@@ -8,7 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from custom_operator import DockerExOperator
+# from custom_operator import DockerExOperator
 
 # from airflow.operators.bash_operator import BashOperator
 # from airflow.operators.python_operator import PythonOperator
