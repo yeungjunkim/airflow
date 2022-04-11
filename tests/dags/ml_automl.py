@@ -77,7 +77,7 @@ def which_path(*args, **kwargs):
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 def which_path2(*args, **kwargs):
-    use_ensemble = kwargs['use_ensemble']
+    use_ensemble = kwargs['params'].get('use_ensemble')
     print(" use_ensemble = {}".format( use_ensemble))
     # print(" kwargs['conf']['use_ensemble'] = {}".format( kwargs['conf']['use_ensemble']))
     print("//////////")
