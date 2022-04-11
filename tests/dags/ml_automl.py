@@ -77,17 +77,20 @@ def which_path(*args, **kwargs):
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 def which_path2(*args, **kwargs):
-    use_ensemble = kwargs['dag_run'].conf['use_ensemble']
-    print(" kwargs['dag_run'] = {}".format( kwargs['dag_run']))
-    print(" kwargs['conf']['use_ensemble'] = {}".format( kwargs['conf']['use_ensemble']))
+    use_ensemble = kwargs['use_ensemble']
+    print(" use_ensemble = {}".format( use_ensemble))
+    # print(" kwargs['conf']['use_ensemble'] = {}".format( kwargs['conf']['use_ensemble']))
     print("//////////")
     
     print("use_ensemble = []".format(use_ensemble))
     
+    
     if use_ensemble == 'True':
-        return kwargs['params'].get('experiment_process_type', 'ensemble')
+        next_process = 'ensemble'
     else: 
-        return kwargs['params'].get('experiment_process_type', 'deploy')
+        next_process = 'deploy'
+
+    return kwargs['params'].get('experiment_process_type', next_process)
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
