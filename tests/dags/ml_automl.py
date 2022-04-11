@@ -83,9 +83,9 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     parse = TriggerDagRunWithConfigOperator(task_id='parse')
     preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess')
     optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
-    optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
-    optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
-    optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
+#     optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
+#     optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
+#     optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
@@ -101,4 +101,5 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     end = DummyOperator(task_id='end')
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
-    start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
+#     start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
+    start_branch >> preprocess >> optuna >> ensemble >> deploy >> end
