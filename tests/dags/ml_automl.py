@@ -78,6 +78,9 @@ def which_path(*args, **kwargs):
 
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
+    
+    print("use_ensemble = []".format(use_ensemble))
+    
     if use_ensemble == 'True':
         return kwargs['params'].get('experiment_process_type', 'ensemble')
     else: 
