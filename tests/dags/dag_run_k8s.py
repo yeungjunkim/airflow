@@ -301,7 +301,8 @@ end = DummyOperator(
 
 
 trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
-                                trigger_dag_id="ml_run_k8s",
+#                                 trigger_dag_id="ml_run_k8s",
+                                trigger_dag_id="ml_automl",
                                 # python_callable=conditionally_trigger,
                                 conf={'condition_param': True,
                                         'ACCUTUNING_WORKSPACE':'{{dag_run.conf["ACCUTUNING_WORKSPACE"]}}',
