@@ -89,7 +89,8 @@ def which_path2(*args, **kwargs):
 
 
     print("next_process = {}".format(next_process))
-    return kwargs['params'].get('experiment_process_type', next_process)
+    # return kwargs['params'].get('experiment_process_type', next_process)
+    return next_process
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
@@ -117,6 +118,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
-    start_branch >> preprocess >> optuna >> ensemble_branch >> ensemble >> deploy >> end
-    start_branch >> preprocess >> optuna >> ensemble_branch >> deploy >> end
+    start_branch >> preprocess >> optuna  >> ensemble_branch 
+    ensemble_branch >> ensemble >> deploy >> end
+    ensemble_branch >> deploy >> end
 
