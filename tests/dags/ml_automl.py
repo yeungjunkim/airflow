@@ -121,5 +121,5 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start_branch >> preprocess >> optuna >> ensemble_branch
 
-    ensemble_branch >> optuna >> ensemble >> deploy >> end
-    ensemble_branch >> optuna >> deploy >> end
+    ensemble_branch >> ensemble >> deploy >> end
+    ensemble_branch >> deploy >> end
