@@ -7,7 +7,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
 # from airflow.operators.python_operator import BranchPythonOperator
-# from airflow.utils.edgemodifier import Label  #label 쓰기 위한 library
+from airflow.utils.edgemodifier import Label  #label 쓰기 위한 library
 # import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 # import pprint
