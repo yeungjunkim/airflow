@@ -2,7 +2,6 @@ from airflow import DAG
 
 from datetime import datetime, timedelta
 
-
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
@@ -26,7 +25,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['wait_for_completion'] = True
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
-        kwargs['trigger_dag_id'] = 'ml_run_docker'  # ml_run_k8s 와 어떻게 분기할까요?
+        kwargs['trigger_dag_id'] = 'ml_run_k8s'  # ml_run_k8s 와 어떻게 분기할까요?
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
         super().__init__(*args, **kwargs)
 
@@ -48,15 +47,13 @@ def which_path(*args, **kwargs):
 
 def which_path2(*args, **kwargs):
     use_ensemble = kwargs['params'].get('use_ensemble')
-    print(" use_ensemble = {}".format(use_ensemble))
 
     if use_ensemble:
         print("ensemble")
         next_process = 'ensemble'
     else:
-        next_process = 'deploy'
-
-    # return kwargs['params'].get('experiment_process_type', next_process)
+        next_process = 'no_ensemble'
+    print(" use_ensemble = {}, next_process = {}".format(use_ensemble, next_process))
     return next_process
 
 
@@ -71,6 +68,8 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', conf=dict(target=None, experiment_process_type='deploy'))
+    deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
+        task_id='deploy_auto_with_ensemble', conf=dict(target=None, experiment_process_type='deploy'))
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
     lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
     modelstat = TriggerDagRunWithConfigOperator(task_id='modelstat')
@@ -85,8 +84,11 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
     ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
+    no_ensemble = DummyOperator(task_id='no_ensemble')
 
     start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
     # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
-    start_branch >> preprocess >> optuna >> ensemble_branch >> ensemble >> deploy_auto >> end
-    start_branch >> preprocess >> optuna >> ensemble_branch >> deploy_auto >> end
+
+    # ensemble branch에서 ensemble이 아니면 deploy_auto를 수행하지 않는 문제;
+    start_branch >> preprocess >> optuna >> ensemble_branch >> ensemble >> deploy_auto_with_ensemble >> end
+    start_branch >> preprocess >> optuna >> ensemble_branch >> no_ensemble >> deploy_auto >> end
