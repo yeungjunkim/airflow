@@ -179,7 +179,7 @@ before_worker = KubernetesPodOperator(
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     },
     cmds=["python3"],
-    arguments=[
+    arguments=
         "{{ ti.xcom_pull(key='before_command') }}",
 
         # "/code/manage.py",
@@ -197,7 +197,7 @@ before_worker = KubernetesPodOperator(
         # "--target_model_base={{dag_run.conf.target_model_base']}}",
         # "--target_deployment={{dag_run.conf.target_deployment']}}",
         # "--target_source={{dag_run.conf.target_source']}}",
-    ],
+    ,
     do_xcom_push=True,
     image_pull_policy='Always',
     get_logs=True,
@@ -238,7 +238,7 @@ worker_success = KubernetesPodOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-    arguments=[
+    arguments=
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
         # "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
@@ -255,7 +255,7 @@ worker_success = KubernetesPodOperator(
         # # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
         # # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
         "{{ ti.xcom_pull(key='after_command') }}",
-    ],
+    ,
     image_pull_policy='Always',
     get_logs=True,
     dag=dag,
@@ -281,7 +281,7 @@ worker_fail = KubernetesPodOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    arguments=[
+    arguments=
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
         # "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
@@ -298,7 +298,7 @@ worker_fail = KubernetesPodOperator(
         # # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
         # # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
         "{{ ti.xcom_pull(key='after_command') }}",
-    ],
+    ,
     image_pull_policy='Always',
     get_logs=True,
     dag=dag,
