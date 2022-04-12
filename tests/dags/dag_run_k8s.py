@@ -179,7 +179,7 @@ before_worker = KubernetesPodOperator(
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     },
     cmds=["python3"],
-    arguments="{{ ti.xcom_pull(key='before_command') }}".split(),
+    arguments=("{{ ti.xcom_pull(key='before_command') }}").split(),
     # [
     #     {{ ti.xcom_pull(key='before_command').split() }},
     
@@ -239,7 +239,7 @@ worker_success = KubernetesPodOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-    arguments="{{ ti.xcom_pull(key='after_command') }}".split(),
+    arguments=("{{ ti.xcom_pull(key='after_command') }}").split(),
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
         # "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
@@ -282,7 +282,7 @@ worker_fail = KubernetesPodOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    arguments="{{ ti.xcom_pull(key='after_command') }}".split(),
+    arguments=("{{ ti.xcom_pull(key='after_command') }}").split(),
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
         # "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
