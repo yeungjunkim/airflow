@@ -5,11 +5,11 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 # from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
+# from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
 # from airflow.operators.python_operator import BranchPythonOperator
-from airflow.utils.edgemodifier import Label  #label 쓰기 위한 library
+# from airflow.utils.edgemodifier import Label  #label 쓰기 위한 library
 # import json
-from airflow.operators.dagrun_operator import TriggerDagRunOperator
+# from airflow.operators.dagrun_operator import TriggerDagRunOperator
 # import pprint
 
 
@@ -177,14 +177,14 @@ before_worker = KubernetesPodOperator(
         "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}",
         "--execute_range=before",
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
-        "--experiment_target={{dag_run.conf['experiment_target']}}",
+        # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
-        "--proceed_next={{dag_run.conf['target_dataset']}}",
-        "--proceed_next={{dag_run.conf['target_dataset_eda']}}",
-        "--proceed_next={{dag_run.conf['target_prediction']}}",
-        "--proceed_next={{dag_run.conf['target_model_base']}}",
-        "--proceed_next={{dag_run.conf['target_deployment']}}",
-        "--proceed_next={{dag_run.conf['target_source']}}",
+        "--target_dataset={{dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
+        "--target_prediction={{dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source']}}",
     ],
     do_xcom_push=True,
     image_pull_policy='Always',
@@ -234,14 +234,14 @@ worker_success = KubernetesPodOperator(
         "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}",
         "--execute_range=after",
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
-        "--experiment_target={{dag_run.conf['experiment_target']}}",
+        # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
-        "--proceed_next={{dag_run.conf['target_dataset']}}",
-        "--proceed_next={{dag_run.conf['target_dataset_eda']}}",
-        "--proceed_next={{dag_run.conf['target_prediction']}}",
-        "--proceed_next={{dag_run.conf['target_model_base']}}",
-        "--proceed_next={{dag_run.conf['target_deployment']}}",
-        "--proceed_next={{dag_run.conf['target_source']}}",
+        "--target_dataset={{dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
+        "--target_prediction={{dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source']}}",
     ],
     image_pull_policy='Always',
     get_logs=True,
@@ -276,8 +276,14 @@ worker_fail = KubernetesPodOperator(
         "--timeout={{dag_run.conf['ACCUTUNING_TIMEOUT']}}",
         "--execute_range=after",
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
-        "--experiment_target={{dag_run.conf['experiment_target']}}",
+        # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
+        "--target_dataset={{dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
+        "--target_prediction={{dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source']}}",        
     ],
     image_pull_policy='Always',
     get_logs=True,
