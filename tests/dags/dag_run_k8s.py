@@ -46,43 +46,43 @@ configmaps = [
 ]
 
 
-def get_command_name(experiment_process_type):
-    command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
-        'parse': 'ml_parse',
-        'labeling': 'lb_tagtext',
-        'lb_predict': 'lb_predict',
-        'preprocess': 'ml_preprocess',
-        'optuna': 'ml_optuna',
-        'modelstat': 'ml_modelstat',
-        'deploy': 'ml_deploy',
-        'predict': 'ml_predict',
-        'ensemble': 'ml_ensemble',
-        'cluster': 'cl_run',
-        'cl_predict': 'cl_predict',
-        'dataset_eda': 'ml_dataset_eda',
-        'None': 'None',
-    }
-    return command_dict[experiment_process_type]
+# def get_command_name(experiment_process_type):
+#     command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
+#         'parse': 'ml_parse',
+#         'labeling': 'lb_tagtext',
+#         'lb_predict': 'lb_predict',
+#         'preprocess': 'ml_preprocess',
+#         'optuna': 'ml_optuna',
+#         'modelstat': 'ml_modelstat',
+#         'deploy': 'ml_deploy',
+#         'predict': 'ml_predict',
+#         'ensemble': 'ml_ensemble',
+#         'cluster': 'cl_run',
+#         'cl_predict': 'cl_predict',
+#         'dataset_eda': 'ml_dataset_eda',
+#         'None': 'None',
+#     }
+#     return command_dict[experiment_process_type]
 
 
-def get_next_experiment_process_type(experiment_process_type, use_ensemble):
-    command_list = [
-        'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict', 'labeling', 'lb_predict', 'modelstat', 'dataset_eda',
-    ]
-    print("experiment_process_type = {}".format(experiment_process_type))
-    print("use_ensemble = {}".format(use_ensemble))
-    print("experiment_process_type == 'optuna' = {}".format(experiment_process_type == 'optuna'))
-    print("use_ensemble == 'False' = {}".format(use_ensemble == 'False'))
+# def get_next_experiment_process_type(experiment_process_type, use_ensemble):
+#     command_list = [
+#         'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict', 'labeling', 'lb_predict', 'modelstat', 'dataset_eda',
+#     ]
+#     print("experiment_process_type = {}".format(experiment_process_type))
+#     print("use_ensemble = {}".format(use_ensemble))
+#     print("experiment_process_type == 'optuna' = {}".format(experiment_process_type == 'optuna'))
+#     print("use_ensemble == 'False' = {}".format(use_ensemble == 'False'))
 
-    if experiment_process_type == "preprocess" or \
-       experiment_process_type == "optuna" or \
-       experiment_process_type == "ensemble":
-        if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
-            return command_list[command_list.index(experiment_process_type) + 2]
-        else:
-            return command_list[command_list.index(experiment_process_type) + 1]
-    else:
-        return 'None'
+#     if experiment_process_type == "preprocess" or \
+#        experiment_process_type == "optuna" or \
+#        experiment_process_type == "ensemble":
+#         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
+#             return command_list[command_list.index(experiment_process_type) + 2]
+#         else:
+#             return command_list[command_list.index(experiment_process_type) + 1]
+#     else:
+#         return 'None'
 
 
 def make_uuid():
@@ -117,17 +117,17 @@ def make_parameters(**kwargs):
     # print("kwargs['dag_run'].conf['ACCUTUNING_UUID'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_UUID']))
     # print("kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']))
 
-    django_next_command = get_command_name(get_next_experiment_process_type(experiment_process_type, use_ensemble))
-    django_next_process = get_next_experiment_process_type(experiment_process_type, use_ensemble)
+    # django_next_command = get_command_name(get_next_experiment_process_type(experiment_process_type, use_ensemble))
+    # django_next_process = get_next_experiment_process_type(experiment_process_type, use_ensemble)
     # docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, experiment_target, proceed_next)
     # docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, experiment_target, proceed_next)
 
-    print("django_next_command = {}".format(django_next_command))
-    print("django_next_process = {}".format(django_next_process))
+    # print("django_next_command = {}".format(django_next_command))
+    # print("django_next_process = {}".format(django_next_process))
 
-    kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_UUID', value=container_uuid)
-    kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
-    kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_PROCESS', value=django_next_process)
+    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_UUID', value=container_uuid)
+    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
+    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_PROCESS', value=django_next_process)
     # kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     # kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
@@ -179,12 +179,12 @@ before_worker = KubernetesPodOperator(
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
         # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
-        "--target_dataset={{dag_run.conf['target_dataset']}}",
-        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
-        "--target_prediction={{dag_run.conf['target_prediction']}}",
-        "--target_model_base={{dag_run.conf['target_model_base']}}",
-        "--target_deployment={{dag_run.conf['target_deployment']}}",
-        "--target_source={{dag_run.conf['target_source']}}",
+        "--target_dataset={{dag_run.conf['target_dataset'] if dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda'] if dag_run.conf['target_dataset_eda'] }}",
+        "--target_prediction={{dag_run.conf['target_prediction'] if dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base'] if dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment'] if dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source'] if dag_run.conf['target_source']}}",
     ],
     do_xcom_push=True,
     image_pull_policy='Always',
@@ -236,12 +236,12 @@ worker_success = KubernetesPodOperator(
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
         # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
-        "--target_dataset={{dag_run.conf['target_dataset']}}",
-        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
-        "--target_prediction={{dag_run.conf['target_prediction']}}",
-        "--target_model_base={{dag_run.conf['target_model_base']}}",
-        "--target_deployment={{dag_run.conf['target_deployment']}}",
-        "--target_source={{dag_run.conf['target_source']}}",
+        "--target_dataset={{dag_run.conf['target_dataset'] if dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda'] if dag_run.conf['target_dataset_eda'] }}",
+        "--target_prediction={{dag_run.conf['target_prediction'] if dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base'] if dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment'] if dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source'] if dag_run.conf['target_source']}}",
     ],
     image_pull_policy='Always',
     get_logs=True,
@@ -278,12 +278,12 @@ worker_fail = KubernetesPodOperator(
         "--experiment_process_type={{dag_run.conf['experiment_process_type']}}",
         # "--experiment_target={{dag_run.conf['experiment_target']}}",
         "--proceed_next={{dag_run.conf['proceed_next']}}",
-        "--target_dataset={{dag_run.conf['target_dataset']}}",
-        "--target_dataset_eda={{dag_run.conf['target_dataset_eda']}}",
-        "--target_prediction={{dag_run.conf['target_prediction']}}",
-        "--target_model_base={{dag_run.conf['target_model_base']}}",
-        "--target_deployment={{dag_run.conf['target_deployment']}}",
-        "--target_source={{dag_run.conf['target_source']}}",        
+        "--target_dataset={{dag_run.conf['target_dataset'] if dag_run.conf['target_dataset']}}",
+        "--target_dataset_eda={{dag_run.conf['target_dataset_eda'] if dag_run.conf['target_dataset_eda'] }}",
+        "--target_prediction={{dag_run.conf['target_prediction'] if dag_run.conf['target_prediction']}}",
+        "--target_model_base={{dag_run.conf['target_model_base'] if dag_run.conf['target_model_base']}}",
+        "--target_deployment={{dag_run.conf['target_deployment'] if dag_run.conf['target_deployment']}}",
+        "--target_source={{dag_run.conf['target_source'] if dag_run.conf['target_source']}}",
     ],
     image_pull_policy='Always',
     get_logs=True,
