@@ -88,8 +88,8 @@ def which_path_b(*args, **kwargs):
         print("dummy_b")
         next_process = 'dummy_b'
 
-    # return kwargs['params'].get('experiment_process_type', next_process)
-    return next_process
+    return kwargs['params'].get('experiment_process_type', next_process)
+    # return next_process
 
 
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
@@ -101,7 +101,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
     # optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
-    deploy = TriggerDagRunWithConfigOperator(task_id='deploy', trigger_rule='one_success')
+    deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
     lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
     modelstat = TriggerDagRunWithConfigOperator(task_id='modelstat')
