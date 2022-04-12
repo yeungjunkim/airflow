@@ -46,23 +46,23 @@ configmaps = [
 ]
 
 
-# def get_command_name(experiment_process_type):
-#     command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
-#         'parse': 'ml_parse',
-#         'labeling': 'lb_tagtext',
-#         'lb_predict': 'lb_predict',
-#         'preprocess': 'ml_preprocess',
-#         'optuna': 'ml_optuna',
-#         'modelstat': 'ml_modelstat',
-#         'deploy': 'ml_deploy',
-#         'predict': 'ml_predict',
-#         'ensemble': 'ml_ensemble',
-#         'cluster': 'cl_run',
-#         'cl_predict': 'cl_predict',
-#         'dataset_eda': 'ml_dataset_eda',
-#         'None': 'None',
-#     }
-#     return command_dict[experiment_process_type]
+def get_command_name(experiment_process_type):
+    command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
+        'parse': 'ml_parse',
+        'labeling': 'lb_tagtext',
+        'lb_predict': 'lb_predict',
+        'preprocess': 'ml_preprocess',
+        'optuna': 'ml_optuna',
+        'modelstat': 'ml_modelstat',
+        'deploy': 'ml_deploy',
+        'predict': 'ml_predict',
+        'ensemble': 'ml_ensemble',
+        'cluster': 'cl_run',
+        'cl_predict': 'cl_predict',
+        'dataset_eda': 'ml_dataset_eda',
+        'None': 'None',
+    }
+    return command_dict[experiment_process_type]
 
 
 # def get_next_experiment_process_type(experiment_process_type, use_ensemble):
