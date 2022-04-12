@@ -94,7 +94,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
     command = f'''/code/manage.py {django_command}
 --experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
 --experiment_process_type={experiment_process_type} --proceed_next={proceed_next} '''
-    return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
+    return (command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])).split()
 
 
 def make_parameters(**kwargs):
@@ -180,7 +180,7 @@ before_worker = KubernetesPodOperator(
     },
     cmds=["python3"],
     arguments=[
-        "{{ (ti.xcom_pull(key='before_command')).split() }}",
+        "{{ ti.xcom_pull(key='before_command') }}",
 
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
@@ -254,7 +254,7 @@ worker_success = KubernetesPodOperator(
         # # "--target_model_base={{dag_run.conf.target_model_base'] if dag_run.conf.target_model_base']}}",
         # # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
         # # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
-        "{{ (ti.xcom_pull(key='after_command')).split() }}",
+        "{{ ti.xcom_pull(key='after_command') }}",
     ],
     image_pull_policy='Always',
     get_logs=True,
@@ -297,7 +297,7 @@ worker_fail = KubernetesPodOperator(
         # # "--target_model_base={{dag_run.conf.target_model_base'] if dag_run.conf.target_model_base']}}",
         # # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
         # # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
-        "{{ (ti.xcom_pull(key='after_command')).split() }}",
+        "{{ ti.xcom_pull(key='after_command') }}",
     ],
     image_pull_policy='Always',
     get_logs=True,
