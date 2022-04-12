@@ -282,7 +282,7 @@ worker_fail = KubernetesPodOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    arguments="{{ ti.xcom_pull(key='after_command') }}"),
+    arguments="{{ ti.xcom_pull(key='after_command') }}",
         # "/code/manage.py",
         # "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
         # "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
