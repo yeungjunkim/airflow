@@ -98,7 +98,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-    experiment_id = kwargs['dag_run'].conf['experiment_id']
+    experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
     # experiment_target = kwargs['dag_run'].conf['experiment_target']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
