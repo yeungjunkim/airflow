@@ -25,7 +25,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['wait_for_completion'] = True
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
-        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_USE'):
+        if kwargs['dag_run'].conf.get('ACCUTUNING_K8S_USE'):
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
