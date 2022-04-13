@@ -169,11 +169,9 @@ from docker.types import Mount
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.before_command_list = kwargs['context']['task_instance'].xcom_pull(
-            task_ids='make_parameters', key='before_command').split()
 
     def pre_execute(self, *args, **kwargs):
-        self.arguments = kwargs['context']['task_instance'].xcom_pull(
+        super().arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
         return super().pre_execute(*args, **kwargs)
 
@@ -204,7 +202,7 @@ before_worker = KubernetesPodExPreOperator(
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     },
     cmds=["python3"],
-    arguments=self.before_command_list,
+    arguments=arguments,
     # arguments=[
     #     "/code/manage.py",
     #     "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
