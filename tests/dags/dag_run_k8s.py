@@ -41,6 +41,12 @@ volume = k8s.V1Volume(
     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 )
 
+# volume_mount = VolumeMount('<pv-claim>',
+#                            mount_path='<mount-path>',sub_path=None
+#                            ,read_only=False)
+# volume_config= {'persistentVolumeClaim':{'claimName': 'pvc-demo'}}
+# volume = Volume(name='<pv-name>', configs=volume_config)
+
 configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]
@@ -162,8 +168,8 @@ before_worker = KubernetesPodExPreOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
-    volumes=[volume],
-    volume_mounts=[volume_mount],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
     env_vars={
@@ -204,8 +210,8 @@ worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_work
 worker = KubernetesPodOperator(
     namespace='default',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
-    volumes=[volume],
-    volume_mounts=[volume_mount],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}', 'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
@@ -258,8 +264,8 @@ worker_success = KubernetesPodExPostOperator(
 worker_fail = KubernetesPodExPostOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
-    volumes=[volume],
-    volume_mounts=[volume_mount],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
     name="worker_fail",
     task_id="worker_fail",
     env_vars={
