@@ -251,8 +251,8 @@ before_worker = KubernetesPodExPreOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     volumes=[k8s.V1Volume(
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+        name='test-pvc',
+        host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
         # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
@@ -260,8 +260,8 @@ before_worker = KubernetesPodExPreOperator(
     volume_mounts=[k8s.V1VolumeMount(
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        name='test-pvc',
+        mount_path='/workspace',
         sub_path=None, read_only=False
     )],
     name="before_worker",
@@ -305,8 +305,8 @@ worker = KubernetesPodExWorkerOperator(
     namespace='default',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     volumes=[k8s.V1Volume(
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+        name='test-pvc',
+        host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
         # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
@@ -314,8 +314,8 @@ worker = KubernetesPodExWorkerOperator(
     volume_mounts=[k8s.V1VolumeMount(
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        name='test-pvc',
+        mount_path='/workspace',
         sub_path=None, read_only=False
     )],
     name="worker",
@@ -330,8 +330,8 @@ worker_success = KubernetesPodExPostOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     volumes=[k8s.V1Volume(
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+        name='test-pvc',
+        host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
         # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
@@ -339,8 +339,8 @@ worker_success = KubernetesPodExPostOperator(
     volume_mounts=[k8s.V1VolumeMount(
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        name='test-pvc',
+        mount_path='/workspace',
         sub_path=None, read_only=False
     )],
     name="worker_success",
@@ -383,8 +383,8 @@ worker_fail = KubernetesPodExPostOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     volumes=[k8s.V1Volume(
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+        name='test-pvc',
+        host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
         # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
@@ -392,8 +392,8 @@ worker_fail = KubernetesPodExPostOperator(
     volume_mounts=[k8s.V1VolumeMount(
         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        name='test-pvc',
+        mount_path='/workspace',
         sub_path=None, read_only=False
     )],
     name="worker_fail",
