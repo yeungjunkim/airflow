@@ -45,7 +45,6 @@ configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]
 
-
 def get_command_name(experiment_process_type):
     command_dict = {  # TODO 이 참에 이거 전부 통일하면 안될까? ml_ + process_type
         'parse': 'ml_parse',
@@ -94,8 +93,8 @@ def make_parameters(**kwargs):
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
 
-    kwargs['task_instance'].xcom_push(key='ACCUTUNING_UUID', value=container_uuid)
-    kwargs['task_instance'].xcom_push(key='ACCUTUNING_DJANGO_COMMAND', value=django_command)
+    # kwargs['task_instance'].xcom_push(key='ACCUTUNING_UUID', value=container_uuid)
+    # kwargs['task_instance'].xcom_push(key='ACCUTUNING_DJANGO_COMMAND', value=django_command)
 
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, targets)
@@ -118,6 +117,11 @@ def make_worker_env(**kwargs):
 
     env_dict = json.loads(worker_env_vars_str)
     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
+    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
+    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
+    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
+    
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
     worker_env_vars = json.dumps(env_dict)
@@ -128,7 +132,7 @@ def make_worker_env(**kwargs):
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
- 
+
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
@@ -304,60 +308,8 @@ end = DummyOperator(
 )
 
 
-# trigger = TriggerDagRunOperator(task_id='trigger_dagrun',
-#                                 # trigger_dag_id="ml_run_k8s",
-#                                 trigger_dag_id="ml_automl",
-#                                 # python_callable=conditionally_trigger,
-#                                 conf={'condition_param': True,
-#                                         'ACCUTUNING_WORKSPACE':'{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-#                                         'ACCUTUNING_LOG_LEVEL':'{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-#                                         'ACCUTUNING_USE_LABELER':'{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-#                                         'ACCUTUNING_USE_CLUSTERING':'{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-#                                         'DJANGO_SETTINGS_MODULE':'{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
-#                                         'ACCUTUNING_DJANGO_COMMAND':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_COMMAND\") }}",
-#                                         'ACCUTUNING_EXPERIMENT_ID':'{{dag_run.conf.ACCUTUNING_EXPERIMENT_ID}}',
-#                                         'ACCUTUNING_UUID':"{{ ti.xcom_pull(key=\"NEXT_ACCUTUNING_UUID\") }}",
-#                                         'ACCUTUNING_TIMEOUT':'{{dag_run.conf.ACCUTUNING_TIMEOUT}}',
-#                                         'ACCUTUNING_APP_IMAGE':'{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
-#                                         'ACCUTUNING_WORKER_IMAGE':'{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}',
-#                                         'ACCUTUNING_WORKER_WORKSPACE':'{{ti.xcom_pull(key=\'ACCUTUNING_WORKER_WORKSPACE\')}}',
-#                                         'experiment_id':'{{dag_run.conf.experiment_id}}',
-#                                         'experiment_process_type':'{{ti.xcom_pull(key=\"NEXT_ACCUTUNING_DJANGO_PROCESS\")}}',
-#                                         'experiment_target':'{{dag_run.conf.experiment_target}}',
-#                                         'proceed_next':'{{dag_run.conf.proceed_next}}',
-#                                         'use_ensemble':'{{dag_run.conf.use_ensemble}}',
-#                                         },
-#                                 trigger_rule='one_success',
-#                                 dag=dag)
-
-
-# branch_end = DummyOperator(task_id='branch_end', dag=dag)
-
-# def chk_ml_parse(**kwargs):
-#     django_command = kwargs['task_instance'].xcom_pull(key='ACCUTUNING_DJANGO_COMMAND')
-#     print("chk_ml_parse django_command = {}".format(django_command))
-
-#     if django_command=="ml_preprocess" or django_command=="ml_optuna" or django_command=="ml_ensemble":
-#         return 'trigger_dagrun'
-#     else:
-#         return 'branch_end'
-
-# branch_task = BranchPythonOperator(
-#     task_id='branching',
-#     python_callable=chk_ml_parse,
-#     dag=dag,
-# )
-
-
 start >> Label("parameter") >> parameters >> Label("app 중 before_worker Call") >> before_worker >> Label("common_module worker 중 Call") >> worker_env >> worker
 
 # worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end >> branch_task
 worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end
 worker >> Label("worker 작업 실패시(app 중 worker_fail Call)") >> worker_fail >> end
-
-# branch_task >> trigger
-# branch_task >> branch_end
-
-# start >> ml_parse_pre >> ml_parse_main >> check_situation
-# check_situation >> ml_parse_post >> success >> finish
-# check_situation >> failure >> send_error >> finish
