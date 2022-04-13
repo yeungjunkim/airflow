@@ -26,7 +26,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        kwargs['trigger_dag_id'] = "{{conf.ACCUTUNING_K8S_USE}}"
+        kwargs['trigger_dag_id'] = kwargs['task_instance'].xcom_pull(task_ids='branch', key='return_value')["trigger_dag_id"]
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -43,6 +43,13 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
 
 
 def which_path(*args, **kwargs):
+    if kwargs['params'].get('ACCUTUNING_K8S_USE'):
+        trigger_dag_id = 'ml_run_k8s'
+    else:
+        trigger_dag_id = 'ml_run_docker'
+
+    kwargs['task_instance'].xcom_push(key='trigger_dag_id', value=trigger_dag_id)
+
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 
@@ -81,7 +88,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # closing = TriggerDagRunWithConfigOperator(task_id='closing', trigger_rule="none_skipped")
 
     start = DummyOperator(task_id='start')
-    start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path)
+    start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path, do_xcom_push=True)
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
     ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
