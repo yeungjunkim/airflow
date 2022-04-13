@@ -31,19 +31,19 @@ dag = DAG(
 
 start = DummyOperator(task_id='start', dag=dag)
 
-# volume_mount = k8s.V1VolumeMount(
-#     name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False
-# )
+volume_mount = k8s.V1VolumeMount(
+    name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False
+)
 
-# volume = k8s.V1Volume(
-#     name='test-pvc',
-#     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
-# )
+volume = k8s.V1Volume(
+    name='test-pvc',
+    # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
+)
 
-volume_mount = k8s.V1VolumeMount(name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False)
-volume_config = {'persistentVolumeClaim': {'claimName': 'test-pvc'}}
-volume = k8s.V1Volume(name='test-pv', configs=volume_config)
+# volume_mount = k8s.V1VolumeMount(name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False)
+# volume_config = {'persistentVolumeClaim': {'claimName': 'test-pvc'}}
+# volume = k8s.V1Volume(name='test-pv', configs=volume_config)
 
 configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
