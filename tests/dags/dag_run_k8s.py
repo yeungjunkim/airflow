@@ -156,27 +156,27 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        # volume_mounts = k8s.V1VolumeMount(
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        #     sub_path=None, read_only=False
-        # )
-        # self.volume_mounts = volume_mounts
-        # print("volume_mounts = {}".format(volume_mounts))
-        # print("self.volume_mounts = {}".format(self.volume_mounts))
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+        print("volume_mounts = {}".format(volume_mounts))
+        print("self.volume_mounts = {}".format(self.volume_mounts))
 
-        # volumes = k8s.V1Volume(
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        #     # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-        # )
-        # self.volumes = volumes
-        # print("volumes = {}".format(volumes))
-        # print("self.volumes = {}".format(self.volumes))
+        volumes = k8s.V1Volume(
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
+        print("volumes = {}".format(volumes))
+        print("self.volumes = {}".format(self.volumes))
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
 
@@ -189,27 +189,27 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        # volume_mount = k8s.V1VolumeMount(
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        #     sub_path=None, read_only=False
-        # )
-        # self.volume_mounts = volume_mount
-        # print("volume_mount = {}".format(volume_mount))
-        # print("self.volume_mounts = {}".format(self.volume_mounts))
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+        print("volume_mounts = {}".format(volume_mounts))
+        print("self.volume_mounts = {}".format(self.volume_mounts))
 
-        # volume = k8s.V1Volume(
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        #     # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-        # )
-        # self.volumes = volume
-        # print("volume = {}".format(volume))
-        # print("self.volumes = {}".format(self.volumes))
+        volumes = k8s.V1Volume(
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
+        print("volumes = {}".format(volumes))
+        print("self.volumes = {}".format(self.volumes))
 
         return super().pre_execute(*args, **kwargs)
 
@@ -219,26 +219,27 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        # volume_mount = k8s.V1VolumeMount(
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        #     sub_path=None, read_only=False
-        # )
-        # self.volume_mounts = volume_mount
-        # print("volume_mount = {}".format(volume_mount))
-        # print("self.volume_mounts = {}".format(self.volume_mounts))
-        # volumes = k8s.V1Volume(
-        #     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
-        #     host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        #     # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        #     # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-        # )
-        # self.volumes = volume
-        # print("volume = {}".format(volume))
-        # print("self.volumes = {}".format(self.volumes))
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+        print("volume_mounts = {}".format(volume_mounts))
+        print("self.volume_mounts = {}".format(self.volume_mounts))
+
+        volumes = k8s.V1Volume(
+            name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+            host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
+        print("volumes = {}".format(volumes))
+        print("self.volumes = {}".format(self.volumes))
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
@@ -250,20 +251,8 @@ before_worker = KubernetesPodExPreOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
-    volumes=[k8s.V1Volume(
-        name='test-pvc',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-    )],
-    volume_mounts=[k8s.V1VolumeMount(
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='test-pvc',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        sub_path=None, read_only=False
-    )],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
     env_vars={
@@ -304,20 +293,9 @@ worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_work
 worker = KubernetesPodExWorkerOperator(
     namespace='default',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
-    volumes=[k8s.V1Volume(
-        name='test-pvc',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-    )],
-    volume_mounts=[k8s.V1VolumeMount(
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='test-pvc',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        sub_path=None, read_only=False
-    )],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}', 'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
@@ -329,20 +307,9 @@ worker = KubernetesPodExWorkerOperator(
 worker_success = KubernetesPodExPostOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
-    volumes=[k8s.V1Volume(
-        name='test-pvc',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-    )],
-    volume_mounts=[k8s.V1VolumeMount(
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='test-pvc',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        sub_path=None, read_only=False
-    )],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
     name="worker_success",
     task_id="worker_success",
     env_vars={
@@ -382,20 +349,9 @@ worker_success = KubernetesPodExPostOperator(
 worker_fail = KubernetesPodExPostOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
-    volumes=[k8s.V1Volume(
-        name='test-pvc',
-        host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-    )],
-    volume_mounts=[k8s.V1VolumeMount(
-        # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        name='test-pvc',
-        mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        sub_path=None, read_only=False
-    )],
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
     name="worker_fail",
     task_id="worker_fail",
     env_vars={
