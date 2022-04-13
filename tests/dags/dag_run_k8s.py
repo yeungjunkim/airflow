@@ -125,11 +125,11 @@ def make_worker_env(**kwargs):
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    # worker_env_vars = json.dumps(env_dict)
+    worker_env_vars = json.dumps(env_dict)
 
-    print(f'worker_env_vars:{env_dict}')
+    print(f'worker_env_vars:{worker_env_vars}')
 
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
@@ -142,8 +142,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
-        self.env_vars = kwargs['context']['task_instance'].xcom_pull(
-            task_ids='make_worker_env', key='worker_env_vars')
+        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_worker_env', key='worker_env_vars'))
 
         return super().pre_execute(*args, **kwargs)
 
@@ -155,8 +155,8 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
-        self.env_vars = kwargs['context']['task_instance'].xcom_pull(
-            task_ids='make_worker_env', key='worker_env_vars')
+        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_worker_env', key='worker_env_vars'))
 
         return super().pre_execute(*args, **kwargs)
 
