@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-
+import json
 
 default_args = {
     'start_date': datetime(2022, 1, 1),
@@ -40,8 +40,8 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         print("self.conf = {}".format(self.conf))
-        print("(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE'] = {}".format((self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']))
-        if (self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']:
+        print("json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE'] = {}".format(json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']))
+        if json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']:
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
