@@ -26,7 +26,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        kwargs['trigger_dag_id'] = '{{ti.xcom_pull(key="ACCUTUNING_TRIGGER_DAG_ID")}}'
+        # kwargs['trigger_dag_id'] = '{{ti.xcom_pull(key="ACCUTUNING_TRIGGER_DAG_ID")}}'
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -36,24 +36,16 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         # print(dir(self))
         conf = kwargs['context'].get('params', {})
         conf.update(self.conf)
-        self.conf = conf
 
+        self.conf = conf
         pprint(self.conf)
+        print("self.conf = {}".format(self.conf))
+        self.trigger_dag_id = 'ml_run_k8s'
+
         return super().pre_execute(*args, **kwargs)
 
 
 def which_path(*args, **kwargs):
-
-    if kwargs['params'].get('ACCUTUNING_K8S_USE'):
-        trigger_dag_id = 'ml_run_k8s'
-    else:
-        trigger_dag_id = 'ml_run_docker'
-
-    kwargs['task_instance'].xcom_push(key='ACCUTUNING_TRIGGER_DAG_ID', value=trigger_dag_id)
-    
-    print("kwargs['params'].get('ACCUTUNING_K8S_USE') ={}".format(kwargs['params'].get('ACCUTUNING_K8S_USE')))
-    print("kwargs['params'].get('experiment_process_type') ={}".format(kwargs['params'].get('experiment_process_type')))
-
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
 
