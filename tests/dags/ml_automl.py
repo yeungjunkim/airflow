@@ -31,7 +31,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
-        self.trigger_dag_id = trigger_dag_id
+        kwargs['trigger_dag_id'] = trigger_dag_id
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
