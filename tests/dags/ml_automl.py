@@ -27,6 +27,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
         # kwargs['trigger_dag_id'] = '{{ti.xcom_pull(key="ACCUTUNING_TRIGGER_DAG_ID")}}'
+        kwargs['trigger_dag_id'] = 'ml_run_k8s'
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -40,7 +41,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         print("self.conf = {}".format(self.conf))
-        kwargs['trigger_dag_id'] = 'ml_run_k8s'
+
 
         return super().pre_execute(*args, **kwargs)
 
