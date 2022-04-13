@@ -95,6 +95,8 @@ def make_parameters(**kwargs):
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
 
+
+
     # kwargs['task_instance'].xcom_push(key='ACCUTUNING_UUID', value=container_uuid)
     # kwargs['task_instance'].xcom_push(key='ACCUTUNING_DJANGO_COMMAND', value=django_command)
 
@@ -107,7 +109,8 @@ def make_parameters(**kwargs):
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     print("use_ensemble = {}".format(use_ensemble))
-
+    print("volume={}".format(volume))
+    print("volume_mount={}".format(volume_mount))
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
