@@ -43,12 +43,16 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
 
 
 def which_path(*args, **kwargs):
+
     if kwargs['params'].get('ACCUTUNING_K8S_USE'):
         trigger_dag_id = 'ml_run_k8s'
     else:
         trigger_dag_id = 'ml_run_docker'
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_TRIGGER_DAG_ID', value=trigger_dag_id)
+    
+    print("kwargs['params'].get('ACCUTUNING_K8S_USE') ={}".format(kwargs['params'].get('ACCUTUNING_K8S_USE')))
+    print("kwargs['params'].get('experiment_process_type') ={}".format(kwargs['params'].get('experiment_process_type')))
 
     return kwargs['params'].get('experiment_process_type', 'preprocess')
 
