@@ -162,7 +162,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             sub_path=None, read_only=False
         )
         self.volume_mounts = volume_mount
-        print("volume_mount = {}".format(self.volume_mount))
+        print("volume_mount = {}".format(volume_mount))
+        print("self.volume_mounts = {}".format(self.volume_mounts))
 
         volume = k8s.V1Volume(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
@@ -170,7 +171,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = volume
-        print("volume = {}".format(self.volume))
+        print("volume = {}".format(volume))
+        print("self.volumes = {}".format(self.volumes))
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
 
