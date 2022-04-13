@@ -25,14 +25,14 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['wait_for_completion'] = True
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
-        print(f"kwargs['conf'].get('ACCUTUNING_K8S_USE') = {kwargs['conf'].get('ACCUTUNING_K8S_USE')}")
+        # print(f"kwargs['conf'].get('ACCUTUNING_K8S_USE') = {kwargs['conf'].get('ACCUTUNING_K8S_USE')}")
         print(f"dict(experiment_process_type=kwargs['task_id'])['ACCUTUNING_K8S_USE' = {dict(experiment_process_type=kwargs['task_id'])['ACCUTUNING_K8S_USE']}")
-        if kwargs['conf'].get('ACCUTUNING_K8S_USE') or dict(experiment_process_type=kwargs['task_id'])['ACCUTUNING_K8S_USE']:
+        kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
+        if kwargs['conf'].get('ACCUTUNING_K8S_USE'):
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
         kwargs['trigger_dag_id'] = trigger_dag_id  # ml_run_k8s 와 어떻게 분기할까요?
-        kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
