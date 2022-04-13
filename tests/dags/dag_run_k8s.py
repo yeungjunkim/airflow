@@ -164,12 +164,13 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
             sub_path=None, read_only=False
         )
-
+        print("volume_mount = {}".format(self.volume_mount))
         self.volume = k8s.V1Volume(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
             # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
+        print("volume = {}".format(self.volume))
 
         return super().pre_execute(*args, **kwargs)
 
