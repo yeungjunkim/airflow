@@ -8,7 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
 # from airflow.operators.python_operator import BranchPythonOperator
 from airflow.utils.edgemodifier import Label  #label 쓰기 위한 library
-# import json
+import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 # import pprint
 
@@ -65,26 +65,6 @@ def get_command_name(experiment_process_type):
     return command_dict[experiment_process_type]
 
 
-# def get_next_experiment_process_type(experiment_process_type, use_ensemble):
-#     command_list = [
-#         'parse', 'preprocess', 'optuna', 'ensemble', 'deploy', 'predict', 'labeling', 'lb_predict', 'modelstat', 'dataset_eda',
-#     ]
-#     print("experiment_process_type = {}".format(experiment_process_type))
-#     print("use_ensemble = {}".format(use_ensemble))
-#     print("experiment_process_type == 'optuna' = {}".format(experiment_process_type == 'optuna'))
-#     print("use_ensemble == 'False' = {}".format(use_ensemble == 'False'))
-
-#     if experiment_process_type == "preprocess" or \
-#        experiment_process_type == "optuna" or \
-#        experiment_process_type == "ensemble":
-#         if experiment_process_type == 'optuna' and use_ensemble == 'False':  # to deploy
-#             return command_list[command_list.index(experiment_process_type) + 2]
-#         else:
-#             return command_list[command_list.index(experiment_process_type) + 1]
-#     else:
-#         return 'None'
-
-
 def make_uuid():
     import uuid
     return str(uuid.uuid4()).replace('-', '')
@@ -100,17 +80,10 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 def make_parameters(**kwargs):
     experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
-    # experiment_target = kwargs['dag_run'].conf['experiment_target']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
-
-    print("experiment_id = {}".format(experiment_id))
-    print("experiment_process_type = {}".format(experiment_process_type))
-    print("use_ensemble = {}".format(use_ensemble))
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
-    # kwargs['dag_run'].conf['ACCUTUNING_UUID'] = container_uuid
-    # kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = django_command
 
     targets = dict(
         target_dataset=kwargs['dag_run'].conf.get('target_dataset'),
@@ -124,47 +97,38 @@ def make_parameters(**kwargs):
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_UUID', value=container_uuid)
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_DJANGO_COMMAND', value=django_command)
 
-    # print("kwargs['dag_run'].conf['ACCUTUNING_UUID'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_UUID']))
-    # print("kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND'] = {}".format(kwargs['dag_run'].conf['ACCUTUNING_DJANGO_COMMAND']))
-
-    django_command = get_command_name(experiment_process_type)
-    # django_next_process = get_next_experiment_process_type(experiment_process_type, use_ensemble)
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, targets)
 
-    # print("django_next_command = {}".format(django_next_command))
-    # print("django_next_process = {}".format(django_next_process))
-
-    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_UUID', value=container_uuid)
-    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_COMMAND', value=django_next_command)
-    # kwargs['task_instance'].xcom_push(key='NEXT_ACCUTUNING_DJANGO_PROCESS', value=django_next_process)
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
+
+    print("experiment_id = {}".format(experiment_id))
+    print("experiment_process_type = {}".format(experiment_process_type))
+    print("use_ensemble = {}".format(use_ensemble))
 
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
 
-    # worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
+    worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
     print(f'workspace_path:{workspace_path}')
-    # print(f'worker_env_vars:{worker_env_vars_str}')
+    print(f'worker_env_vars:{worker_env_vars_str}')
 
-    # env_dict = json.loads(worker_env_vars_str)
-    # env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+    env_dict = json.loads(worker_env_vars_str)
+    env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    # worker_env_vars = json.dumps(env_dict)
+    worker_env_vars = json.dumps(env_dict)
 
-    # print(f'worker_env_vars:{worker_env_vars}')
+    print(f'worker_env_vars:{worker_env_vars}')
 
-    # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
+    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
  
-from docker.types import Mount
-
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
@@ -173,10 +137,10 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
-        return super().pre_execute(*args, **kwargs)
+        self.env_vars = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_worker_env', key='worker_env_vars')
 
-    def execute(self, context):
-        super().execute(context)
+        return super().pre_execute(*args, **kwargs)
 
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
@@ -186,10 +150,10 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
-        return super().pre_execute(*args, **kwargs)
+        self.env_vars = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_worker_env', key='worker_env_vars')
 
-    def execute(self, context):
-        super().execute(context)
+        return super().pre_execute(*args, **kwargs)
 
 
 before_worker = KubernetesPodExPreOperator(
@@ -200,13 +164,13 @@ before_worker = KubernetesPodExPreOperator(
     volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
-    env_vars={
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    },
+    # env_vars={
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # },
     cmds=["python3"],
     # arguments=this.arguments,
     # arguments=[
@@ -255,13 +219,13 @@ worker_success = KubernetesPodExPostOperator(
     volume_mounts=[volume_mount],
     name="worker_success",
     task_id="worker_success",
-    env_vars={
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    },
+    # env_vars={
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # },
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
@@ -297,13 +261,13 @@ worker_fail = KubernetesPodExPostOperator(
     name="worker_fail",
     task_id="worker_fail",
     # env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL"] if dag_run else "" }}', 'ACCUTUNING_WORKSPACE':'{{dag_run.conf.ACCUTUNING_WORKSPACE"] if dag_run else "" }}'},
-    env_vars={
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    },
+    # env_vars={
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # },
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
