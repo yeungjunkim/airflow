@@ -26,7 +26,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        kwargs['trigger_dag_id'] = "{{if dag_run.conf.ACCUTUNING_K8S_USE print('ml_run_k8s') else print('ml_run_docker')}}"
+        kwargs['trigger_dag_id'] = "{{if dag_run.conf.ACCUTUNING_K8S_USE print('ml_run_k8s') else print('ml_run_docker') endif}}"
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
