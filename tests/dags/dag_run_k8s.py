@@ -121,14 +121,14 @@ def make_worker_env(**kwargs):
     env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
     env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
     env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
-    
+
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    worker_env_vars = json.dumps(env_dict)
+    # worker_env_vars = json.dumps(env_dict)
 
-    print(f'worker_env_vars:{worker_env_vars}')
+    print(f'worker_env_vars:{env_dict}')
 
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=worker_env_vars)
+    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
