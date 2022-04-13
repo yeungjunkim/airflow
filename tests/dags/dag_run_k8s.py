@@ -156,9 +156,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        self.arguments = kwargs['context']['task_instance'].xcom_pull(
-            task_ids='make_parameters', key='before_command').split()
-
         self.volume_mount = k8s.V1VolumeMount(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
             mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
@@ -170,6 +167,10 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
+
+        self.arguments = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_parameters', key='before_command').split()
+
         # print("volume = {}".format(self.volume))
 
         return super().pre_execute(*args, **kwargs)
@@ -200,9 +201,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        self.arguments = kwargs['context']['task_instance'].xcom_pull(
-            task_ids='make_parameters', key='after_command').split()
-
         self.volume_mount = k8s.V1VolumeMount(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
             mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
@@ -214,6 +212,11 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
+        
+        self.arguments = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_parameters', key='after_command').split()
+
+
 
         return super().pre_execute(*args, **kwargs)
 
