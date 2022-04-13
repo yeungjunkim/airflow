@@ -40,8 +40,8 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         print("self.conf = {}".format(self.conf))
-        print("self.conf['ACCUTUNING_K8S_USE'] = {}".format(self.conf['ACCUTUNING_K8S_USE']))
-        if self.conf['ACCUTUNING_K8S_USE']:
+        print("self.conf['accutuning_env_vars']['ACCUTUNING_K8S_USE'] = {}".format(self.conf['accutuning_env_vars']['ACCUTUNING_K8S_USE']))
+        if self.conf['accutuning_env_vars']['ACCUTUNING_K8S_USE']:
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
