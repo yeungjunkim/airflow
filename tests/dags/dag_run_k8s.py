@@ -41,7 +41,7 @@ start = DummyOperator(task_id='start', dag=dag)
 #     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 # )
 
-volume_mount = k8s.V1VolumeMount('test-pvc', mount_path='/workspace', sub_path=None, read_only=False)
+volume_mount = k8s.V1VolumeMount(name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False)
 volume_config = {'persistentVolumeClaim': {'claimName': 'test-pvc'}}
 volume = k8s.V1Volume(name='test-pv', configs=volume_config)
 
