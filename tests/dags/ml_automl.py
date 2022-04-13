@@ -26,7 +26,9 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        print(f"kwargs['conf'] = {kwargs['conf']}")
+        print("/////////////")
+        print("kwargs['conf'] = {}".format(kwargs['conf']))
+        print("/////////////")
         # if kwargs['conf']['params'].get('ACCUTUNING_K8S_USE'):
         trigger_dag_id = 'ml_run_k8s'
         # else:
