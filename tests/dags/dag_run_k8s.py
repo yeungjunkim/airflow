@@ -183,6 +183,9 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
+        print(f'args = {args}')
+        print(f'kwargs = {kwargs}')
+
         # volume_mount = k8s.V1VolumeMount(
         #     name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         #     mount_path=kwargs['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
@@ -223,10 +226,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         # )
         # self.volume = volume
         # print("volume = {}".format(self.volume))
-        print(f'self = {self}')
-        print(f'args = {args}')
-        print(f'kwargs = {kwargs}')
-
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
