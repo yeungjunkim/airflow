@@ -26,7 +26,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        kwargs['trigger_dag_id'] = kwargs['task_instance'].xcom_pull(task_ids='branch', key='return_value')["trigger_dag_id"]
+        kwargs['trigger_dag_id'] = kwargs['context']['task_instance'].xcom_pull(task_ids='branch', key='return_value')["trigger_dag_id"]
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
