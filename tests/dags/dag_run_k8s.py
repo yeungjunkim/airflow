@@ -171,7 +171,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         # )
         # self.volume = volume
 
-        print("volume = {}".format(self.volume))
+        # print("volume = {}".format(self.volume))
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
@@ -226,7 +226,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         # )
         # self.volume = volume
 
-        print("volume = {}".format(self.volume))
+        # print("volume = {}".format(self.volume))
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
