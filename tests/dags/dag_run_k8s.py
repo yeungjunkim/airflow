@@ -208,21 +208,24 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        volume_mount = k8s.V1VolumeMount(
-            name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-            mount_path=kwargs['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-            sub_path=None, read_only=False
-        )
-        self.volume_mount = volume_mount
-        print("volume_mount = {}".format(self.volume_mount))
+        # volume_mount = k8s.V1VolumeMount(
+        #     name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+        #     mount_path=kwargs['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+        #     sub_path=None, read_only=False
+        # )
+        # self.volume_mount = volume_mount
+        # print("volume_mount = {}".format(self.volume_mount))
 
-        volume = k8s.V1Volume(
-            name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-            host_path=k8s.V1HostPathVolumeSource(path=kwargs['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-        )
-        self.volume = volume
-        print("volume = {}".format(self.volume))
+        # volume = k8s.V1Volume(
+        #     name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+        #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+        #     host_path=k8s.V1HostPathVolumeSource(path=kwargs['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        # )
+        # self.volume = volume
+        # print("volume = {}".format(self.volume))
+        print(f'self = {self}')
+        print(f'args = {args}')
+        print(f'kwargs = {kwargs}')
 
         super().__init__(*args, **kwargs)
 
