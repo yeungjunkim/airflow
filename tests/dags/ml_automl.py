@@ -26,6 +26,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
+    
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -34,14 +35,13 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         # print(self.conf)
         # print(dir(self))
         conf = kwargs['context'].get('params', {})
+        conf.update(self.conf)
+        self.conf = conf
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_USE'):
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
-        kwargs['trigger_dag_id'] = trigger_dag_id  # ml_run_k8s 와 어떻게 분기할까요?
-
-        conf.update(self.conf)
-        self.conf = conf
+        self.trigger_dag_id = trigger_dag_id
         pprint(self.conf)
         return super().pre_execute(*args, **kwargs)
 
