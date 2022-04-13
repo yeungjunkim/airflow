@@ -26,7 +26,6 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         kwargs['poke_interval'] = 1
         kwargs['reset_dag_run'] = True
         kwargs['conf'] = kwargs.get('conf') or dict(experiment_process_type=kwargs['task_id'])
-        # kwargs['trigger_dag_id'] = '{{ti.xcom_pull(key="ACCUTUNING_TRIGGER_DAG_ID")}}'
         kwargs['trigger_dag_id'] = 'ml_run_k8s'
         super().__init__(*args, **kwargs)
 
@@ -41,7 +40,15 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         print("self.conf = {}".format(self.conf))
+        if self.conf.get('ACCUTUNING_K8S_USE'):
+            trigger_dag_id = 'ml_run_k8s'
+        else:
+            trigger_dag_id = 'ml_run_docker'
 
+        print("trigger_dag_id = {}".format(trigger_dag_id))
+
+        self.trigger_dag_id = trigger_dag_id
+        print("self.trigger_dag_id = {}".format(self.trigger_dag_id))
 
         return super().pre_execute(*args, **kwargs)
 
