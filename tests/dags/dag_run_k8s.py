@@ -171,9 +171,12 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        super().arguments = kwargs['context']['task_instance'].xcom_pull(
+        self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
         return super().pre_execute(*args, **kwargs)
+
+    def execute(self, context):
+        super().execute(context)
 
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
@@ -184,6 +187,9 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
         return super().pre_execute(*args, **kwargs)
+
+    def execute(self, context):
+        super().execute(context)
 
 
 before_worker = KubernetesPodExPreOperator(
@@ -202,7 +208,7 @@ before_worker = KubernetesPodExPreOperator(
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     },
     cmds=["python3"],
-    arguments=arguments,
+    # arguments=this.arguments,
     # arguments=[
     #     "/code/manage.py",
     #     "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
