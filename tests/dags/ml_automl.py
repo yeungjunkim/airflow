@@ -40,7 +40,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         self.conf = conf
         pprint(self.conf)
         print("self.conf = {}".format(self.conf))
-        self.trigger_dag_id = 'ml_run_k8s'
+        kwargs['trigger_dag_id'] = 'ml_run_k8s'
 
         return super().pre_execute(*args, **kwargs)
 
