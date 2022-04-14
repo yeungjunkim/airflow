@@ -32,24 +32,14 @@ dag = DAG(
 start = DummyOperator(task_id='start', dag=dag)
 
 # volume_mount = k8s.V1VolumeMount(
-#     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}', mount_path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}', sub_path=None, read_only=False
+#     name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False
 # )
 
 # volume = k8s.V1Volume(
-#     name='{{dag_run.conf.ACCUTUNING_PVC_NAME}}',
+#     name='test-pvc',
 #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#     host_path=k8s.V1HostPathVolumeSource(path='{{dag_run.conf.ACCUTUNING_WORKSPACE}}'),
+#     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
 # )
-
-volume_mount = k8s.V1VolumeMount(
-    name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False
-)
-
-volume = k8s.V1Volume(
-    name='test-pvc',
-    # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-    host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
-)
 
 
 configmaps = [
@@ -71,6 +61,7 @@ def get_command_name(experiment_process_type):
         'cluster': 'cl_run',
         'cl_predict': 'cl_predict',
         'dataset_eda': 'ml_dataset_eda',
+        'optuna_monitor': 'ml_optuna_monitor',
         'None': 'None',
     }
     return command_dict[experiment_process_type]
@@ -105,11 +96,6 @@ def make_parameters(**kwargs):
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
 
-
-
-    # kwargs['task_instance'].xcom_push(key='ACCUTUNING_UUID', value=container_uuid)
-    # kwargs['task_instance'].xcom_push(key='ACCUTUNING_DJANGO_COMMAND', value=django_command)
-
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, targets)
 
@@ -119,9 +105,7 @@ def make_parameters(**kwargs):
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     print("use_ensemble = {}".format(use_ensemble))
-    # print("volume={}".format(volume))
-    # print("volume_mount={}".format(volume_mount))
-
+ 
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
@@ -162,8 +146,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
-        print("volume_mounts = {}".format(volume_mounts))
-        print("self.volume_mounts = {}".format(self.volume_mounts))
 
         volumes = k8s.V1Volume(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
@@ -171,8 +153,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
-        print("volumes = {}".format(volumes))
-        print("self.volumes = {}".format(self.volumes))
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
 
@@ -191,8 +171,6 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
             sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
-        print("volume_mounts = {}".format(volume_mounts))
-        print("self.volume_mounts = {}".format(self.volume_mounts))
 
         volumes = k8s.V1Volume(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
@@ -200,8 +178,6 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
-        print("volumes = {}".format(volumes))
-        print("self.volumes = {}".format(self.volumes))
 
         return super().pre_execute(*args, **kwargs)
 
@@ -217,8 +193,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
-        print("volume_mounts = {}".format(volume_mounts))
-        print("self.volume_mounts = {}".format(self.volume_mounts))
 
         volumes = k8s.V1Volume(
             name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
@@ -226,8 +200,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
-        print("volumes = {}".format(volumes))
-        print("self.volumes = {}".format(self.volumes))
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
@@ -251,24 +223,7 @@ before_worker = KubernetesPodExPreOperator(
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     },
     cmds=["python3"],
-    # arguments=this.arguments,
-    # arguments=[
-    #     "/code/manage.py",
-    #     "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
-    #     "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
-    #     "--uuid={{ ti.xcom_pull(key='ACCUTUNING_UUID') }}",
-    #     "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}",
-    #     "--execute_range=before",
-    #     "--experiment_process_type={{dag_run.conf.experiment_process_type']}}",
-    #     # "--experiment_target={{dag_run.conf.experiment_target']}}",
-    #     "--proceed_next={{dag_run.conf.proceed_next}}",
-    #     "--target_dataset={{dag_run.conf.target_dataset}}",
-    #     # "--target_dataset_eda={{dag_run.conf.target_dataset_eda']}}",
-    #     # "--target_prediction={{dag_run.conf.target_prediction']}}",
-    #     # "--target_model_base={{dag_run.conf.target_model_base']}}",
-    #     # "--target_deployment={{dag_run.conf.target_deployment']}}",
-    #     # "--target_source={{dag_run.conf.target_source']}}",
-    # ],
+
     do_xcom_push=True,
     image_pull_policy='Always',
     get_logs=True,
@@ -311,23 +266,7 @@ worker_success = KubernetesPodExPostOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-    # arguments=[
-    #     "/code/manage.py",
-    #     "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
-    #     "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
-    #     "--uuid={{ ti.xcom_pull(key='ACCUTUNING_UUID') }}",
-    #     "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}",
-    #     "--execute_range=after",
-    #     "--experiment_process_type={{dag_run.conf.experiment_process_type']}}",
-    #     # "--experiment_target={{dag_run.conf.experiment_target']}}",
-    #     "--proceed_next={{dag_run.conf.proceed_next']}}",
-    #     "--target_dataset={{dag_run.conf.target_dataset'] if dag_run.conf.target_dataset']}}",
-    #     # "--target_dataset_eda={{dag_run.conf.target_dataset_eda'] if dag_run.conf.target_dataset_eda'] }}",
-    #     # "--target_prediction={{dag_run.conf.target_prediction'] if dag_run.conf.target_prediction']}}",
-    #     # "--target_model_base={{dag_run.conf.target_model_base'] if dag_run.conf.target_model_base']}}",
-    #     # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
-    #     # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
-    # ],
+
     image_pull_policy='Always',
     get_logs=True,
     dag=dag,
@@ -353,23 +292,6 @@ worker_fail = KubernetesPodExPostOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    # arguments=[
-    #     "/code/manage.py",
-    #     "{{ ti.xcom_pull(key='ACCUTUNING_DJANGO_COMMAND') }}",
-    #     "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",
-    #     "--uuid={{ ti.xcom_pull(key='ACCUTUNING_UUID') }}",
-    #     "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}",
-    #     "--execute_range=after",
-    #     "--experiment_process_type={{dag_run.conf.experiment_process_type']}}",
-    #     # "--experiment_target={{dag_run.conf.experiment_target']}}",
-    #     "--proceed_next={{dag_run.conf.proceed_next']}}",
-    #     "--target_dataset={{dag_run.conf.target_dataset'] if dag_run.conf.target_dataset']}}",
-    #     # "--target_dataset_eda={{dag_run.conf.target_dataset_eda'] if dag_run.conf.target_dataset_eda'] }}",
-    #     # "--target_prediction={{dag_run.conf.target_prediction'] if dag_run.conf.target_prediction']}}",
-    #     # "--target_model_base={{dag_run.conf.target_model_base'] if dag_run.conf.target_model_base']}}",
-    #     # "--target_deployment={{dag_run.conf.target_deployment'] if dag_run.conf.target_deployment']}}",
-    #     # "--target_source={{dag_run.conf.target_source'] if dag_run.conf.target_source']}}",
-    # ],
     image_pull_policy='Always',
     get_logs=True,
     dag=dag,
