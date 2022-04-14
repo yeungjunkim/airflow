@@ -108,7 +108,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
     # optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
-    ensemble_monitor = TriggerDagRunWithConfigOperator(task_id='ensemble_monitor')
+    # ensemble_monitor = TriggerDagRunWithConfigOperator(task_id='ensemble_monitor')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', conf=dict(target=None, experiment_process_type='deploy'))
     # deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
@@ -136,7 +136,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
 
     start >> start_branch >> [deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
 
-    start_branch >> preprocess >> [optuna, optuna_monitor] >> ensemble_branch >> [[ensemble, ensemble_monitor], no_ensemble] >> deploy_auto >> end
+    start_branch >> preprocess >> [optuna, optuna_monitor] >> ensemble_branch >> [ensemble, no_ensemble] >> deploy_auto >> end
     start_branch >> parse >> batch_branch >> no_batch_automl >> end
     start_branch >> parse >> batch_branch >> yes_batch_automl >> batch_automl >> end
 
