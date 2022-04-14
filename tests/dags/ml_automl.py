@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.utils.task_group import TaskGroup
 import json
 
 default_args = {
@@ -39,23 +40,21 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
 
         self.conf = conf
         pprint(self.conf)
-        print("self.conf = {}".format(self.conf))
-        print("json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE'] = {}".format(json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']))
+
         if json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']:
             trigger_dag_id = 'ml_run_k8s'
         else:
             trigger_dag_id = 'ml_run_docker'
 
-        print("trigger_dag_id = {}".format(trigger_dag_id))
-
         self.trigger_dag_id = trigger_dag_id
-        print("self.trigger_dag_id = {}".format(self.trigger_dag_id))
 
         return super().pre_execute(*args, **kwargs)
 
 
 def which_path(*args, **kwargs):
-    return kwargs['params'].get('experiment_process_type', 'preprocess')
+    next_process = kwargs['params'].get('experiment_process_type', 'preprocess')
+    print(" start_branch, next_process = {}".format(next_process))
+    return next_process
 
 
 def which_path2(*args, **kwargs):
@@ -70,19 +69,49 @@ def which_path2(*args, **kwargs):
     return next_process
 
 
+def which_path3(*args, **kwargs):
+    proceed_next = kwargs['params'].get('proceed_next')
+
+    if proceed_next:
+        next_process = 'yes_batch_automl'
+    else:
+        next_process = 'no_batch_automl'
+    print(" proceed_next = {}, next_process = {}".format(proceed_next, next_process))
+    return next_process
+
+
+def _build(task_id):
+    with TaskGroup(group_id=task_id) as tg:
+        preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess')
+        optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
+
+        ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
+        no_ensemble = DummyOperator(task_id='no_ensemble')
+        ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
+
+        deploy_auto = TriggerDagRunWithConfigOperator(
+            task_id='deploy_auto',
+            trigger_rule='one_success',
+            conf=dict(target=None, experiment_process_type='deploy'))
+        preprocess >> optuna >> ensemble_branch >> [ensemble, no_ensemble] >> deploy_auto
+
+    return tg
+
+
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
     parse = TriggerDagRunWithConfigOperator(task_id='parse')
-    preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess')
+    preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess', trigger_rule='one_success')
     optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
+    optuna_monitor = TriggerDagRunWithConfigOperator(task_id='optuna_monitor')
     # optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
     # optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', conf=dict(target=None, experiment_process_type='deploy'))
-    deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
-        task_id='deploy_auto_with_ensemble', conf=dict(target=None, experiment_process_type='deploy'))
+    # deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
+    #     task_id='deploy_auto_with_ensemble', conf=dict(target=None, experiment_process_type='deploy'))
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
     lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
     modelstat = TriggerDagRunWithConfigOperator(task_id='modelstat')
@@ -97,11 +126,16 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
     ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
+    batch_branch = BranchPythonOperator(task_id='batch_branch', python_callable=which_path3)
     no_ensemble = DummyOperator(task_id='no_ensemble')
 
-    start >> start_branch >> [parse, deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
-    # start_branch >> preprocess >> [optuna, optuna_extra1, optuna_extra2, optuna_extra3] >> ensemble >> deploy >> end
+    yes_batch_automl = DummyOperator(task_id='yes_batch_automl')
+    no_batch_automl = DummyOperator(task_id='no_batch_automl')
+    batch_automl = _build('batch_automl')
 
-    # ensemble branch에서 ensemble이 아니면 deploy_auto를 수행하지 않는 문제;
-    start_branch >> preprocess >> optuna >> ensemble_branch >> ensemble >> deploy_auto_with_ensemble >> end
-    start_branch >> preprocess >> optuna >> ensemble_branch >> no_ensemble >> deploy_auto >> end
+    start >> start_branch >> [deploy, labeling, lb_predict, modelstat, predict, cluster, cl_predict, dataset_eda] >> end
+
+    start_branch >> preprocess >> [optuna, optuna_monitor] >> ensemble_branch >> [ensemble, no_ensemble] >> deploy_auto >> end
+    start_branch >> parse >> batch_branch >> no_batch_automl >> end
+    start_branch >> parse >> batch_branch >> yes_batch_automl >> batch_automl >> end
+
