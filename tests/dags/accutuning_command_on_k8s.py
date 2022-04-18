@@ -42,9 +42,9 @@ def make_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
 
-def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, targets):
+def make_accutuning_docker_command(django_command, experiment_id, container_uuid, experiment_process_type, proceed_next, targets):
     command = f'''/code/manage.py {django_command}
---experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
+--experiment={experiment_id} --uuid={container_uuid} \
 --experiment_process_type={experiment_process_type} --proceed_next={proceed_next} '''
     return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
 
@@ -75,29 +75,29 @@ def make_parameters(**kwargs):
     print("use_ensemble = {}".format(use_ensemble))
 
 
-def make_worker_env(**kwargs):
-    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+# def make_worker_env(**kwargs):
+#     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
 
-    worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
+#     worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
-    print(f'workspace_path:{workspace_path}')
-    print(f'worker_env_vars:{worker_env_vars_str}')
+#     print(f'workspace_path:{workspace_path}')
+#     print(f'worker_env_vars:{worker_env_vars_str}')
 
-    env_dict = json.loads(worker_env_vars_str)
-    # env_dict = {}
-    env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
-    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
-    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
-    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
-    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
+#     env_dict = json.loads(worker_env_vars_str)
+#     # env_dict = {}
+#     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+#     env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
+#     env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
+#     env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
+#     env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
 
-    kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
+#     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    # worker_env_vars = json.dumps(env_dict)
+#     # worker_env_vars = json.dumps(env_dict)
 
-    print(f'worker_env_vars:{env_dict}')
+#     print(f'worker_env_vars:{env_dict}')
 
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+#     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
@@ -152,7 +152,7 @@ before_worker = KubernetesPodExOperator(
 )
 
 
-worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
+# worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 
 # one_success로 해야 skip된 task를 무시함
@@ -163,4 +163,4 @@ end = DummyOperator(
 )
 
 
-start >> Label("parameter") >> parameters >> Label("app 중 before_worker Call") >> before_worker >> Label("common_module worker 중 Call") >> worker_env >> end
+start >> parameters >> before_worker >> end
