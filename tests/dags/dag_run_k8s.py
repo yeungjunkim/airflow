@@ -27,7 +27,7 @@ default_args = {
 }
 
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, schedule_interval=timedelta(minutes=10))
+    'ml_run_k8s', default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -62,6 +62,7 @@ def get_command_name(experiment_process_type):
         'cl_predict': 'cl_predict',
         'dataset_eda': 'ml_dataset_eda',
         'optuna_monitor': 'ml_optuna_monitor',
+        'ensemble_monitor': 'ml_ensemble_monitor',
         'None': 'None',
     }
     return command_dict[experiment_process_type]
@@ -105,7 +106,7 @@ def make_parameters(**kwargs):
     print("experiment_id = {}".format(experiment_id))
     print("experiment_process_type = {}".format(experiment_process_type))
     print("use_ensemble = {}".format(use_ensemble))
- 
+
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
