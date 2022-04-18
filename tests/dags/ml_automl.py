@@ -96,7 +96,7 @@ def _build(task_id):
             task_id='deploy_auto',
             trigger_rule='one_success',
             conf=dict(target=None, experiment_process_type='deploy'))
-        preprocess >> optuna >> ensemble_branch >> [ensemble, ensemble_monitor, no_ensemble] >> deploy_auto
+        preprocess >> [optuna, optuna_monitor] >> ensemble_branch >> [ensemble, ensemble_monitor, no_ensemble] >> deploy_auto
 
     return tg
 
