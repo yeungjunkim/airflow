@@ -96,7 +96,7 @@ def _build(task_id):
             task_id='deploy_auto',
             trigger_rule='one_success',
             conf=dict(target=None, experiment_process_type='deploy'))
-        preprocess >> optuna >> ensemble_branch >> [ensemble, no_ensemble] >> deploy_auto
+        preprocess >> optuna >> ensemble_branch >> [ensemble, ensemble_monitor, no_ensemble] >> deploy_auto
 
     return tg
 
@@ -113,7 +113,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
     ensemble_monitor = TriggerDagRunWithConfigOperator(task_id='ensemble_monitor')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
-    deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', conf=dict(target=None, experiment_process_type='deploy'))
+    deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', conf=dict(target=None, experiment_process_type='deploy'), trigger_rule='one_success')
     # deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
     #     task_id='deploy_auto_with_ensemble', conf=dict(target=None, experiment_process_type='deploy'))
     labeling = TriggerDagRunWithConfigOperator(task_id='labeling')
