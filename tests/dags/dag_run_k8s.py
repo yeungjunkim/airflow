@@ -73,11 +73,11 @@ def make_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
 
-def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, targets):
+def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, targets):
     command = f'''/code/manage.py {django_command}
 --experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
 --experiment_process_type={experiment_process_type} --proceed_next={proceed_next}
---triggered_dag_id={dag_id} --triggered_dag_run_id={"{run_id}"}'''
+--triggered_dag_id={triggered_dag_id} --triggered_dag_run_id={triggered_dag_run_id}'''
     return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
 
 
@@ -98,8 +98,8 @@ def make_parameters(**kwargs):
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
 
-    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, targets)
-    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, targets)
+    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
+    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
 
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
