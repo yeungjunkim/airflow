@@ -25,9 +25,9 @@ default_args = {
     'render_template_as_native_obj': True,
     'provide_context': True,
 }
-
+dag_id = 'ml_run_k8s'
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, schedule_interval=None)
+    dag_id, default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -73,10 +73,11 @@ def make_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
 
-def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, targets):
+def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, targets):
     command = f'''/code/manage.py {django_command}
 --experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
---experiment_process_type={experiment_process_type} --proceed_next={proceed_next} '''
+--experiment_process_type={experiment_process_type} --proceed_next={proceed_next}
+--triggered_dag_id={dag_id} --triggered_dag_run_id={"{run_id}"}'''
     return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
 
 
