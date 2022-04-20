@@ -98,6 +98,11 @@ def make_parameters(**kwargs):
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
 
+    print("//////////////////")
+    print(f"dag_id = {dag_id}")
+    print("triggered_dag_run_id = {}".format("{{triggered_dag_run_id}}"))
+    print("//////////////////")
+    print("//////////////////")
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
 
