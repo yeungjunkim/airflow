@@ -100,11 +100,11 @@ def make_parameters(**kwargs):
 
     print("//////////////////")
     print(f"dag_id = {dag_id}")
-    print("triggered_dag_run_id = {}".format("{{triggered_dag_run_id}}"))
+    print("triggered_dag_run_id = {}".format("{{run_id}}"))
     print("//////////////////")
     print("//////////////////")
-    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
-    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, "{{triggered_dag_run_id}}", targets)
+    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, "{{run_id}}", targets)
+    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, "{{run_id}}", targets)
 
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
