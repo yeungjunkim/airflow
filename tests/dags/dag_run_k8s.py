@@ -98,13 +98,13 @@ def make_parameters(**kwargs):
         target_deployment=kwargs['dag_run'].conf.get('target_deployment'),
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
-    # triggered_dag_id = dag_id  전역 변수 
+    # triggered_dag_id = dag_id  전역 변수
     triggered_dag_run_id = kwargs['dag_run'].run_id
     airflow_dag_call_id = kwargs['dag_run'].airflow_dag_call_id
     print("//////////////////")
     print(f"triggered_dag_id = {triggered_dag_id}")
     print(f"triggered_dag_run_id = {triggered_dag_run_id}")
-    print(f"airflow_dag_call_id = {airflow_dag_call_id}")    
+    print(f"airflow_dag_call_id = {airflow_dag_call_id}")
     print("//////////////////")
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
