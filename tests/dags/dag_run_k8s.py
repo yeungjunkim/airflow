@@ -73,12 +73,11 @@ def make_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
 
-def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range,
-    experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets):
+def make_accutuning_docker_command(django_command, experiment_id, container_uuid, execute_range, experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets):
     command = f'''/code/manage.py {django_command}
 --experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
 --experiment_process_type={experiment_process_type} --proceed_next={proceed_next}
---triggered_dag_id={triggered_dag_id} --triggered_dag_run_id={triggered_dag_run_id} 
+--triggered_dag_id={triggered_dag_id} --triggered_dag_run_id={triggered_dag_run_id}
 --airflow_dag_call_id={triggered_dag_id} '''
     return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
 
