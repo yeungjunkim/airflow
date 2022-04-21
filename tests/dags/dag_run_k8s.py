@@ -89,7 +89,6 @@ def make_parameters(**kwargs):
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
-    # airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
     targets = dict(
         target_dataset=kwargs['dag_run'].conf.get('target_dataset'),
         target_dataset_eda=kwargs['dag_run'].conf.get('target_dataset_eda'),
@@ -100,7 +99,7 @@ def make_parameters(**kwargs):
     )
     # triggered_dag_id = dag_id  전역 변수
     triggered_dag_run_id = kwargs['dag_run'].run_id
-    airflow_dag_call_id = kwargs['dag_run'].airflow_dag_call_id
+    airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
     print("//////////////////")
     print(f"triggered_dag_id = {triggered_dag_id}")
     print(f"triggered_dag_run_id = {triggered_dag_run_id}")
