@@ -90,7 +90,7 @@ def make_parameters(**kwargs):
     use_ensemble = kwargs['dag_run'].conf['use_ensemble']
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
-
+    airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
     targets = dict(
         target_dataset=kwargs['dag_run'].conf.get('target_dataset'),
         target_dataset_eda=kwargs['dag_run'].conf.get('target_dataset_eda'),
@@ -103,10 +103,11 @@ def make_parameters(**kwargs):
     print("//////////////////")
     print(f"dag_id = {dag_id}")
     print("kwargs['dag_run'].run_id = {}".format(kwargs['dag_run'].run_id))
+    print(f"airflow_dag_call_id = {airflow_dag_call_id}")
     print("//////////////////")
     print("//////////////////")
-    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, kwargs['dag_run'].run_id, targets)
-    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, kwargs['dag_run'].run_id, targets)
+    docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, dag_id, kwargs['dag_run'].run_id, airflow_dag_call_id, targets)
+    docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, dag_id, kwargs['dag_run'].run_id, airflow_dag_call_id, targets)
 
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
