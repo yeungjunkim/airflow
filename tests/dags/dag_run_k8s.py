@@ -104,7 +104,7 @@ def make_parameters(**kwargs):
     triggered_dag_run_id = kwargs['dag_run'].run_id
     print("//////////////////")
     print(f"dag_id = {dag_id}")
-    print(f"dag_id = {dag_run_id}")
+    print(f"dag_run_id = {dag_run_id}")
     print(f"triggered_dag_id = {triggered_dag_id}")
     print(f"triggered_dag_run_id = {triggered_dag_run_id}")
     print("//////////////////")
