@@ -78,7 +78,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 --experiment={experiment_id} --uuid={container_uuid} --execute_range={execute_range}
 --experiment_process_type={experiment_process_type} --proceed_next={proceed_next}
 --triggered_dag_id={triggered_dag_id} --triggered_dag_run_id={triggered_dag_run_id}
---airflow_dag_call_id={triggered_dag_id} '''
+--airflow_dag_call_id={airflow_dag_call_id} '''
     return command + '\n'.join([f'--{k}={v}' for (k, v) in targets.items() if v])
 
 
