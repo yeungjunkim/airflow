@@ -25,9 +25,9 @@ default_args = {
     'render_template_as_native_obj': True,
     'provide_context': True,
 }
-dag_id = 'ml_run_k8s'
+triggered_dag_id = 'ml_run_k8s'
 dag = DAG(
-    dag_id, default_args=default_args, schedule_interval=None)
+    triggered_dag_id, default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -100,7 +100,7 @@ def make_parameters(**kwargs):
     )
     dag_id = kwargs['dag_run'].conf.get('dag_id')
     dag_run_id = kwargs['dag_run'].conf.get('dag_run_id')
-    triggered_dag_id = dag_id
+    # triggered_dag_id = dag_id
     triggered_dag_run_id = kwargs['dag_run'].run_id
     print("//////////////////")
     print(f"dag_id = {dag_id}")
