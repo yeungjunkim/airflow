@@ -44,7 +44,7 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         if json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']:
             if self.conf['experiment_process_type'] == 'optuna_monitor' or \
                     self.conf['experiment_process_type'] == 'ensemble_monitor':
-                trigger_dag_id = 'accutuning_command_on_k8s'
+                trigger_dag_id = 'ml_run_k8s_monitor'
             else:
                 trigger_dag_id = 'ml_run_k8s'
         else:
