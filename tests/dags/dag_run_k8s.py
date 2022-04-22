@@ -25,9 +25,8 @@ default_args = {
     'render_template_as_native_obj': True,
     'provide_context': True,
 }
-triggered_dag_id = 'ml_run_k8s'
 dag = DAG(
-    triggered_dag_id, default_args=default_args, schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -97,7 +96,7 @@ def make_parameters(**kwargs):
         target_deployment=kwargs['dag_run'].conf.get('target_deployment'),
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
-    # triggered_dag_id = dag_id  전역 변수
+    triggered_dag_id = 'ml_run_k8s'
     triggered_dag_run_id = kwargs['dag_run'].run_id
     airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
     print("//////////////////")
