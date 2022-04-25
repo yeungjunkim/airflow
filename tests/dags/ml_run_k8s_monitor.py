@@ -5,7 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 # from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
+from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
 # from airflow.operators.python_operator import BranchPythonOperator
 import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
@@ -84,7 +84,7 @@ def make_parameters(**kwargs):
     experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
-    use_ensemble = kwargs['dag_run'].conf['use_ensemble']
+    # use_ensemble = kwargs['dag_run'].conf['use_ensemble']
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
     targets = dict(
@@ -98,29 +98,22 @@ def make_parameters(**kwargs):
     triggered_dag_id = 'ml_run_k8s_monitor'
     triggered_dag_run_id = kwargs['dag_run'].run_id
     airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
-    print("//////////////////")
-    print(f"triggered_dag_id = {triggered_dag_id}")
-    print(f"triggered_dag_run_id = {triggered_dag_run_id}")
-    print(f"airflow_dag_call_id = {airflow_dag_call_id}")
-    print("//////////////////")
+
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
 
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
-    print("experiment_id = {}".format(experiment_id))
-    print("experiment_process_type = {}".format(experiment_process_type))
-    print("use_ensemble = {}".format(use_ensemble))
+    # print("experiment_id = {}".format(experiment_id))
+    # print("experiment_process_type = {}".format(experiment_process_type))
+    # print("use_ensemble = {}".format(use_ensemble))
 
 
 def make_worker_env(**kwargs):
-    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='monitor', key='return_value')["worker_workspace"]
 
     worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
-
-    print(f'workspace_path:{workspace_path}')
-    print(f'worker_env_vars:{worker_env_vars_str}')
 
     env_dict = json.loads(worker_env_vars_str)
     # env_dict = {}
@@ -132,17 +125,13 @@ def make_worker_env(**kwargs):
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    # worker_env_vars = json.dumps(env_dict)
-
-    print(f'worker_env_vars:{env_dict}')
-
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
-class KubernetesPodExPreOperator(KubernetesPodOperator):
+class KubernetesPodExOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -167,14 +156,14 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         return super().pre_execute(*args, **kwargs)
 
 
-before_worker = KubernetesPodExPreOperator(
+monitor = KubernetesPodExOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
     # volume_mounts=[volume_mount],
-    name="before_worker",
-    task_id="before_worker",
+    name="monitor",
+    task_id="monitor",
     env_vars={
         'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
         'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
@@ -198,4 +187,4 @@ end = DummyOperator(
 )
 
 
-start >> parameters >> before_worker >> end
+start >> parameters >> monitor >> end
