@@ -7,6 +7,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
 # from airflow.operators.python_operator import BranchPythonOperator
+from airflow.utils.edgemodifier import Label  # label 쓰기 위한 library
 import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 # import pprint
@@ -25,7 +26,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s_monitor', default_args=default_args, schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -84,7 +85,6 @@ def make_parameters(**kwargs):
     experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
     experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
     proceed_next = kwargs['dag_run'].conf['proceed_next']
-    # use_ensemble = kwargs['dag_run'].conf['use_ensemble']
     container_uuid = make_uuid()
     django_command = get_command_name(experiment_process_type)
     targets = dict(
@@ -95,7 +95,7 @@ def make_parameters(**kwargs):
         target_deployment=kwargs['dag_run'].conf.get('target_deployment'),
         target_source=kwargs['dag_run'].conf.get('target_source'),
     )
-    triggered_dag_id = 'ml_run_k8s_monitor'
+    triggered_dag_id = 'ml_run_k8s'
     triggered_dag_run_id = kwargs['dag_run'].run_id
     airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
 
@@ -105,15 +105,14 @@ def make_parameters(**kwargs):
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
-    # print("experiment_id = {}".format(experiment_id))
-    # print("experiment_process_type = {}".format(experiment_process_type))
-    # print("use_ensemble = {}".format(use_ensemble))
-
 
 def make_worker_env(**kwargs):
-    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='monitor', key='return_value')["worker_workspace"]
+    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
 
     worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
+
+    # print(f'workspace_path:{workspace_path}')
+    # print(f'worker_env_vars:{worker_env_vars_str}')
 
     env_dict = json.loads(worker_env_vars_str)
     # env_dict = {}
@@ -125,13 +124,17 @@ def make_worker_env(**kwargs):
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
+    # worker_env_vars = json.dumps(env_dict)
+
+    # print(f'worker_env_vars:{env_dict}')
+
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
-class KubernetesPodExOperator(KubernetesPodOperator):
+class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -156,14 +159,61 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         return super().pre_execute(*args, **kwargs)
 
 
-monitor = KubernetesPodExOperator(
+class KubernetesPodExWorkerOperator(KubernetesPodOperator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def pre_execute(self, *args, **kwargs):
+        volume_mounts = k8s.V1VolumeMount(
+            name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
+
+        return super().pre_execute(*args, **kwargs)
+
+
+class KubernetesPodExPostOperator(KubernetesPodOperator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def pre_execute(self, *args, **kwargs):
+        volume_mounts = k8s.V1VolumeMount(
+            name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
+
+        self.arguments = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_parameters', key='after_command').split()
+
+        return super().pre_execute(*args, **kwargs)
+
+
+before_worker = KubernetesPodExPreOperator(
     namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
     # volume_mounts=[volume_mount],
-    name="monitor",
-    task_id="monitor",
+    name="before_worker",
+    task_id="before_worker",
     env_vars={
         'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
         'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
@@ -179,6 +229,75 @@ monitor = KubernetesPodExOperator(
     dag=dag,
 )
 
+
+worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
+
+worker = KubernetesPodExWorkerOperator(
+    namespace='default',
+    image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
+    name="worker",
+    task_id="worker",
+    env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}', 'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
+    image_pull_policy='Always',
+    get_logs=True,
+    dag=dag,
+)
+
+worker_success = KubernetesPodExPostOperator(
+    namespace='default',
+    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
+    name="worker_success",
+    task_id="worker_success",
+    env_vars={
+        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    },
+    # env_vars='{{dag_run.conf.worker_env_vars}}',
+    # cmds=["python3"],
+    # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
+    cmds=["python3"],
+
+    image_pull_policy='Always',
+    get_logs=True,
+    dag=dag,
+    trigger_rule='all_success',
+)
+
+worker_fail = KubernetesPodExPostOperator(
+    namespace='default',
+    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
+    # volumes=[volume],
+    # volume_mounts=[volume_mount],
+
+    name="worker_fail",
+    task_id="worker_fail",
+    env_vars={
+        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    },
+    # env_vars='{{dag_run.conf.worker_env_vars}}',
+    # cmds=["python"],
+    # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
+    cmds=["python3"],
+    image_pull_policy='Always',
+    get_logs=True,
+    dag=dag,
+    trigger_rule='one_failed',
+)
+
+
 # one_success로 해야 skip된 task를 무시함
 end = DummyOperator(
     task_id='end',
@@ -187,4 +306,8 @@ end = DummyOperator(
 )
 
 
-start >> parameters >> monitor >> end
+start >> Label("parameter") >> parameters >> Label("app 중 before_worker Call") >> before_worker >> Label("common_module worker 중 Call") >> worker_env >> worker
+
+# worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end >> branch_task
+worker >> Label("worker 작업 성공시(app 중 worker_success Call)") >> worker_success >> end
+worker >> Label("worker 작업 실패시(app 중 worker_fail Call)") >> worker_fail >> end
