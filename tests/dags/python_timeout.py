@@ -78,6 +78,7 @@ with dag:
     start = DummyOperator(task_id='start')
     # t0 = DockerOperator(
     t0 = KubernetesPodOperator(
+        namespace='default',
         task_id='docker_test',
         name="docker_test",
         image='busybox:latest',
