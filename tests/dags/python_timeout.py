@@ -80,6 +80,7 @@ with dag:
     # t0 = DockerOperator(
     t0 = KubernetesPodOperator(
         task_id='docker_test',
+        name='docker_test',
         image='busybox:latest',
         cmds=['sleep', '20'],
         # api_version='auto',
