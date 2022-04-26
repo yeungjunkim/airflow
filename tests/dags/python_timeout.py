@@ -2,7 +2,8 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.docker.operators.docker import DockerOperator
+# from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from datetime import datetime
 from airflow.utils.state import State
 # from airflow.api.common.mark_tasks import set_dag_run_state
@@ -74,15 +75,16 @@ dag = DAG(
 
 with dag:
     start = DummyOperator(task_id='start')
-    t0 = DockerOperator(
+    # t0 = DockerOperator(
+    t0 = KubernetesPodOperator(
         task_id='docker_test',
         image='busybox:latest',
-        command=['sleep', '20'],
-        api_version='auto',
-        auto_remove=True,
-        docker_url='unix://var/run/docker-ext.sock',
-        network_mode='accutuning_default',
-        mount_tmp_dir=False,
+        cmds=['sleep', '20'],
+        # api_version='auto',
+        # auto_remove=True,
+        # docker_url='unix://var/run/docker-ext.sock',
+        # network_mode='accutuning_default',
+        # mount_tmp_dir=False,
     )
     t1 = PythonOperator(
         task_id='hello_world01',
