@@ -6,6 +6,8 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from datetime import datetime
 from airflow.utils.state import State
+from airflow.sensors.base import BaseSensorOperator
+
 # from airflow.api.common.mark_tasks import set_dag_run_state
 # from airflow.api.common.experimental.mark_tasks import (
 #     _create_dagruns,
@@ -20,7 +22,6 @@ from airflow.utils.state import State
 # from airflow.utils.session import create_session, provide_session
 # from airflow.utils.state import State
 # from airflow.utils.types import DagRunType
-
 
 
 def hello_world_py(*args, **kwargs):
@@ -78,9 +79,7 @@ with dag:
     start = DummyOperator(task_id='start')
     # t0 = DockerOperator(
     t0 = KubernetesPodOperator(
-        namespace='default',
         task_id='docker_test',
-        name="docker_test",
         image='busybox:latest',
         cmds=['sleep', '20'],
         # api_version='auto',
@@ -112,5 +111,12 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+    timer = BaseSensorOperator(
+        soft_fail=True,
+        poke_interval=60,
+        timeout=60 * 2,
+        mode="reschedule"
+    )
+
     start >> timer >> end
