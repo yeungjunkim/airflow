@@ -113,6 +113,8 @@ with dag:
 
     # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
     timer = BaseSensorOperator(
+        task_id='timer',
+        name="timer",
         soft_fail=True,
         poke_interval=60,
         timeout=60 * 2,
