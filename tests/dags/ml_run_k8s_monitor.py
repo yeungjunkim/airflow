@@ -81,8 +81,8 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-    experiment_id = kwargs['dag_run'].conf['ACCUTUNING_EXPERIMENT_ID']
-    experiment_process_type = kwargs['dag_run'].conf['experiment_process_type']
+    experiment_id = kwargs['dag_run'].conf.get('ACCUTUNING_EXPERIMENT_ID')
+    experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next') if kwargs['dag_run'].conf.get('proceed_next') else None
     # use_ensemble = kwargs['dag_run'].conf['use_ensemble']
     container_uuid = make_uuid()
@@ -97,7 +97,7 @@ def make_parameters(**kwargs):
     )
     triggered_dag_id = 'ml_run_k8s_monitor'
     triggered_dag_run_id = kwargs['dag_run'].run_id
-    airflow_dag_call_id = kwargs['dag_run'].conf['airflow_dag_call_id']
+    airflow_dag_call_id = kwargs['dag_run'].conf.get('airflow_dag_call_id')
 
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
@@ -118,10 +118,10 @@ def make_worker_env(**kwargs):
     env_dict = json.loads(worker_env_vars_str)
     # env_dict = {}
     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
-    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
-    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
-    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
-    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
+    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
+    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
+    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
+    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
