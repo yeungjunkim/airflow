@@ -154,6 +154,7 @@ def set_default_volumn_mount(self, *args, **kwargs):
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -165,6 +166,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -176,6 +178,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -184,7 +187,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace=make_namespace(),
+    # namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -204,7 +207,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace=make_namespace(),
+    # namespace=make_namespace(),
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -216,7 +219,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace=make_namespace(),
+    # namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -232,7 +235,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace=make_namespace(),
+    # namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
