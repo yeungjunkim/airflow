@@ -138,7 +138,7 @@ parameters = PythonOperator(task_id='make_parameters', python_callable=make_para
 
 def set_default_volumn_mount(self, *args, **kwargs):
     volume_mounts = k8s.V1VolumeMount(
-        name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+        name=kwargs['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
         mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
         sub_path=None, read_only=False
     )
@@ -154,7 +154,7 @@ def set_default_volumn_mount(self, *args, **kwargs):
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -166,7 +166,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -178,7 +178,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
