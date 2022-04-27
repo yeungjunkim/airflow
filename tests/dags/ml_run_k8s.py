@@ -161,8 +161,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
-        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))],
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         print(f'self.image_pull_policy = {self.image_pull_policy}')
         print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
@@ -176,8 +176,8 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
-        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))],
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         print(f'self.image_pull_policy = {self.image_pull_policy}')
         print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
@@ -189,8 +189,8 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         set_default_volumn_mount(self, *args, **kwargs)
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
-        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))],
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         print(f'self.image_pull_policy = {self.image_pull_policy}')
         print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
