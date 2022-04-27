@@ -154,10 +154,10 @@ def set_default_volumn_mount(self, *args, **kwargs):
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
