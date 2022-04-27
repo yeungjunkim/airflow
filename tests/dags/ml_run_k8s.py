@@ -129,6 +129,10 @@ def make_env_var():
     return env_dict
 
 
+def make_namespace():
+    return '{{dag_run.conf.ACCUTUNING_NAMESPACE}}'
+
+
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
@@ -180,7 +184,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -200,7 +204,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace=make_namespace(),
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -212,7 +216,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -228,7 +232,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
