@@ -166,11 +166,11 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
         set_default_volumn_mount(self, *args, **kwargs)
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
         return super().pre_execute(*args, **kwargs)
@@ -178,10 +178,10 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        self.namespace = kwargs['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
+        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         set_default_volumn_mount(self, *args, **kwargs)
         return super().pre_execute(*args, **kwargs)
 
