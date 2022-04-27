@@ -189,9 +189,9 @@ before_worker = KubernetesPodExPreOperator(
     task_id="before_worker",
     env_vars=make_env_var(),
     cmds=["python3"],
-
     do_xcom_push=True,
     image_pull_policy='Always',
+    resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
 )
@@ -200,13 +200,14 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE,}}',
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
     image_pull_policy='Always',
+    resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
 )
@@ -220,8 +221,8 @@ worker_success = KubernetesPodExPostOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-
     image_pull_policy='Always',
+    resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
     trigger_rule='all_success',
@@ -238,6 +239,7 @@ worker_fail = KubernetesPodExPostOperator(
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
     image_pull_policy='Always',
+    resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
     trigger_rule='one_failed',
