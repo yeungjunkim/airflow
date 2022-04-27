@@ -130,6 +130,7 @@ def make_env_var():
 
 
 def make_namespace():
+    print("{{dag_run.conf.ACCUTUNING_NAMESPACE}}")
     return '{{dag_run.conf.ACCUTUNING_NAMESPACE}}'
 
 
@@ -187,7 +188,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    # namespace=make_namespace(),
+    namespace='default',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
