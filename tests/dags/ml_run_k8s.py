@@ -157,7 +157,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        # self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
@@ -170,7 +170,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         set_default_volumn_mount(self, *args, **kwargs)
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        # self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
         return super().pre_execute(*args, **kwargs)
@@ -181,7 +181,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
+        # self.namespace = kwargs['context']['dag_run'].conf.get('ACCUTUNING_NAMESPACE')
         set_default_volumn_mount(self, *args, **kwargs)
         return super().pre_execute(*args, **kwargs)
 
@@ -207,7 +207,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    # namespace=make_namespace(),
+    namespace=make_namespace(),
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -219,7 +219,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    # namespace=make_namespace(),
+    namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -235,7 +235,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    # namespace=make_namespace(),
+    namespace=make_namespace(),
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
