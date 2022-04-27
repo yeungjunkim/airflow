@@ -191,13 +191,6 @@ before_worker = KubernetesPodExPreOperator(
     # volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
-    # env_vars={
-    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    # },
     env_vars=make_env_var(),
     cmds=["python3"],
 
@@ -227,15 +220,7 @@ worker_success = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
-    # env_vars={
-    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    # },
     env_vars=make_env_var(),
-    # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
@@ -251,13 +236,6 @@ worker_fail = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
-    # env_vars={
-    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    # },
     env_vars=make_env_var(),
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python"],
