@@ -5,7 +5,6 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
-from typing import Sequence
 import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
@@ -130,11 +129,6 @@ def make_env_var():
     return env_dict
 
 
-def make_namespace():
-    print("{{dag_run.conf.ACCUTUNING_NAMESPACE}}")
-    return '{{dag_run.conf.ACCUTUNING_NAMESPACE}}'
-
-
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
@@ -167,17 +161,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
-    template_fields: Sequence[str] = (
-        'image',
-        'cmds',
-        'arguments',
-        'env_vars',
-        'labels',
-        'config_file',
-        'pod_template_file',
-        'namespace',
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -190,17 +173,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
-    template_fields: Sequence[str] = (
-        'image',
-        'cmds',
-        'arguments',
-        'env_vars',
-        'labels',
-        'config_file',
-        'pod_template_file',
-        'namespace',
-    )
-        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -211,7 +183,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='default',
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -231,7 +203,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace=make_namespace(),
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -243,7 +215,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace=make_namespace(),
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -259,7 +231,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace=make_namespace(),
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
