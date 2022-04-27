@@ -161,6 +161,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
+        self.image_pull_secrets = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'),
         return super().pre_execute(*args, **kwargs)
 
 
@@ -172,6 +174,8 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
+        self.image_pull_secrets = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'),
         return super().pre_execute(*args, **kwargs)
 
 
@@ -181,6 +185,8 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         set_default_volumn_mount(self, *args, **kwargs)
+        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY'),
+        self.image_pull_secrets = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'),
         return super().pre_execute(*args, **kwargs)
 
 
@@ -195,8 +201,6 @@ before_worker = KubernetesPodExPreOperator(
     env_vars=make_env_var(),
     cmds=["python3"],
     do_xcom_push=True,
-    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
-    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     get_logs=True,
     dag=dag,
 )
