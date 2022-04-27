@@ -180,7 +180,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE,}}',
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -212,7 +212,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE,}}',
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -228,7 +228,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE,}}',
+    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
