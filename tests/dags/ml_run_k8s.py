@@ -106,11 +106,8 @@ def make_worker_env(**kwargs):
 
     worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
 
-    # print(f'workspace_path:{workspace_path}')
-    # print(f'worker_env_vars:{worker_env_vars_str}')
-
     env_dict = json.loads(worker_env_vars_str)
-    # env_dict = {}
+
     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
     env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
     env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
@@ -118,7 +115,6 @@ def make_worker_env(**kwargs):
     env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
-
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
