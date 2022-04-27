@@ -148,6 +148,11 @@ def set_default_volumn_mount(self, *args, **kwargs):
     self.volumes = [volumes]
 
 
+def make_worker_resources():
+    resource_dict = {'limit_memory': "{}M", 'limit_cpu': "100m"}
+    return resource_dict
+
+
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -190,8 +195,8 @@ before_worker = KubernetesPodExPreOperator(
     env_vars=make_env_var(),
     cmds=["python3"],
     do_xcom_push=True,
-    image_pull_policy='Always',
-    # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
+    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
+    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     get_logs=True,
     dag=dag,
 )
@@ -206,7 +211,8 @@ worker = KubernetesPodExWorkerOperator(
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
-    image_pull_policy='Always',
+    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
+    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
@@ -221,7 +227,8 @@ worker_success = KubernetesPodExPostOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-    image_pull_policy='Always',
+    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
+    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
@@ -238,7 +245,8 @@ worker_fail = KubernetesPodExPostOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    image_pull_policy='Always',
+    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
+    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
