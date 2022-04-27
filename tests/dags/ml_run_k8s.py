@@ -5,6 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
+from typing import Sequence
 import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
@@ -166,6 +167,17 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
 
 class KubernetesPodExPostOperator(KubernetesPodOperator):
+    template_fields: Sequence[str] = (
+        'image',
+        'cmds',
+        'arguments',
+        'env_vars',
+        'labels',
+        'config_file',
+        'pod_template_file',
+        'namespace',
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -178,6 +190,17 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
+    template_fields: Sequence[str] = (
+        'image',
+        'cmds',
+        'arguments',
+        'env_vars',
+        'labels',
+        'config_file',
+        'pod_template_file',
+        'namespace',
+    )
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
