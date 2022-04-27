@@ -163,8 +163,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             task_ids='make_parameters', key='before_command').split()
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-        print(f'self.image_pull_policy = {self.image_pull_policy}')
-        print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
 
 
@@ -178,8 +176,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             task_ids='make_parameters', key='after_command').split()
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-        print(f'self.image_pull_policy = {self.image_pull_policy}')
-        print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
 
 
@@ -191,8 +187,6 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-        print(f'self.image_pull_policy = {self.image_pull_policy}')
-        print(f'self.image_pull_secrets = {self.image_pull_secrets}')
         return super().pre_execute(*args, **kwargs)
 
 
@@ -221,8 +215,6 @@ worker = KubernetesPodExWorkerOperator(
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
-    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
-    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
@@ -237,8 +229,6 @@ worker_success = KubernetesPodExPostOperator(
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
-    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
-    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
@@ -255,8 +245,6 @@ worker_fail = KubernetesPodExPostOperator(
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
     cmds=["python3"],
-    image_pull_policy='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_POLICY}}',
-    image_pull_secrets='{{dag_run.conf.ACCUTUNING_K8S_IMAGE_PULL_SECRET}}',
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
     dag=dag,
