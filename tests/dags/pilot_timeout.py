@@ -114,19 +114,19 @@ with dag:
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
 
-class MyFirstSensor(BaseSensorOperator):
-    # @apply_defaults
-    def __init__(self, *args, **kwargs):
-        super(MyFirstSensor, self).__init__(*args, **kwargs)
+# class MyFirstSensor(BaseSensorOperator):
+#     # @apply_defaults
+#     def __init__(self, *args, **kwargs):
+#         super(MyFirstSensor, self).__init__(*args, **kwargs)
 
-    def poke(self, context):
-        current_minute = datetime.now().minute
-        if current_minute % 1 != 0:
-            print(f"Current minute {current_minute} not is divisible by 3, sensor will retry.")
-            return False
+#     def poke(self, context):
+#         current_minute = datetime.now().minute
+#         if current_minute % 1 != 0:
+#             print(f"Current minute {current_minute} not is divisible by 3, sensor will retry.")
+#             return False
 
-        print(f"Current minute {current_minute} is divisible by 3, sensor finishing.")
-        return True
+#         print(f"Current minute {current_minute} is divisible by 3, sensor finishing.")
+#         return True
 
     # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
     timer = BaseSensorOperator(
