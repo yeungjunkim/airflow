@@ -132,8 +132,8 @@ class MyFirstSensor(BaseSensorOperator):
     timer = BaseSensorOperator(
         task_id='timer',
         soft_fail=True,
-        poke_interval=60,
-        timeout=60 * 1.5,
+        # poke_interval=60,
+        timeout=60 * 2,
         mode="reschedule"
     )
 
