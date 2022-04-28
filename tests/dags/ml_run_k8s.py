@@ -103,18 +103,20 @@ def make_parameters(**kwargs):
 
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+    resources_str = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_resources"]
 
     worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
 
     env_dict = json.loads(worker_env_vars_str)
 
     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
-    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf['ACCUTUNING_LOG_LEVEL']
-    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf['ACCUTUNING_USE_LABELER']
-    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf['ACCUTUNING_USE_CLUSTERING']
-    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf['DJANGO_SETTINGS_MODULE']
+    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
+    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
+    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
+    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
+    kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
 
 
@@ -127,6 +129,25 @@ def make_env_var():
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     }
     return env_dict
+
+# def _get_default_cpu_limit():
+#     try:
+#         cpu_limit = int(
+#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_CPU_MAX') /
+#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MAX'))
+#     except (TypeError, ValueError):
+#         cpu_limit = None
+#     return cpu_limit or DEFAULT_CPU_LIMIT
+
+
+# def _get_default_memory_limit():
+#     try:
+#         memory_limit = int(
+#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MEM_MAX') /
+#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MAX'))
+#     except (TypeError, ValueError):
+#         memory_limit = None
+#     return memory_limit or DEFAULT_MEMORY_LIMIT
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
@@ -191,7 +212,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -209,19 +230,19 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
     image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
-    # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
+    resources={'{{ ti.xcom_pull(key="resources_str") }}'},
     get_logs=True,
     dag=dag,
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -236,7 +257,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_NAMESPACE}}',
+    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
