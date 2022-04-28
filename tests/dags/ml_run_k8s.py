@@ -116,8 +116,8 @@ def make_worker_env(**kwargs):
     env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
-    kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)
     kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+    kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)  # k8s resources_str
 
 
 def make_env_var():
@@ -169,11 +169,6 @@ def set_default_volumn_mount(self, *args, **kwargs):
     self.volumes = [volumes]
 
 
-def make_worker_resources():
-    resource_dict = {'limit_memory': "{}M", 'limit_cpu': "100m"}
-    return resource_dict
-
-
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -208,6 +203,15 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         set_default_volumn_mount(self, *args, **kwargs)
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        # resources=client.V1ResourceRequirements(
+        #     requests={"cpu": "100m", "memory": "200Mi"},
+        #     limits={"cpu": "500m", "memory": "500Mi"}
+        # )
+        self.resources = k8s.V1ResourceRequirements(
+            # requests={"cpu": "100m", "memory": "200Mi"},
+            limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
+                task_ids='make_worker_env', key='resources_str'))
+        )
         return super().pre_execute(*args, **kwargs)
 
 
@@ -236,7 +240,6 @@ worker = KubernetesPodExWorkerOperator(
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
-    resources={'{{ ti.xcom_pull(key="resources_str") }}'},
     get_logs=True,
     dag=dag,
 )
