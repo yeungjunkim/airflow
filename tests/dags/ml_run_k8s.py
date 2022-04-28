@@ -217,7 +217,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
                 task_ids='make_worker_env', key='resources_str'))
         )
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
         return super().pre_execute(*args, **kwargs)
 
 
