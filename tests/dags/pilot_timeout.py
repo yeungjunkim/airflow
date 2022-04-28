@@ -7,7 +7,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from datetime import datetime
 from airflow.utils.state import State
 from airflow.sensors.base import BaseSensorOperator
-import MyFirstSensor
+# import MyFirstSensor
 
 # from airflow.api.common.mark_tasks import set_dag_run_state
 # from airflow.api.common.experimental.mark_tasks import (
