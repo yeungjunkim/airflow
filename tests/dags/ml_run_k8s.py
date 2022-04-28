@@ -179,6 +179,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             task_ids='make_parameters', key='before_command').split()
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
         return super().pre_execute(*args, **kwargs)
 
 
@@ -192,6 +194,8 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             task_ids='make_parameters', key='after_command').split()
         self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
         return super().pre_execute(*args, **kwargs)
 
 
@@ -212,6 +216,8 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
             limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
                 task_ids='make_worker_env', key='resources_str'))
         )
+        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
         return super().pre_execute(*args, **kwargs)
 
 
