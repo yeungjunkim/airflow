@@ -2,9 +2,12 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.docker.operators.docker import DockerOperator
+# from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from datetime import datetime
 from airflow.utils.state import State
+from airflow.sensors.base import BaseSensorOperator
+
 # from airflow.api.common.mark_tasks import set_dag_run_state
 # from airflow.api.common.experimental.mark_tasks import (
 #     _create_dagruns,
@@ -74,15 +77,18 @@ dag = DAG(
 
 with dag:
     start = DummyOperator(task_id='start')
-    t0 = DockerOperator(
+    # t0 = DockerOperator(
+    t0 = KubernetesPodOperator(
+        namespace='default',
         task_id='docker_test',
+        name='docker_test',
         image='busybox:latest',
-        command=['sleep', '20'],
-        api_version='auto',
-        auto_remove=True,
-        docker_url='unix://var/run/docker-ext.sock',
-        network_mode='accutuning_default',
-        mount_tmp_dir=False,
+        cmds=['sleep', '20'],
+        # api_version='auto',
+        # auto_remove=True,
+        # docker_url='unix://var/run/docker-ext.sock',
+        # network_mode='accutuning_default',
+        # mount_tmp_dir=False,
     )
     t1 = PythonOperator(
         task_id='hello_world01',
@@ -107,5 +113,28 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+
+class MyFirstSensor(BaseSensorOperator):
+    # @apply_defaults
+    def __init__(self, *args, **kwargs):
+        super(MyFirstSensor, self).__init__(*args, **kwargs)
+
+    def poke(self, context):
+        current_minute = datetime.now().minute
+        if current_minute % 1 != 0:
+            print(f"Current minute {current_minute} not is divisible by 3, sensor will retry.")
+            return False
+
+        print(f"Current minute {current_minute} is divisible by 3, sensor finishing.")
+        return True
+
+    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+    timer = BaseSensorOperator(
+        task_id='timer',
+        soft_fail=True,
+        poke_interval=30,
+        timeout=30 * 2,
+        mode="reschedule"
+    )
+
     start >> timer >> end
