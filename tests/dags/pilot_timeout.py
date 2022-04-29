@@ -131,14 +131,19 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
+    # timer = MyFirstSensor(
+    #     task_id='timer',
+    #     soft_fail=True,
+    #     poke_interval=60,
+    #     timeout=60 * 3,
+    #     mode="reschedule"
+    # )
 
-    timer = MyFirstSensor(
-        task_id='timer',
+    timer2 = BaseSensorOperator(
         soft_fail=True,
-        poke_interval=60,
-        timeout=60 * 3,
-        mode="reschedule"
+        poke_interval=1 * 60,  # Poke every 4 hours
+        timeout=2 * 60,  # Timeout after 12 hours
     )
 
+    start >> timer2 >> end
 
-    start >> timer >> end
