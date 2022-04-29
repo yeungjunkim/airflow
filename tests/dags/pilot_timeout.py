@@ -142,6 +142,7 @@ with dag:
     timer2 = BaseSensorOperator(
         task_id='timer2',
         soft_fail=True,
+        mode='reschedule',
         poke_interval=1 * 60,  # Poke every 4 hours
         timeout=2 * 60,  # Timeout after 12 hours
     )
