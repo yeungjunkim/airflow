@@ -123,18 +123,18 @@ def make_worker_env(**kwargs):
 
 
 def make_env_var():
-    # env_dict = {
-    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    # }
+    env_dict = {
+        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    }
     # # worker_env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='worker_env_vars')
     # print("worker_env_vars = [" + worker_env_vars + "]")
     # env_dict = json.load(worker_env_vars)
 
-    env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
+    # env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
     # print("env_dict = [" + env_dict + "]")
     return env_dict
 
