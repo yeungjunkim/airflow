@@ -7,6 +7,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from datetime import datetime
 from airflow.utils.state import State
 from airflow.sensors.base import BaseSensorOperator
+from airflow.operators.sensors import ExternalTaskSensor
 # import MyFirstSensor
 
 # from airflow.api.common.mark_tasks import set_dag_run_state
@@ -145,6 +146,21 @@ with dag:
         mode='reschedule',
         poke_interval=40,  # Poke every 4 hours
         timeout=30,  # Timeout after 12 hours
+    )
+
+    start_date = datetime(2022, 5, 2)
+
+    def print_execution_date(ds):
+        print(ds)
+
+    timer2 = ExternalTaskSensor(
+        task_id='wait_for_task_2',
+        external_dag_id='pilot_timeout',
+        external_task_id='t5',
+        start_date=start_date,
+        execution_date_fn=lambda x: x,
+        mode='reschedule',
+        timeout=50,
     )
 
     start >> timer2 >> end
