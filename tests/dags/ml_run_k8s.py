@@ -135,11 +135,11 @@ def make_env_var():
     # }
     app_env_vars = '{{ ti.xcom_pull(key="app_env_vars") }}'
     # print("worker_env_vars = [" + worker_env_vars + "]")
-    env_dict = json.load(app_env_vars)
+    # env_dict = json.load(app_env_vars)
 
     # env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
     # print("env_dict = [" + env_dict + "]")
-    return env_dict
+    return app_env_vars
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
