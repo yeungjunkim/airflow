@@ -130,8 +130,9 @@ def make_env_var(**kwargs):
     #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
     #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     # }
-    print("kwargs['dag_run'].conf.get('worker_env_vars') = [" + kwargs['dag_run'].conf.get('worker_env_vars') + "]")
-    env_dict = json.load(kwargs['dag_run'].conf.get('worker_env_vars'))
+    worker_env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='worker_env_vars')
+    print("worker_env_vars = [" + worker_env_vars + "]")
+    env_dict = json.load(worker_env_vars)
     print("env_dict = [" + env_dict + "]")
     return env_dict
 
