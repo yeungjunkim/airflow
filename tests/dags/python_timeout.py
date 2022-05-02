@@ -140,15 +140,15 @@ with dag:
     #     mode="reschedule"
     # )
 
-    timer2 = MyFirstSensor(
-        task_id='timer2',
-        soft_fail=True,
-        mode='reschedule',
-        poke_interval=40,  # Poke every 4 hours
-        timeout=30,  # Timeout after 12 hours
-    )
+    # timer2 = MyFirstSensor(
+    #     task_id='timer2',
+    #     soft_fail=True,
+    #     mode='reschedule',
+    #     poke_interval=40,  # Poke every 4 hours
+    #     timeout=30,  # Timeout after 12 hours
+    # )
 
-    start_date = datetime(2022, 5, 2)
+    # start_date = datetime(2022, 5, 2)
 
     def print_execution_date(ds):
         print(ds)
@@ -157,10 +157,10 @@ with dag:
         task_id='wait_for_task_2',
         external_dag_id='pilot_timeout',
         external_task_id='t5',
-        start_date=start_date,
+        # start_date=start_date,
         execution_date_fn=lambda x: x,
         mode='reschedule',
-        timeout=50,
+        timeout=30,
     )
 
     start >> timer2 >> end
