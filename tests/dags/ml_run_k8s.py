@@ -107,6 +107,8 @@ def make_worker_env(**kwargs):
 
     worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
 
+    print("worker_env_vars_str = [" + worker_env_vars_str + "]")
+
     env_dict = json.loads(worker_env_vars_str)
 
     env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
@@ -129,25 +131,6 @@ def make_env_var():
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     }
     return env_dict
-
-# def _get_default_cpu_limit():
-#     try:
-#         cpu_limit = int(
-#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_CPU_MAX') /
-#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MAX'))
-#     except (TypeError, ValueError):
-#         cpu_limit = None
-#     return cpu_limit or DEFAULT_CPU_LIMIT
-
-
-# def _get_default_memory_limit():
-#     try:
-#         memory_limit = int(
-#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MEM_MAX') /
-#             AccutuningSiteConfiguration.get('ACCUTUNING_K8S_CONTAINER_MAX'))
-#     except (TypeError, ValueError):
-#         memory_limit = None
-#     return memory_limit or DEFAULT_MEMORY_LIMIT
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
