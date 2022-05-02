@@ -160,7 +160,7 @@ with dag:
         # start_date=start_date,
         execution_date_fn=lambda x: x,
         mode='reschedule',
-        timeout=30,
+        timeout=70,
     )
 
     start >> timer2 >> end
