@@ -156,7 +156,7 @@ with dag:
     timer2 = ExternalTaskSensor(
         task_id='wait_for_task_2',
         external_dag_id='pilot_timeout',
-        external_task_id='t5',
+        external_task_id='hello_world05',
         # start_date=start_date,
         execution_date_fn=lambda x: x,
         mode='reschedule',
