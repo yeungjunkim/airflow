@@ -97,8 +97,9 @@ def make_parameters(**kwargs):
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
 
-    print(f"get_env_vars = {kwargs['dag_run'].conf.get('get_env_vars')}")
+    print(f"app_env_vars = {kwargs['dag_run'].conf.get('app_env_vars')}")
 
+    kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
@@ -125,16 +126,16 @@ def make_worker_env(**kwargs):
 
 
 def make_env_var():
-    env_dict = {
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    }
-    # # worker_env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='worker_env_vars')
+    # env_dict = {
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # }
+    app_env_vars = '{{ ti.xcom_pull(key="app_env_vars") }}'
     # print("worker_env_vars = [" + worker_env_vars + "]")
-    # env_dict = json.load(worker_env_vars)
+    env_dict = json.load(app_env_vars)
 
     # env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
     # print("env_dict = [" + env_dict + "]")
