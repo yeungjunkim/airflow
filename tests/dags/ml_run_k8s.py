@@ -134,7 +134,7 @@ def make_env_var():
     # print("worker_env_vars = [" + worker_env_vars + "]")
     # env_dict = json.load(worker_env_vars)
 
-    env_dict = json.load('{{ ti.xcom_pull(key="worker_env_vars") }}')
+    env_dict = '{{ ti.xcom_pull(key="worker_env_vars") }}'
     print("env_dict = [" + env_dict + "]")
     return env_dict
 
