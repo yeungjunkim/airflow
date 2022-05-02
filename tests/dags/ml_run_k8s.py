@@ -122,14 +122,17 @@ def make_worker_env(**kwargs):
     kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)  # k8s resources_str
 
 
-def make_env_var():
-    env_dict = {
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    }
+def make_env_var(**kwargs):
+    # env_dict = {
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # }
+    print("kwargs['dag_run'].conf.get('worker_env_vars') = [" + kwargs['dag_run'].conf.get('worker_env_vars') + "]")
+    env_dict = json.load(kwargs['dag_run'].conf.get('worker_env_vars'))
+    print("env_dict = [" + env_dict + "]")
     return env_dict
 
 
