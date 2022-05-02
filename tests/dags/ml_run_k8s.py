@@ -126,16 +126,16 @@ def make_worker_env(**kwargs):
 
 
 def make_env_var():
-    env_dict = {
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    }
-    # app_env_vars = {'{{ ti.xcom_pull(key="app_env_vars") }}'}
+    # env_dict = {
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    # }
+    app_env_vars = '{{ ti.xcom_pull(key="app_env_vars") }}'
     # print("worker_env_vars = [" + worker_env_vars + "]")
-    # env_dict = json.load(app_env_vars)
+    env_dict = json.load(app_env_vars)
 
     # env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
     # print("env_dict = [" + env_dict + "]")
@@ -173,7 +173,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
+        # self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -189,7 +189,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
+        # self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -224,7 +224,7 @@ before_worker = KubernetesPodExPreOperator(
     # volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
-    # env_vars=make_env_var(),
+    env_vars=make_env_var(),
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     cmds=["python3"],
     do_xcom_push=True,
@@ -251,7 +251,7 @@ worker_success = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
-    # env_vars=make_env_var(),
+    env_vars=make_env_var(),
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
@@ -265,7 +265,7 @@ worker_fail = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
-    # env_vars=make_env_var(),
+    env_vars=make_env_var(),
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
