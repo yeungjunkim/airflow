@@ -144,7 +144,7 @@ with dag:
         soft_fail=True,
         mode='reschedule',
         # poke_interval=40,  # Poke every 4 hours
-        timeout=60,  # Timeout after 12 hours
+        timeout=30,  # Timeout after 12 hours
     )
 
     start >> timer2 >> end
