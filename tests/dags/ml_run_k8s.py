@@ -97,8 +97,6 @@ def make_parameters(**kwargs):
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
 
-    print(f"app_env_vars = {kwargs['dag_run'].conf.get('app_env_vars')}")
-
     kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
@@ -109,8 +107,6 @@ def make_worker_env(**kwargs):
     resources_str = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_resources"]
 
     worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
-
-    print("worker_env_vars_str = [" + worker_env_vars_str + "]")
 
     env_dict = json.loads(worker_env_vars_str)
 
@@ -133,12 +129,6 @@ def make_env_var():
         'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
         'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
     }
-    # app_env_vars = '{{ ti.xcom_pull(key="app_env_vars") }}'
-    # print("worker_env_vars = [" + worker_env_vars + "]")
-    # env_dict = json.load(app_env_vars)
-
-    # env_dict = {'{{ ti.xcom_pull(key="worker_env_vars") }}'}
-    # print("env_dict = [" + env_dict + "]")
     return env_dict
 
 
@@ -173,7 +163,6 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        # self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -189,7 +178,6 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        # self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -225,7 +213,6 @@ before_worker = KubernetesPodExPreOperator(
     name="before_worker",
     task_id="before_worker",
     env_vars=make_env_var(),
-    # env_vars='{{dag_run.conf.worker_env_vars}}',
     cmds=["python3"],
     do_xcom_push=True,
     get_logs=True,
