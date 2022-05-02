@@ -7,6 +7,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from datetime import datetime
 from airflow.utils.state import State
 from airflow.sensors.base import BaseSensorOperator
+# import MyFirstSensor
 
 # from airflow.api.common.mark_tasks import set_dag_run_state
 # from airflow.api.common.experimental.mark_tasks import (
@@ -22,6 +23,23 @@ from airflow.sensors.base import BaseSensorOperator
 # from airflow.utils.session import create_session, provide_session
 # from airflow.utils.state import State
 # from airflow.utils.types import DagRunType
+
+
+class MyFirstSensor(BaseSensorOperator):
+    # @apply_defaults
+    def __init__(self, *args, **kwargs):
+        super(MyFirstSensor, self).__init__(*args, **kwargs)
+
+    def poke(self, context):
+        current_minute = datetime.now().minute
+        if current_minute % 1 != 0:
+            print(f"Current minute {current_minute} not is divisible by 3, sensor will retry.")
+            return False
+
+        print(f"Current minute {current_minute} is divisible by 3, sensor finishing.")
+        return True
+
+    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
 
 
 def hello_world_py(*args, **kwargs):
@@ -113,13 +131,21 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
-    timer = BaseSensorOperator(
-        task_id='timer',
+    # timer = MyFirstSensor(
+    #     task_id='timer',
+    #     soft_fail=True,
+    #     poke_interval=60,
+    #     timeout=60 * 3,
+    #     mode="reschedule"
+    # )
+
+    timer2 = MyFirstSensor(
+        task_id='timer2',
         soft_fail=True,
-        poke_interval=60,
-        timeout=60 * 2,
-        mode="reschedule"
+        mode='reschedule',
+        poke_interval=1 * 60,  # Poke every 4 hours
+        timeout=2 * 60,  # Timeout after 12 hours
     )
 
-    start >> timer >> end
+    start >> timer2 >> end
+
