@@ -8,6 +8,7 @@ from datetime import datetime
 from airflow.utils.state import State
 from airflow.sensors.base import BaseSensorOperator
 from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.utils.trigger_rule import TriggerRule
 # import MyFirstSensor
 
 # from airflow.api.common.mark_tasks import set_dag_run_state
@@ -129,7 +130,7 @@ with dag:
         task_id='hello_world05',
         provide_context=True,
         python_callable=hello_world_py)
-    end = DummyOperator(task_id='end')
+    end = DummyOperator(task_id='end', trigger_rule=TriggerRule.ALL_DONE)
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
     # timer = MyFirstSensor(
