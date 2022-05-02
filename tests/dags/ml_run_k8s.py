@@ -122,17 +122,17 @@ def make_worker_env(**kwargs):
     kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)  # k8s resources_str
 
 
-def make_env_var(**kwargs):
-    # env_dict = {
-    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    # }
-    worker_env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='worker_env_vars')
-    print("worker_env_vars = [" + worker_env_vars + "]")
-    env_dict = json.load(worker_env_vars)
+def make_env_var():
+    env_dict = {
+        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
+    }
+    # # worker_env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='worker_env_vars')
+    # print("worker_env_vars = [" + worker_env_vars + "]")
+    # env_dict = json.load(worker_env_vars)
     print("env_dict = [" + env_dict + "]")
     return env_dict
 
@@ -217,7 +217,7 @@ before_worker = KubernetesPodExPreOperator(
     # volume_mounts=[volume_mount],
     name="before_worker",
     task_id="before_worker",
-    env_vars=make_env_var(),
+    env_vars={'{{ ti.xcom_pull(key="worker_env_vars") }}'},
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     cmds=["python3"],
     do_xcom_push=True,
@@ -244,7 +244,7 @@ worker_success = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
-    env_vars=make_env_var(),
+    env_vars={'{{ ti.xcom_pull(key="worker_env_vars") }}'},
     # cmds=["python3"],
     # arguments=["/code/manage.py", ""{{dag_run.conf.ACCUTUNING_DJANGO_COMMAND']}}"", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}"],
     cmds=["python3"],
@@ -258,7 +258,7 @@ worker_fail = KubernetesPodExPostOperator(
     image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
-    env_vars=make_env_var(),
+    env_vars={'{{ ti.xcom_pull(key="worker_env_vars") }}'},
     # env_vars='{{dag_run.conf.worker_env_vars}}',
     # cmds=["python"],
     # arguments=["/code/manage.py", "ml_parse", "--experiment={{dag_run.conf.ACCUTUNING_EXPERIMENT_ID']}}",  "--uuid={{dag_run.conf.ACCUTUNING_UUID']}}", "--timeout={{dag_run.conf.ACCUTUNING_TIMEOUT']}}","--execute_range=after"],
