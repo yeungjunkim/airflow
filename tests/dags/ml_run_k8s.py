@@ -173,7 +173,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        self.env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars')
+        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -189,7 +189,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
-        self.env_vars = kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars')
+        self.env_vars = json.loads(kwargs['context']['task_instance'].xcom_pull(task_ids='make_parameters', key='app_env_vars'))
         return super().pre_execute(*args, **kwargs)
 
 
