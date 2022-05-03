@@ -200,7 +200,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
                 task_ids='make_worker_env', key='resources_str'))
         )
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}            
         return super().pre_execute(*args, **kwargs)
 
 
@@ -228,7 +228,14 @@ worker = KubernetesPodExWorkerOperator(
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-              'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}'},
+              'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}',
+              'ACCUTUNING_DB_ENGINE': '{{ dag_run.conf.ACCUTUNING_DB_ENGINE }}',
+              'ACCUTUNING_DB_HOST': '{{ dag_run.conf.ACCUTUNING_DB_HOST }}',
+              'ACCUTUNING_DB_PORT': '{{ dag_run.conf.ACCUTUNING_DB_PORT }}',
+              'ACCUTUNING_DB_NAME': '{{ dag_run.conf.ACCUTUNING_DB_NAME }}',
+              'ACCUTUNING_DB_USER': '{{ dag_run.conf.ACCUTUNING_DB_USER }}',
+              'ACCUTUNING_DB_PASSWORD': '{{ dag_run.conf.ACCUTUNING_DB_PASSWORD }}',
+              },
     get_logs=True,
     dag=dag,
 )
