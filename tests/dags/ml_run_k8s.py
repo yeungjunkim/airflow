@@ -106,18 +106,18 @@ def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
     resources_str = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_resources"]
 
-    worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
+    # worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
 
-    env_dict = json.loads(worker_env_vars_str)
+    # env_dict = json.loads(worker_env_vars_str)
 
-    env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
-    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
-    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
-    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
-    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
+    # env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+    # env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
+    # env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
+    # env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
+    # env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+    # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
     kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)  # k8s resources_str
 
 
@@ -206,7 +206,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
                 task_ids='make_worker_env', key='resources_str'))
         )
         if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}            
+            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
         return super().pre_execute(*args, **kwargs)
 
 
