@@ -7,7 +7,6 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
 # from airflow.operators.python_operator import BranchPythonOperator
-import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 # import pprint
 
@@ -113,19 +112,36 @@ def make_parameters(**kwargs):
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='monitor', key='return_value')["worker_workspace"]
 
-    worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
+    # worker_env_vars_str = kwargs['dag_run'].conf['worker_env_vars']
 
-    env_dict = json.loads(worker_env_vars_str)
-    # env_dict = {}
-    env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
-    env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
-    env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
-    env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
-    env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
+    # env_dict = json.loads(worker_env_vars_str)
+    # # env_dict = {}
+    # env_dict['ACCUTUNING_WORKSPACE'] = workspace_path
+    # env_dict['ACCUTUNING_LOG_LEVEL'] = kwargs['dag_run'].conf.get('ACCUTUNING_LOG_LEVEL')
+    # env_dict['ACCUTUNING_USE_LABELER'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_LABELER')
+    # env_dict['ACCUTUNING_USE_CLUSTERING'] = kwargs['dag_run'].conf.get('ACCUTUNING_USE_CLUSTERING')
+    # env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
 
-    kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+    # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+
+
+def make_env_var():
+    env_dict = {
+        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
+        'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.ACCUTUNING_DB_ENGINE}}',
+        'ACCUTUNING_DB_HOST': '{{dag_run.conf.ACCUTUNING_DB_HOST}}',
+        'ACCUTUNING_DB_PORT': '{{dag_run.conf.ACCUTUNING_DB_PORT}}',
+        'ACCUTUNING_DB_NAME': '{{dag_run.conf.ACCUTUNING_DB_NAME}}',
+        'ACCUTUNING_DB_USER': '{{dag_run.conf.ACCUTUNING_DB_USER}}',
+        'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.ACCUTUNING_DB_PASSWORD}}',
+    }
+    return env_dict
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
@@ -164,13 +180,7 @@ monitor = KubernetesPodExOperator(
     # volume_mounts=[volume_mount],
     name="monitor",
     task_id="monitor",
-    env_vars={
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}'
-    },
+    env_vars=make_env_var(),
     cmds=["python3"],
 
     do_xcom_push=True,
