@@ -31,7 +31,7 @@ def make_env_var():
     dict_str = "{{ dag_run.conf.accutuning_env_vars | tojson }}"
     # change_str = re.sub(r'(?<=[^\\])\\(?=[^\\])', r'\\\\', repr(dict_str)[1:-1])
     # print(change_str)
-    change_str = json.loads(dict_str)
+    change_str = json.loads(json.dumps(dict_str))
     # convert to dictionary
     # change_dict = json.loads(change_str)
 
