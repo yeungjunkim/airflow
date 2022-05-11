@@ -95,22 +95,25 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = kwargs['context']['dag_run'].conf.get("accutuning_env_vars")
+        env_dict_str2 = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         print("+++++++++++++++++++++++++++")
         print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
         print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"))
         print(json.loads(env_dict_str).get("ACCUTUNING_PVC_NAME"))
         print(json.loads(env_dict_str).get("ACCUTUNING_WORKSPACE"))
+        print(env_dict_str2.get("ACCUTUNING_PVC_NAME"))
+        print(env_dict_str2.get("ACCUTUNING_WORKSPACE"))
         print("+++++++++++++++++++++++++++")
         env_vars_dict = json.loads(self.conf.accutuning_env_vars)
 
         volume_mounts = k8s.V1VolumeMount(
-            name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
-            mount_path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE"),
-            sub_path=None, read_only=False
-            # name=env_vars_dict.get("ACCUTUNING_PVC_NAME"),
-            # mount_path=env_vars_dict.get("ACCUTUNING_WORKSPACE"),
+            # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
+            # mount_path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE"),
             # sub_path=None, read_only=False
+            name=env_dict_str2.get("ACCUTUNING_PVC_NAME"),
+            mount_path=env_dict_str2.get("ACCUTUNING_WORKSPACE"),
+            sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
 
