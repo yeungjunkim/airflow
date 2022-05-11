@@ -101,7 +101,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         change_str = json.dumps(dict_str)
         print(change_str)
         print(type(change_str))
-        loads_str = json.load(change_str)
+        loads_str = json.loads(change_str)
         print(loads_str)
         print(type(loads_str))
 
