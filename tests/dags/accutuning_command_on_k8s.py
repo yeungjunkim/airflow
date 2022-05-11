@@ -28,11 +28,10 @@ start = DummyOperator(task_id='start', dag=dag)
 
 def make_env_var():
 
-    env_vars_dict = json.loads("{{context.dag_run.conf.accutuning_env_vars}}")
+    env_vars_dict = "{{context.dag_run.conf.accutuning_env_vars}}"
     # env_vars_dict = json.loads(kwargs['context']['dag_run'].conf.accutuning_env_vars)
     print("====================================")
-    print("{{dag_run.conf.accutuning_env_vars}}")
-    print("{{dag_run.conf.accutuning_env_vars}}")
+    print(env_vars_dict)
     print("====================================")
     print("====================================")
     print("====================================")
@@ -59,17 +58,17 @@ def make_env_var():
         # 'ACCUTUNING_DB_NAME': env_vars_dict.get("ACCUTUNING_DB_NAME"),
         # 'ACCUTUNING_DB_USER': env_vars_dict.get("ACCUTUNING_DB_USER"),
         # 'ACCUTUNING_DB_PASSWORD': env_vars_dict.get("ACCUTUNING_DB_PASSWORD"),
-        'ACCUTUNING_WORKSPACE': env_vars_dict.get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': env_vars_dict.get("ACCUTUNING_LOG_LEVEL"),
-        'ACCUTUNING_USE_LABELER': env_vars_dict.get("ACCUTUNING_USE_LABELER"),
-        'ACCUTUNING_USE_CLUSTERING': env_vars_dict.get("ACCUTUNING_USE_CLUSTERING"),
-        'DJANGO_SETTINGS_MODULE': env_vars_dict.get("DJANGO_SETTINGS_MODULE"),
-        'ACCUTUNING_DB_ENGINE': env_vars_dict.get("ACCUTUNING_DB_ENGINE"),
-        'ACCUTUNING_DB_HOST': env_vars_dict.get("ACCUTUNING_DB_HOST"),
-        'ACCUTUNING_DB_PORT': env_vars_dict.get("ACCUTUNING_DB_PORT"),
-        'ACCUTUNING_DB_NAME': env_vars_dict.get("ACCUTUNING_DB_NAME"),
-        'ACCUTUNING_DB_USER': env_vars_dict.get("ACCUTUNING_DB_USER"),
-        'ACCUTUNING_DB_PASSWORD': env_vars_dict.get("ACCUTUNING_DB_PASSWORD"),
+        'ACCUTUNING_WORKSPACE': json.loads(env_vars_dict).get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': json.loads(env_vars_dict).get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_USE_LABELER': json.loads(env_vars_dict).get("ACCUTUNING_USE_LABELER"),
+        'ACCUTUNING_USE_CLUSTERING': json.loads(env_vars_dict).get("ACCUTUNING_USE_CLUSTERING"),
+        'DJANGO_SETTINGS_MODULE': json.loads(env_vars_dict).get("DJANGO_SETTINGS_MODULE"),
+        'ACCUTUNING_DB_ENGINE': json.loads(env_vars_dict).get("ACCUTUNING_DB_ENGINE"),
+        'ACCUTUNING_DB_HOST': json.loads(env_vars_dict).get("ACCUTUNING_DB_HOST"),
+        'ACCUTUNING_DB_PORT': json.loads(env_vars_dict).get("ACCUTUNING_DB_PORT"),
+        'ACCUTUNING_DB_NAME': json.loads(env_vars_dict).get("ACCUTUNING_DB_NAME"),
+        'ACCUTUNING_DB_USER': json.loads(env_vars_dict).get("ACCUTUNING_DB_USER"),
+        'ACCUTUNING_DB_PASSWORD': json.loads(env_vars_dict).get("ACCUTUNING_DB_PASSWORD"),
     }
     return env_dict
 
