@@ -29,7 +29,7 @@ start = DummyOperator(task_id='start', dag=dag)
 def make_env_var(**kwargs):
 
     # env_vars_dict = json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']
-    env_vars_dict = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
+    env_vars_dict = json.loads(kwargs['context']['dag_run'].conf.accutuning_env_vars)
     print(env_vars_dict)
     env_dict = {
         # 'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
