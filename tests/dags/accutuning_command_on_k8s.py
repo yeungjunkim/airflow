@@ -120,7 +120,7 @@ command_worker = KubernetesPodExOperator(
     # volume_mounts=[volume_mount],
     name="monitor",
     task_id="monitor",
-    env_vars=json.loads("{{ dag_run.conf.accutuning_env_var }}"),
+    env_vars=make_env_var(),
     cmds=["python3"],
 
     do_xcom_push=True,
