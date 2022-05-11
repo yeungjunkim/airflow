@@ -28,7 +28,7 @@ start = DummyOperator(task_id='start', dag=dag)
 
 def make_env_var():
 
-    env_vars_dict = json.loads('{{dag_run.conf.ACCUTUNING_WORKSPACE}}')
+    env_vars_dict = json.loads("{{dag_run.conf.ACCUTUNING_WORKSPACE}}")
     # env_vars_dict = json.loads(kwargs['context']['dag_run'].conf.accutuning_env_vars)
     print(env_vars_dict)
     env_dict = {
