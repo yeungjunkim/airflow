@@ -89,7 +89,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        env_vars_dict = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
+        env_vars_dict = json.loads(self.conf.accutuning_env_vars)
 
         volume_mounts = k8s.V1VolumeMount(
             # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
