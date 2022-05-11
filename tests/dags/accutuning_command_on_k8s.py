@@ -28,7 +28,7 @@ start = DummyOperator(task_id='start', dag=dag)
 
 def make_env_var():
 
-    # env_vars_dict = json.loads("{{dag_run.conf.ACCUTUNING_WORKSPACE}}")
+    env_vars_dict = json.loads("{{context.dag_run.conf.accutuning_env_vars}}")
     # env_vars_dict = json.loads(kwargs['context']['dag_run'].conf.accutuning_env_vars)
     print("====================================")
     print("{{dag_run.conf.accutuning_env_vars}}")
@@ -59,17 +59,17 @@ def make_env_var():
         # 'ACCUTUNING_DB_NAME': env_vars_dict.get("ACCUTUNING_DB_NAME"),
         # 'ACCUTUNING_DB_USER': env_vars_dict.get("ACCUTUNING_DB_USER"),
         # 'ACCUTUNING_DB_PASSWORD': env_vars_dict.get("ACCUTUNING_DB_PASSWORD"),
-        # 'ACCUTUNING_WORKSPACE': env_vars_dict.get("ACCUTUNING_WORKSPACE"),
-        # 'ACCUTUNING_LOG_LEVEL': env_vars_dict.get("ACCUTUNING_LOG_LEVEL"),
-        # 'ACCUTUNING_USE_LABELER': env_vars_dict.get("ACCUTUNING_USE_LABELER"),
-        # 'ACCUTUNING_USE_CLUSTERING': env_vars_dict.get("ACCUTUNING_USE_CLUSTERING"),
-        # 'DJANGO_SETTINGS_MODULE': env_vars_dict.get("DJANGO_SETTINGS_MODULE"),
-        # 'ACCUTUNING_DB_ENGINE': env_vars_dict.get("ACCUTUNING_DB_ENGINE"),
-        # 'ACCUTUNING_DB_HOST': env_vars_dict.get("ACCUTUNING_DB_HOST"),
-        # 'ACCUTUNING_DB_PORT': env_vars_dict.get("ACCUTUNING_DB_PORT"),
-        # 'ACCUTUNING_DB_NAME': env_vars_dict.get("ACCUTUNING_DB_NAME"),
-        # 'ACCUTUNING_DB_USER': env_vars_dict.get("ACCUTUNING_DB_USER"),
-        # 'ACCUTUNING_DB_PASSWORD': env_vars_dict.get("ACCUTUNING_DB_PASSWORD"),
+        'ACCUTUNING_WORKSPACE': env_vars_dict.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': env_vars_dict.get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_USE_LABELER': env_vars_dict.get("ACCUTUNING_USE_LABELER"),
+        'ACCUTUNING_USE_CLUSTERING': env_vars_dict.get("ACCUTUNING_USE_CLUSTERING"),
+        'DJANGO_SETTINGS_MODULE': env_vars_dict.get("DJANGO_SETTINGS_MODULE"),
+        'ACCUTUNING_DB_ENGINE': env_vars_dict.get("ACCUTUNING_DB_ENGINE"),
+        'ACCUTUNING_DB_HOST': env_vars_dict.get("ACCUTUNING_DB_HOST"),
+        'ACCUTUNING_DB_PORT': env_vars_dict.get("ACCUTUNING_DB_PORT"),
+        'ACCUTUNING_DB_NAME': env_vars_dict.get("ACCUTUNING_DB_NAME"),
+        'ACCUTUNING_DB_USER': env_vars_dict.get("ACCUTUNING_DB_USER"),
+        'ACCUTUNING_DB_PASSWORD': env_vars_dict.get("ACCUTUNING_DB_PASSWORD"),
     }
     return env_dict
 
@@ -95,11 +95,11 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        print("+++++++++++++++++++++++++++")
-        print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
-        print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"))
-        print("+++++++++++++++++++++++++++")
+        # print("+++++++++++++++++++++++++++")
+        # print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+        # print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
+        # print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"))
+        # print("+++++++++++++++++++++++++++")
 
         volume_mounts = k8s.V1VolumeMount(
             # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
