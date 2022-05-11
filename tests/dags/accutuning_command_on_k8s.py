@@ -5,7 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
-import json, re
+import json
 
 default_args = {
     'owner': 'airflow',
@@ -31,7 +31,7 @@ def make_env_var():
     dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
     # change_str = re.sub(r'(?<=[^\\])\\(?=[^\\])', r'\\\\', repr(dict_str)[1:-1])
     # print(change_str)
-
+    change_str = json.loads(json.dumps(dict_str))
     # convert to dictionary
     # change_dict = json.loads(change_str)
 
@@ -43,8 +43,8 @@ def make_env_var():
     # env_dict_str = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': (json.loads(json.dumps(dict_str))).get('ACCUTUNING_WORKSPACE'),
-        'ACCUTUNING_LOG_LEVEL': (json.loads(json.dumps(dict_str))).get('ACCUTUNING_LOG_LEVEL'),
+        'ACCUTUNING_WORKSPACE': change_str.get('ACCUTUNING_WORKSPACE'),
+        'ACCUTUNING_LOG_LEVEL': change_str.get('ACCUTUNING_LOG_LEVEL'),
         'ACCUTUNING_USE_LABELER': dict_str,
         'ACCUTUNING_USE_CLUSTERING': dict_str,
         # 'DJANGO_SETTINGS_MODULE': dict_str,
