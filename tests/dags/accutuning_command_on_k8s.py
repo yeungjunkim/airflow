@@ -94,16 +94,13 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        env_dict_str = kwargs['context']['dag_run'].conf.get("accutuning_env_vars")
-        env_dict_str2 = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         print("+++++++++++++++++++++++++++")
         print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
         print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"))
         print(json.loads(env_dict_str).get("ACCUTUNING_PVC_NAME"))
         print(json.loads(env_dict_str).get("ACCUTUNING_WORKSPACE"))
-        print(env_dict_str2.get("ACCUTUNING_PVC_NAME"))
-        print(env_dict_str2.get("ACCUTUNING_WORKSPACE"))
         print("+++++++++++++++++++++++++++")
         env_vars_dict = json.loads(self.conf.accutuning_env_vars)
 
@@ -111,8 +108,8 @@ class KubernetesPodExOperator(KubernetesPodOperator):
             # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
             # mount_path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE"),
             # sub_path=None, read_only=False
-            name=env_dict_str2.get("ACCUTUNING_PVC_NAME"),
-            mount_path=env_dict_str2.get("ACCUTUNING_WORKSPACE"),
+            name=env_dict_str.get("ACCUTUNING_PVC_NAME"),
+            mount_path=env_dict_str.get("ACCUTUNING_WORKSPACE"),
             sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
@@ -120,8 +117,8 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         volumes = k8s.V1Volume(
             # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
             # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE")),
-            name=env_vars_dict.get("ACCUTUNING_PVC_NAME"),
-            host_path=k8s.V1HostPathVolumeSource(path=env_vars_dict.get("ACCUTUNING_WORKSPACE")),
+            name=env_dict_str.get("ACCUTUNING_PVC_NAME"),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get("ACCUTUNING_WORKSPACE")),
         )
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
