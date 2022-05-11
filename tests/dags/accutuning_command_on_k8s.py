@@ -29,7 +29,7 @@ start = DummyOperator(task_id='start', dag=dag)
 def make_env_var():
 
     # env_vars_dict = json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE']
-    env_vars_dict = json.loads('{{dag_run.conf.accutuning_env_vars}}')
+    env_vars_dict = json.loads("{{dag_run.conf.accutuning_env_vars}}")
 
     env_dict = {
         # 'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
@@ -78,7 +78,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        env_vars_dict = json.loads('{{dag_run.conf.accutuning_env_vars}}')
+        env_vars_dict = json.loads("{{dag_run.conf.accutuning_env_vars}}")
 
         volume_mounts = k8s.V1VolumeMount(
             # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
@@ -107,7 +107,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 command_worker = KubernetesPodExOperator(
     namespace='default',
     # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
-    image=json.loads('{{dag_run.conf.accutuning_env_vars}}').get('ACCUTUNING_APP_IMAGE'),
+    image=json.loads("{{dag_run.conf.accutuning_env_vars}}").get('ACCUTUNING_APP_IMAGE'),
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
     # volume_mounts=[volume_mount],
