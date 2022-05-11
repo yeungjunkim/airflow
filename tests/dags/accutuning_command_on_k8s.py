@@ -28,16 +28,17 @@ start = DummyOperator(task_id='start', dag=dag)
 
 def make_env_var(**kwargs):
 
-    # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+    dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+    json_str = json.loads(dict_str)
     # clean_dict = json.dumps(dict_str)
     # change_dict = json.loads(dict_str)
-    env_dict_str = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
+    # env_dict_str = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
-        'ACCUTUNING_USE_LABELER': env_dict_str.get("ACCUTUNING_USE_LABELER"),
-        'ACCUTUNING_USE_CLUSTERING': env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
+        'ACCUTUNING_WORKSPACE': json_str.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': json_str.get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_USE_LABELER': json_str.get("ACCUTUNING_USE_LABELER"),
+        'ACCUTUNING_USE_CLUSTERING': json_str.get("ACCUTUNING_USE_CLUSTERING"),
         # 'DJANGO_SETTINGS_MODULE': dict_str,
         # 'ACCUTUNING_DB_ENGINE': (json.loads(dict_str)).get("ACCUTUNING_DB_ENGINE"),
         # 'ACCUTUNING_DB_HOST': (json.loads(dict_str)).get("ACCUTUNING_DB_HOST"),
