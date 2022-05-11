@@ -37,10 +37,10 @@ def make_env_var(**kwargs):
     # env_dict_str = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': (json.loads(dump_str)).get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': (json.loads(dump_str)).get("ACCUTUNING_LOG_LEVEL"),
-        'ACCUTUNING_USE_LABELER': (json.loads(dump_str)).get("ACCUTUNING_USE_LABELER"),
-        'ACCUTUNING_USE_CLUSTERING': (json.loads(dump_str)).get("ACCUTUNING_USE_CLUSTERING"),
+        'ACCUTUNING_WORKSPACE': dump_str,
+        'ACCUTUNING_LOG_LEVEL': dump_str,
+        'ACCUTUNING_USE_LABELER': dump_str,
+        'ACCUTUNING_USE_CLUSTERING': dump_str,
         # 'DJANGO_SETTINGS_MODULE': dict_str,
         # 'ACCUTUNING_DB_ENGINE': (json.loads(dict_str)).get("ACCUTUNING_DB_ENGINE"),
         # 'ACCUTUNING_DB_HOST': (json.loads(dict_str)).get("ACCUTUNING_DB_HOST"),
