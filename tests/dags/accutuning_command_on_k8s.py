@@ -31,17 +31,17 @@ def make_env_var(**kwargs):
     dict_str = "{{ dag_run.conf.accutuning_env_vars | tojson }}"
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': json.loads(dict_str).get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': json.loads(dict_str).get("ACCUTUNING_LOG_LEVEL"),
-        'ACCUTUNING_USE_LABELER': json.loads(dict_str).get("ACCUTUNING_USE_LABELER"),
-        'ACCUTUNING_USE_CLUSTERING': json.loads(dict_str).get("ACCUTUNING_USE_CLUSTERING"),
-        'DJANGO_SETTINGS_MODULE': json.loads(dict_str).get("DJANGO_SETTINGS_MODULE"),
-        'ACCUTUNING_DB_ENGINE': json.loads(dict_str).get("ACCUTUNING_DB_ENGINE"),
-        'ACCUTUNING_DB_HOST': json.loads(dict_str).get("ACCUTUNING_DB_HOST"),
-        'ACCUTUNING_DB_PORT': json.loads(dict_str).get("ACCUTUNING_DB_PORT"),
-        'ACCUTUNING_DB_NAME': json.loads(dict_str).get("ACCUTUNING_DB_NAME"),
-        'ACCUTUNING_DB_USER': json.loads(dict_str).get("ACCUTUNING_DB_USER"),
-        'ACCUTUNING_DB_PASSWORD': json.loads(dict_str).get("ACCUTUNING_DB_PASSWORD"),
+        'ACCUTUNING_WORKSPACE': (json.loads(dict_str)).get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': (json.loads(dict_str)).get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_USE_LABELER': (json.loads(dict_str)).get("ACCUTUNING_USE_LABELER"),
+        'ACCUTUNING_USE_CLUSTERING': (json.loads(dict_str)).get("ACCUTUNING_USE_CLUSTERING"),
+        'DJANGO_SETTINGS_MODULE': (json.loads(dict_str)).get("DJANGO_SETTINGS_MODULE"),
+        'ACCUTUNING_DB_ENGINE': (json.loads(dict_str)).get("ACCUTUNING_DB_ENGINE"),
+        'ACCUTUNING_DB_HOST': (json.loads(dict_str)).get("ACCUTUNING_DB_HOST"),
+        'ACCUTUNING_DB_PORT': (json.loads(dict_str)).get("ACCUTUNING_DB_PORT"),
+        'ACCUTUNING_DB_NAME': (json.loads(dict_str)).get("ACCUTUNING_DB_NAME"),
+        'ACCUTUNING_DB_USER': (json.loads(dict_str)).get("ACCUTUNING_DB_USER"),
+        'ACCUTUNING_DB_PASSWORD': (json.loads(dict_str)).get("ACCUTUNING_DB_PASSWORD"),
     }
     # env_dict = {}
 #     env_dict = """
