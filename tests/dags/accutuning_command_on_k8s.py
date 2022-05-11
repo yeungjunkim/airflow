@@ -28,20 +28,20 @@ start = DummyOperator(task_id='start', dag=dag)
 
 def make_env_var():
 
-    env_dict = {
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_WORKSPACE)  }}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL)  }}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER)  }}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING)  }}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE)  }}',
-        'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE)  }}',
-        'ACCUTUNING_DB_HOST': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST)  }}',
-        'ACCUTUNING_DB_PORT': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT)  }}',
-        'ACCUTUNING_DB_NAME': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME)  }}',
-        'ACCUTUNING_DB_USER': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER)  }}',
-        'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD)  }}',
-    }
-
+    # env_dict = {
+    #     'ACCUTUNING_WORKSPACE': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_WORKSPACE)  }}',
+    #     'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL)  }}',
+    #     'ACCUTUNING_USE_LABELER': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER)  }}',
+    #     'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING)  }}',
+    #     'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE)  }}',
+    #     'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE)  }}',
+    #     'ACCUTUNING_DB_HOST': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST)  }}',
+    #     'ACCUTUNING_DB_PORT': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT)  }}',
+    #     'ACCUTUNING_DB_NAME': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME)  }}',
+    #     'ACCUTUNING_DB_USER': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER)  }}',
+    #     'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD)  }}',
+    # }
+    env_dict = {}
 #     env_dict = """
 #     echo "{
 #         'ACCUTUNING_WORKSPACE': '{{dag_run.conf.accutuning_env_vars | d(ACCUTUNING_WORKSPACE)  }}',
