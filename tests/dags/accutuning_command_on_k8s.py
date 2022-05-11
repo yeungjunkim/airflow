@@ -94,9 +94,13 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
+        env_dict_str = kwargs['context']['dag_run'].conf.get("accutuning_env_vars")
         print("+++++++++++++++++++++++++++")
-        print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars").get("ACCUTUNING_PVC_NAME"))
-        print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars").get("ACCUTUNING_WORKSPACE"))
+        print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+        print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
+        print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"))
+        print(json.loads(env_dict_str).get("ACCUTUNING_PVC_NAME"))
+        print(json.loads(env_dict_str).get("ACCUTUNING_WORKSPACE"))
         print("+++++++++++++++++++++++++++")
         env_vars_dict = json.loads(self.conf.accutuning_env_vars)
 
