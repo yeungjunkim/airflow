@@ -43,8 +43,8 @@ def make_env_var():
     # env_dict_str = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': json.loads(json.dumps(change_str)).get('ACCUTUNING_WORKSPACE'),
-        'ACCUTUNING_LOG_LEVEL': json.loads(json.dumps(change_str)).get('ACCUTUNING_LOG_LEVEL'),
+        'ACCUTUNING_WORKSPACE': dict_str,
+        'ACCUTUNING_LOG_LEVEL': dict_str,
         'ACCUTUNING_USE_LABELER': dict_str,
         'ACCUTUNING_USE_CLUSTERING': dict_str,
         # 'DJANGO_SETTINGS_MODULE': dict_str,
@@ -98,9 +98,12 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
         print(dict_str)
         print(type(dict_str))
-        change_str = json.loads(dict_str)
+        change_str = json.dumps(dict_str)
         print(change_str)
         print(type(change_str))
+        loads_str = json.load(change_str)
+        print(loads_str)
+        print(type(loads_str))
 
         # print("+++++++++++++++++++++++++++")
         # print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
