@@ -49,6 +49,11 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
             if self.conf['experiment_process_type'] == 'optuna_monitor' or \
                     self.conf['experiment_process_type'] == 'ensemble_monitor':
                 trigger_dag_id = 'ml_run_k8s_monitor'
+            elif self.conf['experiment_process_type'] == 'make_a_copy':
+                trigger_dag_id = 'accutuning_command_on_k8s'
+                dag_param = {'cmd': 'make_a_copy', 'cmd_args': {'experiment': conf.get('experiment_id')}}
+                conf.update(dag_param)
+                self.conf = conf
             else:
                 trigger_dag_id = 'ml_run_k8s'
         else:
