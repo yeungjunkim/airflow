@@ -27,21 +27,19 @@ start = DummyOperator(task_id='start', dag=dag)
 
 
 def make_env_var(**kwargs):
-    # dict_str = json.loads('{{dag_run.confaccutuning_env_vars }}')
-    dict_str = "{{ dag_run.confaccutuning_env_vars | tojson }}"
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': dict_str.get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': dict_str.get("ACCUTUNING_LOG_LEVEL"),
-        'ACCUTUNING_USE_LABELER': dict_str.get("ACCUTUNING_USE_LABELER"),
-        'ACCUTUNING_USE_CLUSTERING': dict_str.get("ACCUTUNING_USE_CLUSTERING"),
-        'DJANGO_SETTINGS_MODULE': dict_str.get("DJANGO_SETTINGS_MODULE"),
-        'ACCUTUNING_DB_ENGINE': dict_str.get("ACCUTUNING_DB_ENGINE"),
-        'ACCUTUNING_DB_HOST': dict_str.get("ACCUTUNING_DB_HOST"),
-        'ACCUTUNING_DB_PORT': dict_str.get("ACCUTUNING_DB_PORT"),
-        'ACCUTUNING_DB_NAME': dict_str.get("ACCUTUNING_DB_NAME"),
-        'ACCUTUNING_DB_USER': dict_str.get("ACCUTUNING_DB_USER"),
-        'ACCUTUNING_DB_PASSWORD': dict_str.get("ACCUTUNING_DB_PASSWORD"),
+        'ACCUTUNING_WORKSPACE': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_WORKSPACE) }}",
+        'ACCUTUNING_LOG_LEVEL': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_LOG_LEVEL) }}",
+        'ACCUTUNING_USE_LABELER': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_USE_LABELER) }}",
+        'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_USE_CLUSTERING) }}",
+        'DJANGO_SETTINGS_MODULE': "{{ dag_run.confaccutuning_env_vars | tojson | d(DJANGO_SETTINGS_MODULE) }}",
+        'ACCUTUNING_DB_ENGINE': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_ENGINE) }}",
+        'ACCUTUNING_DB_HOST': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_HOST) }}",
+        'ACCUTUNING_DB_PORT': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_PORT) }}",
+        'ACCUTUNING_DB_NAME': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_NAME) }}",
+        'ACCUTUNING_DB_USER': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_USER) }}",
+        'ACCUTUNING_DB_PASSWORD': "{{ dag_run.confaccutuning_env_vars | tojson | d(ACCUTUNING_DB_PASSWORD) }}",
     }
     # env_dict = {}
 #     env_dict = """
