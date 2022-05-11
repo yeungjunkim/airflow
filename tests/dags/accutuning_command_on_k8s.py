@@ -26,11 +26,11 @@ dag = DAG(
 start = DummyOperator(task_id='start', dag=dag)
 
 
-def make_env_var(**kwargs):
+def make_env_var():
 
     dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
     change_str = re.sub(r'(?<=[^\\])\\(?=[^\\])', r'\\\\', repr(dict_str)[1:-1])
-    print(change_str)
+    # print(change_str)
 
     # convert to dictionary
     change_dict = json.loads(change_str)
