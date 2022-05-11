@@ -32,9 +32,13 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
 
     def pre_execute(self, *args, **kwargs):
         from pprint import pprint
+        # print('*************************************************')
         # pprint(kwargs)
-        # print(self.conf)
-        # print(dir(self))
+        # print('*************************************************')
+        # pprint(self.conf)
+        # print('#################################################')
+        # pprint(dir(self))
+        # print('#################################################')
         conf = kwargs['context'].get('params', {})
         conf.update(self.conf)
 
@@ -48,8 +52,11 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
             else:
                 trigger_dag_id = 'ml_run_k8s'
         else:
-            if self.conf['experiment_process_type'].endswith('_monitor'):
+            if self.conf['experiment_process_type'] == 'monitor':
                 trigger_dag_id = 'accutuning_command_on_docker'
+                dag_param = {'cmd': 'ml_monitor', 'cmd_args': {'experiment': conf.get('experiment_id')}}
+                conf.update(dag_param)
+                self.conf = conf
             else:
                 trigger_dag_id = 'ml_run_docker'
 
@@ -64,16 +71,9 @@ def which_path(*args, **kwargs):
     return next_process
 
 
-def which_path2(*args, **kwargs):
+def ensemble_or_not(*args, **kwargs):
     use_ensemble = kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('use_ensemble')
-
-    if use_ensemble:
-        print("ensemble")
-        next_process = ['ensemble', 'ensemble_monitor']
-    else:
-        next_process = 'no_ensemble'
-    print(" use_ensemble = {}, next_process = {}".format(use_ensemble, next_process))
-    return next_process
+    return 'ensemble' if use_ensemble else 'no_ensemble'
 
 
 def which_path3(*args, **kwargs):
@@ -95,8 +95,6 @@ def _build(task_id):
         def which_en_path(*args, **kwargs):
             # ['batch_automl.no_ensemble', 'batch_automl.ensemble']
             use_ensemble = kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('use_ensemble')
-            print(f"use_ensemble = {use_ensemble}")
-            print("use_ensemble = {}".format(kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('use_ensemble')))
 
             if use_ensemble:
                 next_process = 'batch_automl.ensemble'
@@ -125,12 +123,11 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     parse_labeling = TriggerDagRunWithConfigOperator(task_id='parse_labeling', conf=dict(experiment_process_type='parse'))
     preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess', trigger_rule='one_success')
     optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
-    optuna_monitor = TriggerDagRunWithConfigOperator(task_id='optuna_monitor')
+    monitor = TriggerDagRunWithConfigOperator(task_id='monitor')
     # optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
     # optuna_extra3 = TriggerDagRunWithConfigOperator(task_id='optuna_extra3')
     ensemble = TriggerDagRunWithConfigOperator(task_id='ensemble')
-    ensemble_monitor = TriggerDagRunWithConfigOperator(task_id='ensemble_monitor')
     deploy = TriggerDagRunWithConfigOperator(task_id='deploy')
     deploy_auto = TriggerDagRunWithConfigOperator(task_id='deploy_auto', trigger_rule='one_success', conf=dict(experiment_process_type='deploy'))
     # deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
@@ -139,6 +136,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
     modelstat = TriggerDagRunWithConfigOperator(task_id='modelstat')
     predict = TriggerDagRunWithConfigOperator(task_id='predict')
+    cl_predict = TriggerDagRunWithConfigOperator(task_id='cl_predict')
     ml_cluster = TriggerDagRunWithConfigOperator(task_id='ml_cluster', conf=dict(experiment_process_type='cluster'))
     # cl_predict = TriggerDagRunWithConfigOperator(task_id='cl_predict')
     dataset_eda = TriggerDagRunWithConfigOperator(task_id='dataset_eda')
@@ -148,7 +146,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     start_branch = BranchPythonOperator(task_id='branch', python_callable=which_path, do_xcom_push=True)
     end = DummyOperator(task_id='end', trigger_rule='one_success')
 
-    ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_path2)
+    ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=ensemble_or_not)
     batch_branch = BranchPythonOperator(task_id='batch_branch', python_callable=which_path3)
     no_ensemble = DummyOperator(task_id='no_ensemble')
     cluster = DummyOperator(task_id='cluster')
@@ -158,10 +156,10 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     parse_only = DummyOperator(task_id='parse_only')
     batch_automl = _build('batch_automl')
 
-    start >> start_branch >> [deploy, modelstat, predict, dataset_eda] >> end
+    start >> start_branch >> [deploy, modelstat, predict, dataset_eda, cl_predict] >> end
 
-    start_branch >> preprocess >> optuna >> ensemble_branch >> [ensemble, ensemble_monitor, no_ensemble]
-    preprocess >> optuna_monitor
+    start_branch >> preprocess >> optuna >> ensemble_branch >> [ensemble, no_ensemble]
+    preprocess >> monitor
     ensemble >> deploy_auto
     no_ensemble >> deploy_auto
     deploy_auto >> end
