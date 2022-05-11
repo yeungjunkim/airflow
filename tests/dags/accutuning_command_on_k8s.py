@@ -119,8 +119,8 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 command_worker = KubernetesPodExOperator(
     namespace='default',
     # image='{{dag_run.conf.accutuning_env_vars.ACCUTUNING_APP_IMAGE}}',
-    image=json.loads("{{dag_run.conf.accutuning_env_vars}}").get("ACCUTUNING_APP_IMAGE"),
-    # image='pooh97/accu-app:latest',
+    # image=json.loads("{{dag_run.conf.accutuning_env_vars}}").get("ACCUTUNING_APP_IMAGE"),
+    image='pooh97/accu-app:k8s-9',
     # volumes=[volume],
     # volume_mounts=[volume_mount],
     name="monitor",
