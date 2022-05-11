@@ -29,10 +29,10 @@ start = DummyOperator(task_id='start', dag=dag)
 def make_env_var(**kwargs):
 
     dict_str = "{{ dag_run.conf.accutuning_env_vars | tojson }}"
-    r_dict_estr = dict_str.replace(/\\/g, ”);
+    result_dict = json.loads(json.dump(dict_str))
     env_dict = {
-        'ACCUTUNING_WORKSPACE': json.loads(r_dict_estr).get("ACCUTUNING_WORKSPACE"),
-        'ACCUTUNING_LOG_LEVEL': json.loads(r_dict_estr).get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_WORKSPACE': result_dict.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': result_dict.get("ACCUTUNING_LOG_LEVEL"),
         'ACCUTUNING_USE_LABELER': dict_str,
         'ACCUTUNING_USE_CLUSTERING': dict_str,
         # 'DJANGO_SETTINGS_MODULE': dict_str,
