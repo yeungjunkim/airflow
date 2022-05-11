@@ -94,7 +94,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
             # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
             # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE')),
             name=env_vars_dict.get("ACCUTUNING_PVC_NAME"),
-            host_path=k8s.V1HostPathVolumeSource(path=env_vars_dict.get("ACCUTUNING_WORKSPACE')),
+            host_path=k8s.V1HostPathVolumeSource(path=env_vars_dict.get("ACCUTUNING_WORKSPACE")),
         )
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
