@@ -32,8 +32,8 @@ def make_env_var(**kwargs):
     # clean_dict = json.dumps(dict_str)
     change_dict = json.loads(dict_str)
     env_dict = {
-        'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars }}",
-        'ACCUTUNING_LOG_LEVEL': change_dict["ACCUTUNING_LOG_LEVEL"],
+        'ACCUTUNING_WORKSPACE': change_dict,
+        'ACCUTUNING_LOG_LEVEL': change_dict,
         'ACCUTUNING_USE_LABELER': dict_str,
         'ACCUTUNING_USE_CLUSTERING': dict_str,
         # 'DJANGO_SETTINGS_MODULE': dict_str,
