@@ -72,7 +72,7 @@ def make_env_var():
     # print(chg_eval_test)
     # print(type(chg_eval_test))
     env_dict = {
-        'ACCUTUNING_WORKSPACE': {(json.dumps("{{ dag_run.conf.accutuning_env_vars | tojson }}"))}.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_WORKSPACE': {(json.dumps("{{ dag_run.conf.accutuning_env_vars | tojson }}"))}["ACCUTUNING_WORKSPACE"],
         'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
         'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
         'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
