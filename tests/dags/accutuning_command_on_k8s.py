@@ -205,7 +205,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         #     'ACCUTUNING_DB_PASSWORD': env_dict_str.get("ACCUTUNING_DB_PASSWORD"),
         # }
         # print("volume = {}".format(self.volume))
-        self.image = "pooh97/accu-app:k8s-9"
+        self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
