@@ -5,7 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
-import json
+import json, re
 
 default_args = {
     'owner': 'airflow',
@@ -166,7 +166,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.env_vars = {
-            'ACCUTUNING_WORKSPACE': json.loads(json.dumps(env_dict_str)).get("ACCUTUNING_WORKSPACE"),
+            'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
             'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
             'ACCUTUNING_USE_LABELER': env_dict_str.get("ACCUTUNING_USE_LABELER"),
             'ACCUTUNING_USE_CLUSTERING': env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
