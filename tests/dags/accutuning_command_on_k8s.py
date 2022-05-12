@@ -72,7 +72,6 @@ def make_env_var():
     # print(chg_eval_test)
     # print(type(chg_eval_test))
 
-
     # result = dict((a.strip(), (b.strip()))
     #     for a, b in (element.split(':')
     #         for element in dict_str.split(', ')))
@@ -191,6 +190,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
+        self.env_vars = test_dict
         # self.env_vars = {
         #     'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
         #     'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
