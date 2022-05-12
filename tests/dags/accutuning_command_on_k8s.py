@@ -84,7 +84,7 @@ def make_env_var():
     # print(type(result))
 
     env_dict = {
-        'ACCUTUNING_WORKSPACE': dict("{{ dag_run.conf.accutuning_env_vars | tojson }}").get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | tojson }}",
         'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
         'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
         'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
@@ -165,19 +165,19 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
-        # self.env_vars = {
-        #     'ACCUTUNING_WORKSPACE': json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_WORKSPACE"),
-        #     # 'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
-        #     # 'ACCUTUNING_USE_LABELER': env_dict_str.get("ACCUTUNING_USE_LABELER"),
-        #     # 'ACCUTUNING_USE_CLUSTERING': env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
-        #     # 'DJANGO_SETTINGS_MODULE': env_dict_str.get("DJANGO_SETTINGS_MODULE"),
-        #     # 'ACCUTUNING_DB_ENGINE': env_dict_str.get("ACCUTUNING_DB_ENGINE"),
-        #     # 'ACCUTUNING_DB_HOST': env_dict_str.get("ACCUTUNING_DB_HOST"),
-        #     # 'ACCUTUNING_DB_PORT': env_dict_str.get("ACCUTUNING_DB_PORT"),
-        #     # 'ACCUTUNING_DB_NAME': env_dict_str.get("ACCUTUNING_DB_NAME"),
-        #     # 'ACCUTUNING_DB_USER': env_dict_str.get("ACCUTUNING_DB_USER"),
-        #     # 'ACCUTUNING_DB_PASSWORD': env_dict_str.get("ACCUTUNING_DB_PASSWORD"),
-        # }
+        self.env_vars = {
+            'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
+            'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
+            'ACCUTUNING_USE_LABELER': env_dict_str.get("ACCUTUNING_USE_LABELER"),
+            'ACCUTUNING_USE_CLUSTERING': env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
+            'DJANGO_SETTINGS_MODULE': env_dict_str.get("DJANGO_SETTINGS_MODULE"),
+            'ACCUTUNING_DB_ENGINE': env_dict_str.get("ACCUTUNING_DB_ENGINE"),
+            'ACCUTUNING_DB_HOST': env_dict_str.get("ACCUTUNING_DB_HOST"),
+            'ACCUTUNING_DB_PORT': env_dict_str.get("ACCUTUNING_DB_PORT"),
+            'ACCUTUNING_DB_NAME': env_dict_str.get("ACCUTUNING_DB_NAME"),
+            'ACCUTUNING_DB_USER': env_dict_str.get("ACCUTUNING_DB_USER"),
+            'ACCUTUNING_DB_PASSWORD': env_dict_str.get("ACCUTUNING_DB_PASSWORD"),
+        }
         # print("volume = {}".format(self.volume))
         return super().pre_execute(*args, **kwargs)
 
