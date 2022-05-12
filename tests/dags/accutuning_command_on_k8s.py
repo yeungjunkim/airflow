@@ -133,6 +133,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         print(env_dict_str.get("ACCUTUNING_DB_NAME"))
         print(env_dict_str.get("ACCUTUNING_DB_USER"))
         print(env_dict_str.get("ACCUTUNING_DB_PASSWORD"))
+        print(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         test_dict = {
             'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
             'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
@@ -204,7 +205,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         #     'ACCUTUNING_DB_PASSWORD': env_dict_str.get("ACCUTUNING_DB_PASSWORD"),
         # }
         # print("volume = {}".format(self.volume))
-        self.image = env_dict_str.get("ACCUTUNING_APP_IMAGE"),
+        self.image = "pooh97/accu-app:k8s-9"
         return super().pre_execute(*args, **kwargs)
 
 
