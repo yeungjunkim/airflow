@@ -85,7 +85,8 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
         print(dict_str)
         print(type(dict_str))
-        change_str = json.dumps(dict_str)
+        change_str = json.dumps(dict_str).replace("'", '"')
+        # change_str = json.dumps(dict_str)
         print(change_str)
         print(type(change_str))
         loads_str = json.loads(change_str)
