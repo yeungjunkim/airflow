@@ -65,7 +65,7 @@ def make_env_var():
     loads_str = json.loads(change_str)
     print(loads_str)
     print(type(loads_str))
-    eval_test = eval("echo '{{ dag_run.conf.accutuning_env_vars }}' ")
+    eval_test = eval("echo ""{{ dag_run.conf.accutuning_env_vars }}"" ")
     print(eval_test)
     print(type(eval_test))
     chg_eval_test = json.loads(eval_test)
