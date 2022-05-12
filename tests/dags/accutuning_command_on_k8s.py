@@ -125,6 +125,15 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         print(env_dict_str.get("ACCUTUNING_WORKSPACE"))
         print(env_dict_str.get("ACCUTUNING_LOG_LEVEL"))
         print(env_dict_str.get("ACCUTUNING_USE_LABELER"))
+        print(env_dict_str.get("ACCUTUNING_USE_CLUSTERING"))
+        print(env_dict_str.get("DJANGO_SETTINGS_MODULE"))
+        print(env_dict_str.get("ACCUTUNING_DB_ENGINE"))
+        print(env_dict_str.get("ACCUTUNING_DB_HOST"))
+        print(env_dict_str.get("ACCUTUNING_DB_PORT"))
+        print(env_dict_str.get("ACCUTUNING_DB_NAME"))
+        print(env_dict_str.get("ACCUTUNING_DB_USER"))
+        print(env_dict_str.get("ACCUTUNING_DB_PASSWORD"))
+
         # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
         # print(dict_str)
         # print(type(dict_str))
