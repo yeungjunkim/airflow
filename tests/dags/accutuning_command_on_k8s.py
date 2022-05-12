@@ -55,7 +55,22 @@ def make_env_var():
     #     'ACCUTUNING_DB_USER': input_dict.get("ACCUTUNING_DB_USER"),
     #     'ACCUTUNING_DB_PASSWORD': input_dict.get("ACCUTUNING_DB_PASSWORD"),
     # }
-
+    dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+    print(dict_str)
+    print(type(dict_str))
+    change_str = json.dumps(dict_str).replace("'", '"')
+    # change_str = json.dumps(dict_str)
+    print(change_str)
+    print(type(change_str))
+    loads_str = json.loads(change_str)
+    print(loads_str)
+    print(type(loads_str))
+    eval_test = eval("echo '{{ dag_run.conf.accutuning_env_vars }}' ")
+    print(eval_test)
+    print(type(eval_test))
+    chg_eval_test = json.loads(eval_test)
+    print(chg_eval_test)
+    print(type(chg_eval_test))
     env_dict = {
         'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_WORKSPACE) }}",
         'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
@@ -96,16 +111,16 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         print(env_dict_str)
         print(type(env_dict_str))
 
-        dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
-        print(dict_str)
-        print(type(dict_str))
-        change_str = json.dumps(dict_str).replace("'", '"')
-        # change_str = json.dumps(dict_str)
-        print(change_str)
-        print(type(change_str))
-        loads_str = json.loads(change_str)
-        print(loads_str)
-        print(type(loads_str))
+        # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+        # print(dict_str)
+        # print(type(dict_str))
+        # change_str = json.dumps(dict_str).replace("'", '"')
+        # # change_str = json.dumps(dict_str)
+        # print(change_str)
+        # print(type(change_str))
+        # loads_str = json.loads(change_str)
+        # print(loads_str)
+        # print(type(loads_str))
         # eval_test = eval("echo '{{ dag_run.conf.accutuning_env_vars }}' ")
         # print(eval_test)
         # print(type(eval_test))
