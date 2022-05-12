@@ -79,18 +79,18 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        # print(env_dict_str)
-        # print(type(env_dict_str))
+        print(env_dict_str)
+        print(type(env_dict_str))
 
-        # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
-        # print(dict_str)
-        # print(type(dict_str))
-        # change_str = json.dumps(dict_str)
-        # print(change_str)
-        # print(type(change_str))
-        # loads_str = json.loads(change_str)
-        # print(loads_str)
-        # print(type(loads_str))
+        dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+        print(dict_str)
+        print(type(dict_str))
+        change_str = json.dumps(dict_str)
+        print(change_str)
+        print(type(change_str))
+        loads_str = json.loads(change_str)
+        print(loads_str)
+        print(type(loads_str))
 
         # print("+++++++++++++++++++++++++++")
         # print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
