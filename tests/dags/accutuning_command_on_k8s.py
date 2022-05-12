@@ -65,12 +65,12 @@ def make_env_var():
     loads_str = json.loads(change_str)
     print(loads_str)
     print(type(loads_str))
-    eval_test = eval("echo ""{{ dag_run.conf.accutuning_env_vars }}"" ")
-    print(eval_test)
-    print(type(eval_test))
-    chg_eval_test = json.loads(eval_test)
-    print(chg_eval_test)
-    print(type(chg_eval_test))
+    # eval_test = eval("echo {{ dag_run.conf.accutuning_env_vars }} ")
+    # print(eval_test)
+    # print(type(eval_test))
+    # chg_eval_test = json.loads(eval_test)
+    # print(chg_eval_test)
+    # print(type(chg_eval_test))
     env_dict = {
         'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_WORKSPACE) }}",
         'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
