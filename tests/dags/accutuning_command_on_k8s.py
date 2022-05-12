@@ -122,7 +122,9 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         print(env_dict_str)
         print(type(env_dict_str))
-
+        print(env_dict_str.get("ACCUTUNING_WORKSPACE"))
+        print(env_dict_str.get("ACCUTUNING_LOG_LEVEL"))
+        print(env_dict_str.get("ACCUTUNING_USE_LABELER"))
         # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
         # print(dict_str)
         # print(type(dict_str))
