@@ -92,6 +92,9 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         loads_str = json.loads(change_str)
         print(loads_str)
         print(type(loads_str))
+        eval_test = eval(dict_str)
+        print(eval_test)
+        print(type(eval_test))
 
         # print("+++++++++++++++++++++++++++")
         # print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
