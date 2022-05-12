@@ -83,7 +83,7 @@ def make_env_var():
     result = ast.literal_eval(dict_str)
     print(type(result))
     env_dict = {
-        'ACCUTUNING_WORKSPACE': result.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_WORKSPACE': result["ACCUTUNING_WORKSPACE"],
         'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
         'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
         'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
