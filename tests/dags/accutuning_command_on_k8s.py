@@ -92,13 +92,13 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         loads_str = json.loads(change_str)
         print(loads_str)
         print(type(loads_str))
-        eval_test = eval("echo {{ dag_run.conf.accutuning_env_vars }}")
+        eval_test = eval("echo ""{{ dag_run.conf.accutuning_env_vars }}"" ")
         print(eval_test)
         print(type(eval_test))
         chg_eval_test = json.loads(eval_test)
         print(chg_eval_test)
         print(type(chg_eval_test))
-        
+
         # print("+++++++++++++++++++++++++++")
         # print(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         # print(json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars")).get("ACCUTUNING_PVC_NAME"))
