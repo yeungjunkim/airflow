@@ -72,24 +72,30 @@ def make_env_var():
     # print(chg_eval_test)
     # print(type(chg_eval_test))
 
-    result = dict((a.strip(), (b.strip()))
-        for a, b in (element.split(':')
-            for element in dict_str.split(',')))
-    return result
-    # env_dict = {
-    #     'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | tojson }}",
-    #     'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
-    #     'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
-    #     'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
-    #     'DJANGO_SETTINGS_MODULE': "{{ dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE) }}",
-    #     'ACCUTUNING_DB_ENGINE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE) }}",
-    #     'ACCUTUNING_DB_HOST': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST) }}",
-    #     'ACCUTUNING_DB_PORT': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT) }}",
-    #     'ACCUTUNING_DB_NAME': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME) }}",
-    #     'ACCUTUNING_DB_USER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER) }}",
-    #     'ACCUTUNING_DB_PASSWORD': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD) }}",
-    # }
-    # return env_dict
+
+    # result = dict((a.strip(), (b.strip()))
+    #     for a, b in (element.split(':')
+    #         for element in dict_str.split(', ')))
+    # return result
+
+    import ast
+    dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+    result = ast.literal_eval(dict_str)
+    print(type(result))
+    env_dict = {
+        'ACCUTUNING_WORKSPACE': result.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
+        'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
+        'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
+        'DJANGO_SETTINGS_MODULE': "{{ dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE) }}",
+        'ACCUTUNING_DB_ENGINE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE) }}",
+        'ACCUTUNING_DB_HOST': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST) }}",
+        'ACCUTUNING_DB_PORT': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT) }}",
+        'ACCUTUNING_DB_NAME': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME) }}",
+        'ACCUTUNING_DB_USER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER) }}",
+        'ACCUTUNING_DB_PASSWORD': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD) }}",
+    }
+    return env_dict
 
 
 def make_accutuning_k8s_command(**kwargs):
