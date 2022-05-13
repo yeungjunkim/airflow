@@ -204,6 +204,7 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
+        self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -242,6 +243,8 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
+        self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
+
         return super().pre_execute(*args, **kwargs)
 
 
@@ -286,12 +289,13 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
+        self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
 before_worker = KubernetesPodExPreOperator(
     namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
-    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
+    # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
     # volume_mounts=[volume_mount],
@@ -309,7 +313,7 @@ worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_work
 
 worker = KubernetesPodExWorkerOperator(
     namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
-    image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
+    # image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
     env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
@@ -321,7 +325,7 @@ worker = KubernetesPodExWorkerOperator(
 
 worker_success = KubernetesPodExPostOperator(
     namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
-    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
+    # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
     env_vars=make_env_var(),
@@ -335,7 +339,7 @@ worker_success = KubernetesPodExPostOperator(
 
 worker_fail = KubernetesPodExPostOperator(
     namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
-    image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
+    # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
     env_vars=make_env_var(),
