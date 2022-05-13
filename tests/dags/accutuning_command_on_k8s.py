@@ -121,6 +121,9 @@ def make_accutuning_k8s_command(**kwargs):
     env_dict = kwargs['dag_run'].conf.get("accutuning_env_vars")
     print(env_dict)
     print(type(env_dict))
+    test_env = json.loads(env_dict)
+    print(test_env)
+    print(type(test_env))
 
     env_dict_str = {
         # "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
