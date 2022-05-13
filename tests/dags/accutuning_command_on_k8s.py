@@ -38,8 +38,7 @@ def make_accutuning_k8s_command(**kwargs):
     env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
     env_dict = json.loads(env_dict_str)
 
-    global custom_env_vars
-    custom_env_vars = {
+    globals()["custom_env_vars"] = {
         "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
         "ACCUTUNING_LOG_LEVEL": env_dict.get("ACCUTUNING_LOG_LEVEL"),
         "ACCUTUNING_USE_LABELER": env_dict.get("ACCUTUNING_USE_LABELER"),
@@ -97,8 +96,8 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    # env_vars=custom_env_vars,
-    env_vars=json.loads('{{ ti.xcom_pull(key="env_dict") }}'),
+    env_vars=custom_env_vars,
+    # env_vars=json.loads('{{ ti.xcom_pull(key="env_dict") }}'),
     cmds=["python3"],
     image_pull_policy='Always',
     get_logs=True,
