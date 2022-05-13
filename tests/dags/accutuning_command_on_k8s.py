@@ -67,6 +67,18 @@ parameters = PythonOperator(task_id='make_parameters', python_callable=make_accu
 
 
 class KubernetesPodExOperator(KubernetesPodOperator):
+    from typing import Sequence
+    template_fields: Sequence[str] = (
+        'image',
+        'cmds',
+        'arguments',
+        # 'env_vars',
+        'labels',
+        'config_file',
+        'pod_template_file',
+        'namespace',
+    )
+
     def __init__(self, *args, **kwargs):
         # env_dict_str = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
 
@@ -108,6 +120,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
+        self.env_vars = env_dict_str
 
         return super().pre_execute(*args, **kwargs)
 
@@ -120,7 +133,7 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    env_vars=make_env_parameters(),
+    # env_vars=make_env_parameters(),
     # env_vars=custom_env_vars,
     cmds=["python3"],
     image_pull_policy='Always',
