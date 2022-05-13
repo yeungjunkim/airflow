@@ -99,12 +99,12 @@ def make_env_var():
         'ACCUTUNING_USE_LABELER': "1",
         'ACCUTUNING_USE_CLUSTERING': "1",
         'DJANGO_SETTINGS_MODULE': "accutuning.settings",
-        # 'ACCUTUNING_DB_ENGINE': "mariadb",
-        # 'ACCUTUNING_DB_HOST': "192.168.64.15",
-        # 'ACCUTUNING_DB_PORT': "30787",
-        # 'ACCUTUNING_DB_NAME': "mariadb",
-        # 'ACCUTUNING_DB_USER': "root",
-        # 'ACCUTUNING_DB_PASSWORD': "admin",
+        'ACCUTUNING_DB_ENGINE': "mariadb",
+        'ACCUTUNING_DB_HOST': "192.168.64.15",
+        'ACCUTUNING_DB_PORT': "30787",
+        'ACCUTUNING_DB_NAME': "mariadb",
+        'ACCUTUNING_DB_USER': "root",
+        'ACCUTUNING_DB_PASSWORD': "admin",
     }
     return env_dict
 
@@ -201,7 +201,6 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
-        self.env_vars = test_dict
         # self.env_vars = {
         #     'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
         #     'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
@@ -230,19 +229,6 @@ command_worker = KubernetesPodExOperator(
     # volume_mounts=[volume_mount],
     name="monitor",
     task_id="monitor",
-    # env_vars={
-    #         'ACCUTUNING_WORKSPACE': "/workspace",
-    #         'ACCUTUNING_LOG_LEVEL': "INFO",
-    #         'ACCUTUNING_USE_LABELER': "1",
-    #         'ACCUTUNING_USE_CLUSTERING': "1",
-    #         'DJANGO_SETTINGS_MODULE': "accutuning.settings",
-    #         'ACCUTUNING_DB_ENGINE': "mariadb",
-    #         'ACCUTUNING_DB_HOST': "192.168.64.15",
-    #         'ACCUTUNING_DB_PORT': "30787",
-    #         'ACCUTUNING_DB_NAME': "mariadb",
-    #         'ACCUTUNING_DB_USER': "root",
-    #         'ACCUTUNING_DB_PASSWORD': "admin",
-    # },
     env_vars=make_env_var(),
     cmds=["python3"],
 
