@@ -54,18 +54,28 @@ def make_accutuning_k8s_command(**kwargs):
 
     kwargs['task_instance'].xcom_push(key='command', value=command)
     for (k, v) in env_dict.items():
-        kwargs['task_instance'].xcom_push(key=k, value=v)
+        if v.startsWidh("ACCUTUNING_"):
+            kwargs['task_instance'].xcom_push(key=k, value=v)
 
     return command
 
 
-def make_env_parameters():
-    print(globals()["custom_env_vars"])
-    print(type(globals()["custom_env_vars"]))
-    return globals()["custom_env_vars"]
+def make_env_parameters(**context):
+    # text = context['task_instance'].xcom_pull(task_ids='exec_extract')
+    # env_dict = {}
+
+    env_dict = context['task_instance'].xcom_pull(task_ids='make_parameters')
+    lines = env_dict.split("\n")
+    print(lines)
+
+    # for (k, v) in env_dict.items():
+    #     if v.startsWidh("ACCUTUNING_"):
+    #         kwargs['task_instance'].xcom_push(key=k, value=v)
+
+    return lines
 
 
-parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, dag=dag)
+parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, provide_context=True, dag=dag)
 
 # template_fields: Sequence[str] = ('image', 'command', 'environment_str', 'container_name', 'volume_mount')
 
@@ -124,10 +134,11 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    # env_vars=make_env_parameters(),
+    env_vars=make_env_parameters(),
     # env_vars=custom_env_vars,
     cmds=["python3"],
     image_pull_policy='Always',
+    provide_context=True,
     get_logs=True,
     dag=dag,
 )
