@@ -64,7 +64,7 @@ def make_env_parameters(**kwargs):
     # text = context['task_instance'].xcom_pull(task_ids='exec_extract')
     # env_dict = {}
 
-    env_dict = kwargs['context']['task_instance'].xcom_pull()
+    env_dict = kwargs['task_instance'].xcom_pull()
     lines = env_dict.split("\n")
     print(lines)
 
