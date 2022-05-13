@@ -58,6 +58,11 @@ def make_accutuning_k8s_command(**kwargs):
     return command
 
 
+def make_parameters():
+    print(globals()["custom_env_vars"])
+    print(type(globals()["custom_env_vars"]))
+    return globals()["custom_env_vars"]
+
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, dag=dag)
 
 
@@ -96,7 +101,7 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    env_vars=custom_env_vars,
+    env_vars=make_parameters(),
     # env_vars=json.loads('{{ ti.xcom_pull(key="env_dict") }}'),
     cmds=["python3"],
     image_pull_policy='Always',
