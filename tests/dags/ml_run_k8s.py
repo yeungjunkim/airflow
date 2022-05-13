@@ -359,4 +359,4 @@ end = DummyOperator(
 start >> parameters >> before_worker >> worker_env >> worker
 
 worker >> worker_success >> end
-worker >> worker_fail >> end
+worker >> worker_fail >> end  
