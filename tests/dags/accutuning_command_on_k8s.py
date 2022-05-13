@@ -118,23 +118,23 @@ def make_accutuning_k8s_command(**kwargs):
     command = f'''/code/manage.py {cmd} '''
     command += '\n'.join([f'--{k}={v}' for (k, v) in cmd_args.items() if v])
 
-    env_dict = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+    env_dict = kwargs['context']['dag_run'].conf.get("accutuning_env_vars")
     print(env_dict)
     print(type(env_dict))
 
-    env_dict_str = {
-        "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
-        "ACCUTUNING_LOG_LEVEL": env_dict.get("ACCUTUNING_LOG_LEVEL"),
-        "ACCUTUNING_USE_LABELER": env_dict.get("ACCUTUNING_USE_LABELER"),
-        "ACCUTUNING_USE_CLUSTERING": env_dict.get("ACCUTUNING_USE_CLUSTERING"),
-        "DJANGO_SETTINGS_MODULE": env_dict.get("DJANGO_SETTINGS_MODULE"),
-        "ACCUTUNING_DB_ENGINE": env_dict.get("ACCUTUNING_DB_ENGINE"),
-        "ACCUTUNING_DB_HOST": env_dict.get("ACCUTUNING_DB_HOST"),
-        "ACCUTUNING_DB_PORT": env_dict.get("ACCUTUNING_DB_PORT"),
-        "ACCUTUNING_DB_NAME": env_dict.get("ACCUTUNING_DB_NAME"),
-        "ACCUTUNING_DB_USER": env_dict.get("ACCUTUNING_DB_USER"),
-        "ACCUTUNING_DB_PASSWORD": env_dict.get("ACCUTUNING_DB_PASSWORD"),
-    }
+    # env_dict_str = {
+    #     "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
+    #     "ACCUTUNING_LOG_LEVEL": env_dict.get("ACCUTUNING_LOG_LEVEL"),
+    #     "ACCUTUNING_USE_LABELER": env_dict.get("ACCUTUNING_USE_LABELER"),
+    #     "ACCUTUNING_USE_CLUSTERING": env_dict.get("ACCUTUNING_USE_CLUSTERING"),
+    #     "DJANGO_SETTINGS_MODULE": env_dict.get("DJANGO_SETTINGS_MODULE"),
+    #     "ACCUTUNING_DB_ENGINE": env_dict.get("ACCUTUNING_DB_ENGINE"),
+    #     "ACCUTUNING_DB_HOST": env_dict.get("ACCUTUNING_DB_HOST"),
+    #     "ACCUTUNING_DB_PORT": env_dict.get("ACCUTUNING_DB_PORT"),
+    #     "ACCUTUNING_DB_NAME": env_dict.get("ACCUTUNING_DB_NAME"),
+    #     "ACCUTUNING_DB_USER": env_dict.get("ACCUTUNING_DB_USER"),
+    #     "ACCUTUNING_DB_PASSWORD": env_dict.get("ACCUTUNING_DB_PASSWORD"),
+    # }
 
     kwargs['task_instance'].xcom_push(key='command', value=command)
     kwargs['task_instance'].xcom_push(key='env_dict', value=env_dict_str)
