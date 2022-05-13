@@ -54,7 +54,7 @@ def make_accutuning_k8s_command(**kwargs):
     }
 
     kwargs['task_instance'].xcom_push(key='command', value=command)
-    # kwargs['task_instance'].xcom_push(key='env_dict', value=xcom_env_dict)
+    kwargs['task_instance'].xcom_push(key='env_dict', value=custom_env_vars)
 
     return command
 
