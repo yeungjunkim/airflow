@@ -99,12 +99,12 @@ def make_env_var():
         'ACCUTUNING_USE_LABELER': "1",
         'ACCUTUNING_USE_CLUSTERING': "1",
         'DJANGO_SETTINGS_MODULE': "accutuning.settings",
-        'ACCUTUNING_DB_ENGINE': "mariadb",
-        'ACCUTUNING_DB_HOST': "192.168.64.15",
-        'ACCUTUNING_DB_PORT': "30787",
-        'ACCUTUNING_DB_NAME': "mariadb",
-        'ACCUTUNING_DB_USER': "root",
-        'ACCUTUNING_DB_PASSWORD': "admin"
+        # 'ACCUTUNING_DB_ENGINE': "mariadb",
+        # 'ACCUTUNING_DB_HOST': "192.168.64.15",
+        # 'ACCUTUNING_DB_PORT': "30787",
+        # 'ACCUTUNING_DB_NAME': "mariadb",
+        # 'ACCUTUNING_DB_USER': "root",
+        # 'ACCUTUNING_DB_PASSWORD': "admin",
     }
     return env_dict
 
