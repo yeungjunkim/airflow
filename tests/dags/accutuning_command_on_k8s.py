@@ -49,13 +49,16 @@ def make_accutuning_k8s_command(**kwargs):
 #     # print(f'choose best model: {fetched_accuracies}')
 
 
-def make_env_parameters(ti):
-    env_dict = ti.xcom_pull(task_id='make_parameters')
+def make_env_parameters(**kwargs):
+    print(kwargs)
+    print(type(kwargs))
 
-    print(env_dict)
-    print(type(env_dict))
+    # env_dict = ti.xcom_pull(task_id='make_parameters')
 
-    return env_dict
+    # print(env_dict)
+    # print(type(env_dict))
+
+    return {}
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, provide_context=True, dag=dag)
