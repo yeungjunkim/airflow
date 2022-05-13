@@ -21,7 +21,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, schedule_interval=timedelta(days=1))
 
 start = DummyOperator(task_id='start', dag=dag)
 
