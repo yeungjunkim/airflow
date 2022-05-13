@@ -64,15 +64,15 @@ def make_env_parameters(**kwargs):
     # text = context['task_instance'].xcom_pull(task_ids='exec_extract')
     # env_dict = {}
     print(kwargs)
-    env_dict = kwargs['ti'].xcom_pull()
-    lines = env_dict.split("\n")
-    print(lines)
+    # env_dict = kwargs['ti'].xcom_pull()
+    # lines = env_dict.split("\n")
+    # print(lines)
 
     # for (k, v) in env_dict.items():
     #     if v.startsWidh("ACCUTUNING_"):
     #         kwargs['task_instance'].xcom_push(key=k, value=v)
 
-    return lines
+    return {}
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, provide_context=True, dag=dag)
