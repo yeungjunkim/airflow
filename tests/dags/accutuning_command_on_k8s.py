@@ -120,11 +120,12 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-        self.env_vars = env_dict_str
 
         return super().pre_execute(*args, **kwargs)
 
     def execute(self, *args, **kwargs):
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+        self.env_vars = env_dict_str
 
         return super().execute(*args, **kwargs)
 
