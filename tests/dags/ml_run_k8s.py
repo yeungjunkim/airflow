@@ -67,8 +67,8 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 def make_parameters(**kwargs):
 
-    env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
-    env_dict = json.loads(env_dict_str)
+    # env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
+    # env_dict = json.loads(env_dict_str)
 
 # 'experiment_id': 146,
 #           'experiment_process_type': 'parse',
