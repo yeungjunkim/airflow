@@ -71,7 +71,7 @@ parameters = PythonOperator(task_id='make_parameters', python_callable=make_accu
 
 class KubernetesPodExOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
-        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+        env_dict_str = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
 
         self.env_vars = {
             "ACCUTUNING_WORKSPACE": env_dict_str.get("ACCUTUNING_WORKSPACE"),
