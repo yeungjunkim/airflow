@@ -138,7 +138,6 @@ command_worker = KubernetesPodExOperator(
     # env_vars=custom_env_vars,
     cmds=["python3"],
     image_pull_policy='Always',
-    provide_context=True,
     get_logs=True,
     dag=dag,
 )
