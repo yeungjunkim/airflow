@@ -103,7 +103,7 @@ command_worker = KubernetesPodExOperator(
     name="monitor",
     task_id="monitor",
     # env_vars=make_env_parameters(),
-    env_vars=json.loads(json.dumps('{{ ti.xcom_pull(key="env_dict") }}')),
+    env_vars=globals()["custom_env_vars"],
     cmds=["python3"],
     image_pull_policy='Always',
     get_logs=True,
