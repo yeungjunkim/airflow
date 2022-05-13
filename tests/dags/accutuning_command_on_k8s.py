@@ -104,7 +104,7 @@ def make_env_var():
         'ACCUTUNING_DB_PORT': "30787",
         'ACCUTUNING_DB_NAME': "mariadb",
         'ACCUTUNING_DB_USER': "root",
-        'ACCUTUNING_DB_PASSWORD': "admin",
+        'ACCUTUNING_DB_PASSWORD': "admin"
     }
     return env_dict
 
