@@ -68,7 +68,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         'image',
         'cmds',
         'arguments',
-        # 'env_vars',
+        'env_vars',
         'labels',
         'config_file',
         'pod_template_file',
