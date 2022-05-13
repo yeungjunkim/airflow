@@ -22,7 +22,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s', default_args=default_args,  schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -67,7 +67,6 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-
     experiment_id = kwargs['dag_run'].conf.get('experiment_id')
     experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next')
@@ -101,6 +100,7 @@ def make_parameters(**kwargs):
 def make_worker_env(**kwargs):
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
     resources_str = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_resources"]
+    worker_namespace = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_namespace"]
 
     # worker_env_vars_str = kwargs['dag_run'].conf.get('worker_env_vars')
 
@@ -113,23 +113,12 @@ def make_worker_env(**kwargs):
     # env_dict['DJANGO_SETTINGS_MODULE'] = kwargs['dag_run'].conf.get('DJANGO_SETTINGS_MODULE')
 
     kwargs['task_instance'].xcom_push(key='ACCUTUNING_WORKER_WORKSPACE', value=workspace_path)
-    # kwargs['task_instance'].xcom_push(key='worker_env_vars', value=env_dict)
+    kwargs['task_instance'].xcom_push(key='worker_namespace', value=worker_namespace)
     kwargs['task_instance'].xcom_push(key='resources_str', value=resources_str)  # k8s resources_str
 
 
 def make_env_var():
     env_dict = {
-        # 'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        # 'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        # 'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        # 'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        # 'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
-        # 'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.ACCUTUNING_DB_ENGINE}}',
-        # 'ACCUTUNING_DB_HOST': '{{dag_run.conf.ACCUTUNING_DB_HOST}}',
-        # 'ACCUTUNING_DB_PORT': '{{dag_run.conf.ACCUTUNING_DB_PORT}}',
-        # 'ACCUTUNING_DB_NAME': '{{dag_run.conf.ACCUTUNING_DB_NAME}}',
-        # 'ACCUTUNING_DB_USER': '{{dag_run.conf.ACCUTUNING_DB_USER}}',
-        # 'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.ACCUTUNING_DB_PASSWORD}}',
         "ACCUTUNING_WORKSPACE": "{{ti.xcom_pull(key='ACCUTUNING_WORKSPACE', task_ids='make_parameters') }}",
         "ACCUTUNING_LOG_LEVEL": "{{ti.xcom_pull(key='ACCUTUNING_LOG_LEVEL', task_ids='make_parameters') }}",
         "ACCUTUNING_USE_LABELER": "{{ti.xcom_pull(key='ACCUTUNING_USE_LABELER', task_ids='make_parameters') }}",
@@ -294,7 +283,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
@@ -312,7 +301,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     # image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -324,7 +313,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_success",
     task_id="worker_success",
@@ -338,7 +327,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     name="worker_fail",
     task_id="worker_fail",
