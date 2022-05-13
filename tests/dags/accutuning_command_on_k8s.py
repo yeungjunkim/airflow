@@ -94,6 +94,12 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
+
+        return super().pre_execute(*args, **kwargs)
+
+    def execute(self, *args, **kwargs):
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+
         self.env_vars = {
             "ACCUTUNING_WORKSPACE": env_dict_str.get("ACCUTUNING_WORKSPACE"),
             "ACCUTUNING_LOG_LEVEL": env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
@@ -107,10 +113,6 @@ class KubernetesPodExOperator(KubernetesPodOperator):
             "ACCUTUNING_DB_USER": env_dict_str.get("ACCUTUNING_DB_USER"),
             "ACCUTUNING_DB_PASSWORD": env_dict_str.get("ACCUTUNING_DB_PASSWORD")
         }
-        return super().pre_execute(*args, **kwargs)
-
-    def execute(self, *args, **kwargs):
-
         return super().execute(*args, **kwargs)
 
 
