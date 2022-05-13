@@ -316,7 +316,7 @@ worker = KubernetesPodExWorkerOperator(
     # image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
-    env_vars={'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+    env_vars={'ACCUTUNING_LOG_LEVEL': '{{ ti.xcom_pull(key="ACCUTUNING_LOG_LEVEL")}}',
               'ACCUTUNING_WORKSPACE': '{{ ti.xcom_pull(key="ACCUTUNING_WORKER_WORKSPACE") }}',
               },
     get_logs=True,
