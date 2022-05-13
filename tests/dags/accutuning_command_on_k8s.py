@@ -231,8 +231,6 @@ command_worker = KubernetesPodExOperator(
     task_id="monitor",
     env_vars=make_env_var(),
     cmds=["python3"],
-
-    do_xcom_push=True,
     image_pull_policy='Always',
     get_logs=True,
     dag=dag,
