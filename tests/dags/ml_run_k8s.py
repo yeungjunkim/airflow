@@ -12,6 +12,7 @@ import json
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
+    'start_date': datetime.utcnow(),
     'email': ['airflow@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -21,7 +22,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, schedule_interval=timedelta(days=1))
+    'ml_run_k8s', default_args=default_args,  schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -359,4 +360,4 @@ end = DummyOperator(
 start >> parameters >> before_worker >> worker_env >> worker
 
 worker >> worker_success >> end
-worker >> worker_fail >> end  
+worker >> worker_fail >> end
