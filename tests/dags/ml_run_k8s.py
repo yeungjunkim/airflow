@@ -95,8 +95,8 @@ def make_parameters(**kwargs):
 
     # env_dict = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
 
-    for (k, v) in env_dict.items():
-        kwargs['task_instance'].xcom_push(key=k, value=v)
+    # for (k, v) in env_dict.items():
+    #     kwargs['task_instance'].xcom_push(key=k, value=v)
 
     # kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
