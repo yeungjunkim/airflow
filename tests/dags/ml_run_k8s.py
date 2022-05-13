@@ -12,7 +12,6 @@ import json
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime.utcnow(),
     'email': ['airflow@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -77,7 +76,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-    env_dict = json.loads(['dag_run'].conf.get("accutuning_env_vars"))
+    env_dict = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
     experiment_id = kwargs['dag_run'].conf.get('ACCUTUNING_EXPERIMENT_ID')
     experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next')
