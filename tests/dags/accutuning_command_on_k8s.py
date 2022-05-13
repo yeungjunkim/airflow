@@ -60,11 +60,11 @@ def make_accutuning_k8s_command(**kwargs):
     return command
 
 
-def make_env_parameters(**context):
+def make_env_parameters(**kwargs):
     # text = context['task_instance'].xcom_pull(task_ids='exec_extract')
     # env_dict = {}
 
-    env_dict = context['task_instance'].xcom_pull(task_ids='make_parameters')
+    env_dict = kwargs['task_instance'].xcom_pull()
     lines = env_dict.split("\n")
     print(lines)
 
