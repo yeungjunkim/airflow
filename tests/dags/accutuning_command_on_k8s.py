@@ -107,7 +107,9 @@ def make_env_var():
     #     'ACCUTUNING_DB_PASSWORD': "admin",
     # }
     # return env_dict
-    return dict('{{ ti.xcom_pull(key="env_dict") }}')
+
+    return eval('{{ ti.xcom_pull(key="env_dict") }}')
+
 
 def make_accutuning_k8s_command(**kwargs):
     cmd = kwargs['dag_run'].conf['cmd']
