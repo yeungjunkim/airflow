@@ -120,7 +120,7 @@ def make_accutuning_k8s_command(**kwargs):
 
     env_dict = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
 
-    env_dict = {
+    env_dict_str = {
         "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
         "ACCUTUNING_LOG_LEVEL": env_dict.get("ACCUTUNING_LOG_LEVEL"),
         "ACCUTUNING_USE_LABELER": env_dict.get("ACCUTUNING_USE_LABELER"),
@@ -135,7 +135,7 @@ def make_accutuning_k8s_command(**kwargs):
     }
 
     kwargs['task_instance'].xcom_push(key='command', value=command)
-    kwargs['task_instance'].xcom_push(key='env_dict', value=env_dict)
+    kwargs['task_instance'].xcom_push(key='env_dict', value=env_dict_str)
 
     return command
 
