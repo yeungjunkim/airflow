@@ -25,16 +25,6 @@ dag = DAG(
 
 start = DummyOperator(task_id='start', dag=dag)
 
-# volume_mount = k8s.V1VolumeMount(
-#     name='test-pvc', mount_path='/workspace', sub_path=None, read_only=False
-# )
-
-# volume = k8s.V1Volume(
-#     name='test-pvc',
-#     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#     host_path=k8s.V1HostPathVolumeSource(path='/workspace'),
-# )
-
 configmaps = [
     k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='airflow-test-1')),
 ]
@@ -77,7 +67,13 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 def make_parameters(**kwargs):
 
-    experiment_id = kwargs['dag_run'].conf.get('ACCUTUNING_EXPERIMENT_ID')
+    env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
+    env_dict = json.loads(env_dict_str)
+
+# 'experiment_id': 146,
+#           'experiment_process_type': 'parse',
+
+    experiment_id = kwargs['dag_run'].conf.get('experiment_id')
     experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next')
     container_uuid = make_uuid()
@@ -99,11 +95,8 @@ def make_parameters(**kwargs):
 
     # env_dict = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
 
-    # env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
-    # env_dict = json.loads(env_dict_str)
-
-    # for (k, v) in env_dict.items():
-    #     kwargs['task_instance'].xcom_push(key=k, value=v)
+    for (k, v) in env_dict.items():
+        kwargs['task_instance'].xcom_push(key=k, value=v)
 
     # kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
@@ -342,7 +335,6 @@ worker_success = KubernetesPodExPostOperator(
     cmds=["python3"],
     get_logs=True,
     dag=dag,
-    trigger_rule='all_success',
 )
 
 worker_fail = KubernetesPodExPostOperator(
@@ -357,8 +349,8 @@ worker_fail = KubernetesPodExPostOperator(
     cmds=["python3"],
     # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
     get_logs=True,
-    dag=dag,
     trigger_rule='one_failed',
+    dag=dag,
 )
 
 
