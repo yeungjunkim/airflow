@@ -54,8 +54,7 @@ def make_accutuning_k8s_command(**kwargs):
 
     kwargs['task_instance'].xcom_push(key='command', value=command)
     for (k, v) in env_dict.items():
-        if "ACCUTUNING_" in v:
-            kwargs['task_instance'].xcom_push(key=k, value=v)
+        kwargs['task_instance'].xcom_push(key=k, value=v)
 
     return command
 
