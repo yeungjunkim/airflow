@@ -116,7 +116,24 @@ def make_accutuning_k8s_command(**kwargs):
     command = f'''/code/manage.py {cmd} '''
     command += '\n'.join([f'--{k}={v}' for (k, v) in cmd_args.items() if v])
 
+    env_dict = json.loads(kwargs['dag_run'].conf.accutuning_env_vars)
+
+    env_dict = {
+        'ACCUTUNING_WORKSPACE': env_dict.get("ACCUTUNING_WORKSPACE"),
+        'ACCUTUNING_LOG_LEVEL': env_dict.get("ACCUTUNING_LOG_LEVEL"),
+        'ACCUTUNING_USE_LABELER': env_dict.get("ACCUTUNING_USE_LABELER"),
+        'ACCUTUNING_USE_CLUSTERING': env_dict.get("ACCUTUNING_USE_CLUSTERING"),
+        'DJANGO_SETTINGS_MODULE': env_dict.get("DJANGO_SETTINGS_MODULE"),
+        'ACCUTUNING_DB_ENGINE': env_dict.get("ACCUTUNING_DB_ENGINE"),
+        'ACCUTUNING_DB_HOST': env_dict.get("ACCUTUNING_DB_HOST"),
+        'ACCUTUNING_DB_PORT': env_dict.get("ACCUTUNING_DB_PORT"),
+        'ACCUTUNING_DB_NAME': env_dict.get("ACCUTUNING_DB_NAME"),
+        'ACCUTUNING_DB_USER': env_dict.get("ACCUTUNING_DB_USER"),
+        'ACCUTUNING_DB_PASSWORD': env_dict.get("ACCUTUNING_DB_PASSWORD"),
+    }
+
     kwargs['task_instance'].xcom_push(key='command', value=command)
+    kwargs['task_instance'].xcom_push(key='env_dict', value=env_dict)
 
     return command
 
@@ -201,35 +218,15 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.volumes = [volumes]
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
-        # self.env_vars = {
-        #     'ACCUTUNING_WORKSPACE': env_dict_str.get("ACCUTUNING_WORKSPACE"),
-        #     'ACCUTUNING_LOG_LEVEL': env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
-        #     'ACCUTUNING_USE_LABELER': env_dict_str.get("ACCUTUNING_USE_LABELER"),
-        #     'ACCUTUNING_USE_CLUSTERING': env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
-        #     'DJANGO_SETTINGS_MODULE': env_dict_str.get("DJANGO_SETTINGS_MODULE"),
-        #     'ACCUTUNING_DB_ENGINE': env_dict_str.get("ACCUTUNING_DB_ENGINE"),
-        #     'ACCUTUNING_DB_HOST': env_dict_str.get("ACCUTUNING_DB_HOST"),
-        #     'ACCUTUNING_DB_PORT': env_dict_str.get("ACCUTUNING_DB_PORT"),
-        #     'ACCUTUNING_DB_NAME': env_dict_str.get("ACCUTUNING_DB_NAME"),
-        #     'ACCUTUNING_DB_USER': env_dict_str.get("ACCUTUNING_DB_USER"),
-        #     'ACCUTUNING_DB_PASSWORD': env_dict_str.get("ACCUTUNING_DB_PASSWORD"),
-        # }
-        # print("volume = {}".format(self.volume))
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
 command_worker = KubernetesPodExOperator(
     namespace='default',
-    # image='{{dag_run.conf.accutuning_env_vars.ACCUTUNING_APP_IMAGE}}',
-    # image=json.loads("{{dag_run.conf.accutuning_env_vars}}").get("ACCUTUNING_APP_IMAGE"),
-    # image=json.loads('{{dag_run.conf.accutuning_env_var}}').get("ACCUTUNING_APP_IMAGE"),
-    # image='pooh97/accu-app:k8s-9',
-    # volumes=[volume],
-    # volume_mounts=[volume_mount],
     name="monitor",
     task_id="monitor",
-    env_vars=make_env_var(),
+    env_vars='{{ ti.xcom_pull(key="env_dict") }}',
     cmds=["python3"],
     image_pull_policy='Always',
     get_logs=True,
