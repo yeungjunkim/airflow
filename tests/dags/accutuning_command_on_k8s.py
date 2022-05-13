@@ -117,10 +117,10 @@ def make_accutuning_k8s_command(**kwargs):
 
     command = f'''/code/manage.py {cmd} '''
     command += '\n'.join([f'--{k}={v}' for (k, v) in cmd_args.items() if v])
-    print(kwargs['dag_run'].conf.accutuning_env_vars)
-    print(type(kwargs['dag_run'].conf.accutuning_env_vars))
 
     env_dict = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+    print(env_dict)
+    print(type(env_dict))
 
     env_dict_str = {
         "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
