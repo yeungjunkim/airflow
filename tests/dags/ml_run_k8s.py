@@ -283,7 +283,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
 
 before_worker = KubernetesPodExPreOperator(
-    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
+    namespace='{{dag_run.conf.ACCUTUNING_K8S_WORKER_NAMESPACE}}',
     # image='{{dag_run.conf.ACCUTUNING_APP_IMAGE}}',
     # image='pooh97/accu-app:latest',
     # volumes=[volume],
