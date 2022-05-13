@@ -76,7 +76,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
-    env_dict = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
+
     experiment_id = kwargs['dag_run'].conf.get('ACCUTUNING_EXPERIMENT_ID')
     experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next')
@@ -96,6 +96,11 @@ def make_parameters(**kwargs):
 
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
+
+    # env_dict = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
+
+    env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
+    env_dict = json.loads(env_dict_str)
 
     for (k, v) in env_dict.items():
         kwargs['task_instance'].xcom_push(key=k, value=v)
