@@ -55,16 +55,16 @@ def make_env_var():
     #     'ACCUTUNING_DB_USER': input_dict.get("ACCUTUNING_DB_USER"),
     #     'ACCUTUNING_DB_PASSWORD': input_dict.get("ACCUTUNING_DB_PASSWORD"),
     # }
-    dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
-    print(dict_str)
-    print(type(dict_str))
-    change_str = json.dumps(dict_str).replace("'", '"')
-    # change_str = json.dumps(dict_str)
-    print(change_str)
-    print(type(change_str))
-    loads_str = json.loads(change_str)
-    print(loads_str)
-    print(type(loads_str))
+    # dict_str = "{{ dag_run.conf.accutuning_env_vars }}"
+    # print(dict_str)
+    # print(type(dict_str))
+    # change_str = json.dumps(dict_str).replace("'", '"')
+    # # change_str = json.dumps(dict_str)
+    # print(change_str)
+    # print(type(change_str))
+    # loads_str = json.loads(change_str)
+    # print(loads_str)
+    # print(type(loads_str))
     # eval_test = eval("echo {{ dag_run.conf.accutuning_env_vars }} ")
     # print(eval_test)
     # print(type(eval_test))
@@ -82,32 +82,32 @@ def make_env_var():
     # result = ast.literal_eval(dict_str)
     # print(type(result))
 
-    env_dict = {
-        # 'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | tojson }}",
-        # 'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
-        # 'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
-        # 'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
-        # 'DJANGO_SETTINGS_MODULE': "{{ dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE) }}",
-        # 'ACCUTUNING_DB_ENGINE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE) }}",
-        # 'ACCUTUNING_DB_HOST': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST) }}",
-        # 'ACCUTUNING_DB_PORT': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT) }}",
-        # 'ACCUTUNING_DB_NAME': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME) }}",
-        # 'ACCUTUNING_DB_USER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER) }}",
-        # 'ACCUTUNING_DB_PASSWORD': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD) }}",
-        'ACCUTUNING_WORKSPACE': "/workspace",
-        'ACCUTUNING_LOG_LEVEL': "INFO",
-        'ACCUTUNING_USE_LABELER': "1",
-        'ACCUTUNING_USE_CLUSTERING': "1",
-        'DJANGO_SETTINGS_MODULE': "accutuning.settings",
-        'ACCUTUNING_DB_ENGINE': "mariadb",
-        'ACCUTUNING_DB_HOST': "192.168.64.15",
-        'ACCUTUNING_DB_PORT': "30787",
-        'ACCUTUNING_DB_NAME': "mariadb",
-        'ACCUTUNING_DB_USER': "root",
-        'ACCUTUNING_DB_PASSWORD': "admin",
-    }
-    return env_dict
-
+    # env_dict = {
+    #     # 'ACCUTUNING_WORKSPACE': "{{ dag_run.conf.accutuning_env_vars | tojson }}",
+    #     # 'ACCUTUNING_LOG_LEVEL': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_LOG_LEVEL) }}",
+    #     # 'ACCUTUNING_USE_LABELER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_LABELER) }}",
+    #     # 'ACCUTUNING_USE_CLUSTERING': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_USE_CLUSTERING) }}",
+    #     # 'DJANGO_SETTINGS_MODULE': "{{ dag_run.conf.accutuning_env_vars | d(DJANGO_SETTINGS_MODULE) }}",
+    #     # 'ACCUTUNING_DB_ENGINE': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_ENGINE) }}",
+    #     # 'ACCUTUNING_DB_HOST': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_HOST) }}",
+    #     # 'ACCUTUNING_DB_PORT': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PORT) }}",
+    #     # 'ACCUTUNING_DB_NAME': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_NAME) }}",
+    #     # 'ACCUTUNING_DB_USER': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_USER) }}",
+    #     # 'ACCUTUNING_DB_PASSWORD': "{{ dag_run.conf.accutuning_env_vars | d(ACCUTUNING_DB_PASSWORD) }}",
+    #     'ACCUTUNING_WORKSPACE': "/workspace",
+    #     'ACCUTUNING_LOG_LEVEL': "INFO",
+    #     'ACCUTUNING_USE_LABELER': "1",
+    #     'ACCUTUNING_USE_CLUSTERING': "1",
+    #     'DJANGO_SETTINGS_MODULE': "accutuning.settings",
+    #     'ACCUTUNING_DB_ENGINE': "mariadb",
+    #     'ACCUTUNING_DB_HOST': "192.168.64.15",
+    #     'ACCUTUNING_DB_PORT': "30787",
+    #     'ACCUTUNING_DB_NAME': "mariadb",
+    #     'ACCUTUNING_DB_USER': "root",
+    #     'ACCUTUNING_DB_PASSWORD': "admin",
+    # }
+    # return env_dict
+    return dict('{{ ti.xcom_pull(key="env_dict") }}')
 
 def make_accutuning_k8s_command(**kwargs):
     cmd = kwargs['dag_run'].conf['cmd']
@@ -226,7 +226,7 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    env_vars=dict('{{ ti.xcom_pull(key="env_dict") }}'),
+    env_vars=make_env_var(),
     cmds=["python3"],
     image_pull_policy='Always',
     get_logs=True,
