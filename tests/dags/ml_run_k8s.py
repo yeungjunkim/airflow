@@ -176,8 +176,8 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
 
-        # self.arguments = kwargs['context']['task_instance'].xcom_pull(
-        #     task_ids='make_parameters', key='before_command').split()
+        self.arguments = kwargs['context']['task_instance'].xcom_pull(
+            task_ids='make_parameters', key='before_command').split()
         # self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         # if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
