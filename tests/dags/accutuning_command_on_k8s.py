@@ -94,8 +94,24 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-        # self.env_vars = test_dict,
+        self.env_vars = {
+            "ACCUTUNING_WORKSPACE": env_dict_str.get("ACCUTUNING_WORKSPACE"),
+            "ACCUTUNING_LOG_LEVEL": env_dict_str.get("ACCUTUNING_LOG_LEVEL"),
+            "ACCUTUNING_USE_LABELER": env_dict_str.get("ACCUTUNING_USE_LABELER"),
+            "ACCUTUNING_USE_CLUSTERING": env_dict_str.get("ACCUTUNING_USE_CLUSTERING"),
+            "DJANGO_SETTINGS_MODULE": env_dict_str.get("DJANGO_SETTINGS_MODULE"),
+            "ACCUTUNING_DB_ENGINE": env_dict_str.get("ACCUTUNING_DB_ENGINE"),
+            "ACCUTUNING_DB_HOST": env_dict_str.get("ACCUTUNING_DB_HOST"),
+            "ACCUTUNING_DB_PORT": env_dict_str.get("ACCUTUNING_DB_PORT"),
+            "ACCUTUNING_DB_NAME": env_dict_str.get("ACCUTUNING_DB_NAME"),
+            "ACCUTUNING_DB_USER": env_dict_str.get("ACCUTUNING_DB_USER"),
+            "ACCUTUNING_DB_PASSWORD": env_dict_str.get("ACCUTUNING_DB_PASSWORD")
+        }
         return super().pre_execute(*args, **kwargs)
+
+    def execute(self, *args, **kwargs):
+
+        return super().execute(*args, **kwargs)
 
 
 command_worker = KubernetesPodExOperator(
@@ -103,7 +119,7 @@ command_worker = KubernetesPodExOperator(
     name="monitor",
     task_id="monitor",
     # env_vars=make_env_parameters(),
-    env_vars=**custom_env_vars,
+    # env_vars=custom_env_vars,
     cmds=["python3"],
     image_pull_policy='Always',
     get_logs=True,
