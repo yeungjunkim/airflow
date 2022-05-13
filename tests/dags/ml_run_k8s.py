@@ -77,6 +77,7 @@ def make_accutuning_docker_command(django_command, experiment_id, container_uuid
 
 
 def make_parameters(**kwargs):
+    env_dict = json.loads(['dag_run'].conf.get("accutuning_env_vars"))
     experiment_id = kwargs['dag_run'].conf.get('ACCUTUNING_EXPERIMENT_ID')
     experiment_process_type = kwargs['dag_run'].conf.get('experiment_process_type')
     proceed_next = kwargs['dag_run'].conf.get('proceed_next')
@@ -97,7 +98,10 @@ def make_parameters(**kwargs):
     docker_command_before = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'before', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
     docker_command_after = make_accutuning_docker_command(django_command, experiment_id, container_uuid, 'after', experiment_process_type, proceed_next, triggered_dag_id, triggered_dag_run_id, airflow_dag_call_id, targets)
 
-    kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
+    for (k, v) in env_dict.items():
+        kwargs['task_instance'].xcom_push(key=k, value=v)
+
+    # kwargs['task_instance'].xcom_push(key='app_env_vars', value=kwargs['dag_run'].conf.get('app_env_vars'))
     kwargs['task_instance'].xcom_push(key='before_command', value=docker_command_before)
     kwargs['task_instance'].xcom_push(key='after_command', value=docker_command_after)
 
@@ -123,17 +127,28 @@ def make_worker_env(**kwargs):
 
 def make_env_var():
     env_dict = {
-        'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
-        'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.ACCUTUNING_DB_ENGINE}}',
-        'ACCUTUNING_DB_HOST': '{{dag_run.conf.ACCUTUNING_DB_HOST}}',
-        'ACCUTUNING_DB_PORT': '{{dag_run.conf.ACCUTUNING_DB_PORT}}',
-        'ACCUTUNING_DB_NAME': '{{dag_run.conf.ACCUTUNING_DB_NAME}}',
-        'ACCUTUNING_DB_USER': '{{dag_run.conf.ACCUTUNING_DB_USER}}',
-        'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.ACCUTUNING_DB_PASSWORD}}',
+        # 'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
+        # 'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
+        # 'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
+        # 'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
+        # 'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
+        # 'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.ACCUTUNING_DB_ENGINE}}',
+        # 'ACCUTUNING_DB_HOST': '{{dag_run.conf.ACCUTUNING_DB_HOST}}',
+        # 'ACCUTUNING_DB_PORT': '{{dag_run.conf.ACCUTUNING_DB_PORT}}',
+        # 'ACCUTUNING_DB_NAME': '{{dag_run.conf.ACCUTUNING_DB_NAME}}',
+        # 'ACCUTUNING_DB_USER': '{{dag_run.conf.ACCUTUNING_DB_USER}}',
+        # 'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.ACCUTUNING_DB_PASSWORD}}',
+        "ACCUTUNING_WORKSPACE": "{{ti.xcom_pull(key='ACCUTUNING_WORKSPACE', task_ids='make_parameters') }}",
+        "ACCUTUNING_LOG_LEVEL": "{{ti.xcom_pull(key='ACCUTUNING_LOG_LEVEL', task_ids='make_parameters') }}",
+        "ACCUTUNING_USE_LABELER": "{{ti.xcom_pull(key='ACCUTUNING_USE_LABELER', task_ids='make_parameters') }}",
+        "ACCUTUNING_USE_CLUSTERING": "{{ti.xcom_pull(key='ACCUTUNING_USE_CLUSTERING', task_ids='make_parameters') }}",
+        "DJANGO_SETTINGS_MODULE": "{{ti.xcom_pull(key='DJANGO_SETTINGS_MODULE', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_ENGINE": "{{ti.xcom_pull(key='ACCUTUNING_DB_ENGINE', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_HOST": "{{ti.xcom_pull(key='ACCUTUNING_DB_HOST', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_PORT": "{{ti.xcom_pull(key='ACCUTUNING_DB_PORT', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_NAME": "{{ti.xcom_pull(key='ACCUTUNING_DB_NAME', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_USER": "{{ti.xcom_pull(key='ACCUTUNING_DB_USER', task_ids='make_parameters') }}",
+        "ACCUTUNING_DB_PASSWORD": "{{ti.xcom_pull(key='ACCUTUNING_DB_PASSWORD', task_ids='make_parameters') }}",
     }
     return env_dict
 
@@ -141,20 +156,25 @@ def make_env_var():
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
-def set_default_volumn_mount(self, *args, **kwargs):
-    volume_mounts = k8s.V1VolumeMount(
-        name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
-        sub_path=None, read_only=False
-    )
-    self.volume_mounts = [volume_mounts]
+# def set_default_volumn_mount(self, *args, **kwargs):
+#     volume_mounts = k8s.V1VolumeMount(
+#         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+#         # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+#         name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+#         mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+#         sub_path=None, read_only=False
+#     )
+#     self.volume_mounts = [volume_mounts]
 
-    volumes = k8s.V1Volume(
-        name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
-    )
-    self.volumes = [volumes]
+#     volumes = k8s.V1Volume(
+#         # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+#         # # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+#         # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+#         name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+#         # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+#         host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+#     )
+#     self.volumes = [volumes]
 
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
@@ -162,13 +182,36 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        set_default_volumn_mount(self, *args, **kwargs)
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+        # self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        # if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
+        #     self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+        self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
         return super().pre_execute(*args, **kwargs)
 
 
@@ -177,13 +220,36 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        set_default_volumn_mount(self, *args, **kwargs)
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+        # self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        # if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
+        #     self.node_selector = {'node_type': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+        self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
         return super().pre_execute(*args, **kwargs)
 
 
@@ -192,9 +258,12 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
-        set_default_volumn_mount(self, *args, **kwargs)
-        self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-        self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+
+        # self.image_pull_policy = kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        # self.image_pull_secrets = [k8s.V1LocalObjectReference(kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
+        self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
+        self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         # resources=client.V1ResourceRequirements(
         #     requests={"cpu": "100m", "memory": "200Mi"},
         #     limits={"cpu": "500m", "memory": "500Mi"}
@@ -205,8 +274,26 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
             limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
                 task_ids='make_worker_env', key='resources_str'))
         )
-        if kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE'):
-            self.node_selector = {'nodetype': kwargs['context']['dag_run'].conf.get('ACCUTUNING_K8S_NODETYPE')}
+        if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
+            self.node_selector = {'nodetype': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
+        volume_mounts = k8s.V1VolumeMount(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # mount_path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE'),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            # name=kwargs['context']['dag_run'].conf.get('ACCUTUNING_PVC_NAME'),
+            # # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get('ACCUTUNING_WORKSPACE')),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
         return super().pre_execute(*args, **kwargs)
 
 
