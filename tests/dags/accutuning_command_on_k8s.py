@@ -38,6 +38,7 @@ def make_accutuning_k8s_command(**kwargs):
     env_dict_str = kwargs['dag_run'].conf.get("accutuning_env_vars")
     env_dict = json.loads(env_dict_str)
 
+    global custom_env_vars
     custom_env_vars = {
         "ACCUTUNING_WORKSPACE": env_dict.get("ACCUTUNING_WORKSPACE"),
         "ACCUTUNING_LOG_LEVEL": env_dict.get("ACCUTUNING_LOG_LEVEL"),
