@@ -187,7 +187,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        set_default_volumn_mount()
+        self.set_default_volumn_mount()
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
@@ -206,7 +206,7 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        set_default_volumn_mount()
+        self.set_default_volumn_mount()
 
         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
