@@ -22,7 +22,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, max_active_runs=2, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
@@ -140,7 +140,6 @@ def make_env_var():
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
-
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -198,6 +197,7 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
+
         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
