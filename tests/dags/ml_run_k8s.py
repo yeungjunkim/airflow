@@ -140,23 +140,6 @@ def make_env_var():
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
 
 
-def set_default_volumn_mount(self, *args, **kwargs):
-    env_dict_str = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
-
-    volume_mounts = k8s.V1VolumeMount(
-        name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-        mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-        sub_path=None, read_only=False
-    )
-    self.volume_mounts = [volume_mounts]
-
-    volumes = k8s.V1Volume(
-        name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-        # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-        host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
-    )
-    self.volumes = [volumes]
-
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
@@ -164,7 +147,19 @@ class KubernetesPodExPreOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        set_default_volumn_mount(self, args, kwargs)
+        volume_mounts = k8s.V1VolumeMount(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
@@ -187,7 +182,19 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        set_default_volumn_mount(self, args, kwargs)
+        volume_mounts = k8s.V1VolumeMount(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
 
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
@@ -206,7 +213,19 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
 
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        set_default_volumn_mount(self, args, kwargs)
+        volume_mounts = k8s.V1VolumeMount(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+            sub_path=None, read_only=False
+        )
+        self.volume_mounts = [volume_mounts]
+
+        volumes = k8s.V1Volume(
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
+        )
+        self.volumes = [volumes]
 
         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
