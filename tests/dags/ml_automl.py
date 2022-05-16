@@ -90,6 +90,11 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
                 dag_param = {'cmd': 'make_a_copy', 'cmd_args': {'experiment': conf.get('experiment_id')}}
                 conf.update(dag_param)
                 self.conf = conf
+            elif self.conf['experiment_process_type'] == 'monitor':
+                trigger_dag_id = 'accutuning_command_on_k8s'
+                dag_param = {'cmd': 'monitor', 'cmd_args': {'experiment': conf.get('experiment_id')}}
+                conf.update(dag_param)
+                self.conf = conf
             else:
                 trigger_dag_id = 'ml_run_k8s'
         else:
@@ -192,7 +197,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     # deploy_auto_with_ensemble = TriggerDagRunWithConfigOperator(
     #     task_id='deploy_auto_with_ensemble', conf=dict(target=None, experiment_process_type='deploy'))
     ml_labeling = TriggerDagRunWithConfigOperator(task_id='ml_labeling', conf=dict(experiment_process_type='labeling'))
-    # lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
+    lb_predict = TriggerDagRunWithConfigOperator(task_id='lb_predict')
     modelstat = TriggerDagRunWithConfigOperator(task_id='modelstat')
     predict = TriggerDagRunWithConfigOperator(task_id='predict')
     cl_predict = TriggerDagRunWithConfigOperator(task_id='cl_predict')
@@ -215,7 +220,7 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) 
     parse_only = DummyOperator(task_id='parse_only')
     batch_automl = _build('batch_automl')
 
-    start >> start_branch >> [deploy, modelstat, predict, dataset_eda, cl_predict] >> end
+    start >> start_branch >> [deploy, modelstat, predict, dataset_eda, cl_predict, lb_predict] >> end
 
     start_branch >> preprocess >> optuna >> ensemble_branch >> [ensemble, no_ensemble]
     preprocess >> monitor
