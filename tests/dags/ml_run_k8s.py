@@ -141,7 +141,7 @@ parameters = PythonOperator(task_id='make_parameters', python_callable=make_para
 
 
 def set_default_volumn_mount(self, *args, **kwargs):
-    env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
+    env_dict_str = json.loads(kwargs['dag_run'].conf.get("accutuning_env_vars"))
 
     volume_mounts = k8s.V1VolumeMount(
         name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
