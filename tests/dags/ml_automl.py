@@ -21,6 +21,42 @@ default_args = {
 }
 
 
+AVAILABLE_ESTIMATORS = [  # optuna 알고리즘별로 돌릴 때 사용 - settings에서 바로 가져올 수 있으면 참 좋을텐데...
+    'logistic_regression',
+    'bernoulli_nb',
+    'adaboost',
+    'decision_tree',
+    'extra_trees',
+    'gradient_boosting',
+    'hist_gradient_boosting',
+    'k_nearest_neighbor',
+    'lda',
+    'liblinear_svc',
+    'libsvm_svc',
+    'nusvc',
+    'mlp',
+    'multinomial_nb',
+    'passive_aggressive',
+    'qda',
+    'random_forest',
+    'sgd',
+    'xgboost',
+    'lightgbm',
+    'catboost',
+    'autodl',
+    'linear_regression',
+    'lasso',
+    'ridge',
+    'ard_regression',
+    'extra_tree',
+    'gaussian_process',
+    'k_nearest_neighbors',
+    'liblinear_svr',
+    'nusvr',
+    'mars',
+]
+
+
 class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
     def __init__(self, *args, **kwargs):
         kwargs['wait_for_completion'] = True
@@ -98,14 +134,13 @@ def _build(task_id):
         optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
 
         def which_en_path(*args, **kwargs):
-            # ['batch_automl.no_ensemble', 'batch_automl.ensemble']
             use_ensemble = kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('use_ensemble')
 
             if use_ensemble:
-                next_process = 'batch_automl.ensemble'
+                next_process = f'{task_id}.ensemble'
             else:
-                next_process = 'batch_automl.no_ensemble'
-            print(" use_ensemble = {}, next_process = {}".format(use_ensemble, next_process))
+                next_process = f'{task_id}.no_ensemble'
+            print(f"use_ensemble = {use_ensemble}, next_process = {next_process}")
             return next_process
 
         ensemble_branch = BranchPythonOperator(task_id='ensemble_branch', python_callable=which_en_path)
@@ -121,13 +156,32 @@ def _build(task_id):
     return tg
 
 
+def _optuna_taskgroup(task_id):
+    with TaskGroup(group_id=task_id) as tg:
+        def which_optuna_path(*args, **kwargs):
+            include_estimators_json = kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('include_estimators_json')
+            include_estimators = json.loads(include_estimators_json)
+
+            return [f'{task_id}.{estimator}' for estimator in include_estimators]
+
+        optuna_branch = BranchPythonOperator(task_id='optuna_branch', python_callable=which_optuna_path)
+        end_optuna = DummyOperator(task_id='end_optuna', trigger_rule='none_failed_min_one_success')
+
+        for estimator in AVAILABLE_ESTIMATORS:
+            task = TriggerDagRunWithConfigOperator(task_id=estimator, conf=dict(experiment_process_type='optuna', estimators=estimator))
+            optuna_branch >> task >> end_optuna
+
+    return tg
+
+
 with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args) as dag:
 
     parse = TriggerDagRunWithConfigOperator(task_id='parse')
     parse_cluster = TriggerDagRunWithConfigOperator(task_id='parse_cluster', conf=dict(experiment_process_type='parse'))
     parse_labeling = TriggerDagRunWithConfigOperator(task_id='parse_labeling', conf=dict(experiment_process_type='parse'))
     preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess', trigger_rule='one_success')
-    optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
+    # optuna = TriggerDagRunWithConfigOperator(task_id='optuna')
+    optuna = _optuna_taskgroup('optuna')
     monitor = TriggerDagRunWithConfigOperator(task_id='monitor')
     # optuna_extra1 = TriggerDagRunWithConfigOperator(task_id='optuna_extra1')
     # optuna_extra2 = TriggerDagRunWithConfigOperator(task_id='optuna_extra2')
