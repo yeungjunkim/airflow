@@ -82,17 +82,14 @@ class TriggerDagRunWithConfigOperator(TriggerDagRunOperator):
         pprint(self.conf)
 
         if json.loads(self.conf['accutuning_env_vars'])['ACCUTUNING_K8S_USE'] == '1':
-            if self.conf['experiment_process_type'] == 'optuna_monitor' or \
-                    self.conf['experiment_process_type'] == 'ensemble_monitor':
-                trigger_dag_id = 'ml_run_k8s_monitor'
-            elif self.conf['experiment_process_type'] == 'make_a_copy':
+            if self.conf['experiment_process_type'] == 'make_a_copy':
                 trigger_dag_id = 'accutuning_command_on_k8s'
                 dag_param = {'cmd': 'make_a_copy', 'cmd_args': {'experiment': conf.get('experiment_id')}}
                 conf.update(dag_param)
                 self.conf = conf
             elif self.conf['experiment_process_type'] == 'monitor':
                 trigger_dag_id = 'accutuning_command_on_k8s'
-                dag_param = {'cmd': 'monitor', 'cmd_args': {'experiment': conf.get('experiment_id')}}
+                dag_param = {'cmd': 'ml_monitor', 'cmd_args': {'experiment': conf.get('experiment_id')}}
                 conf.update(dag_param)
                 self.conf = conf
             else:
