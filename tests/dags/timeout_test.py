@@ -75,7 +75,7 @@ dag = DAG(
     dag_id,
     schedule_interval=schedule,
     default_args=default_args,
-    dagrun_timeout=timedelta(seconds=80))
+    dagrun_timeout=timedelta(seconds=50))
 
 with dag:
     start = DummyOperator(task_id='start')
