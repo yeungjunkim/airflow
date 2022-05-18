@@ -2,7 +2,6 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.docker.operators.docker import DockerOperator
 from datetime import datetime, timedelta
 from airflow.utils.state import State
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
@@ -76,7 +75,7 @@ dag = DAG(
     dag_id,
     schedule_interval=schedule,
     default_args=default_args,
-    dagrun_timeout=timedelta(seconds=120))
+    dagrun_timeout=timedelta(seconds=80))
 
 with dag:
     start = DummyOperator(task_id='start')
@@ -94,7 +93,7 @@ with dag:
         namespace='default',
         image='busybox:latest',
         name="docker_test",
-        cmds=["python3"],
+        cmds=["sleep"],
         arguments=['20'],
         task_id="worker",
         get_logs=True,
