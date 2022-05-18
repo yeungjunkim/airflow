@@ -122,5 +122,5 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
-    start >> timer >> end
+    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+    # start >> timer >> end
