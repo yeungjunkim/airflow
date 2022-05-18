@@ -95,7 +95,7 @@ with dag:
         name="docker_test",
         cmds=["sleep"],
         arguments=['20'],
-        task_id="worker",
+        task_id="docker_test",
         get_logs=True,
         dag=dag,
     )
