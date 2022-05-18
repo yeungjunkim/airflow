@@ -17,7 +17,7 @@ default_args = {
     # 'render_template_as_native_obj': True,
     # 'on_failure_callback': on_failure_task,
     # 'on_success_callback': on_success_task,
-    'execution_timeout': timedelta(seconds='{{dag_run.conf.ACCUTUNING_TIMEOUT}}')
+    'execution_timeout': timedelta(seconds=int('{{dag_run.conf.ACCUTUNING_TIMEOUT}}'))
 }
 
 
