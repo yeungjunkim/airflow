@@ -176,7 +176,7 @@ def _optuna_taskgroup(task_id):
     return tg
 
 
-with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args, dagrun_timeout=timedelta(seconds=3600)) as dag:
+with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args, dagrun_timeout=timedelta(seconds='{{dag_run.conf.ACCUTUNING_TIMEOUT}}')) as dag:
 
     parse = TriggerDagRunWithConfigOperator(task_id='parse')
     parse_cluster = TriggerDagRunWithConfigOperator(task_id='parse_cluster', conf=dict(experiment_process_type='parse'))
