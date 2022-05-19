@@ -149,7 +149,7 @@ def _check(*args, **kwargs):
     timeout = 30
     time_count = 1
 
-    while time_count < process_default_timeout:
+    while time_count < timeout:
         time.sleep(1)
         time_count += 1
 
