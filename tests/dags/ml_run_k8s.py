@@ -315,7 +315,7 @@ end = DummyOperator(
     dag=dag,
 )
 
-timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check)
+timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
 
 start >> parameters >> before_worker >> worker_env >> worker
 
