@@ -55,9 +55,9 @@ def check(*args, **kwargs):
             state = ti.current_state()
             print(task_id, state)
         print('-' * 10)
-        import time
 
-    time.sleep(60)
+    import time
+    time.sleep(40)
     # print('set_state', set_dag_run_state_to_failed(
     #     dag=kwargs['dag_run'].dag,
     #     execution_date=kwargs['dag_run'].execution_date,
@@ -67,7 +67,7 @@ def check(*args, **kwargs):
 
     for ti in kwargs["dag_run"].get_task_instances():
         # ti.set_state(State.SKIPPED)
-        if ti.current_state() in ('running', 'None'):
+        if ti.current_state() in ('running', None):
             print(f'ti.task_id = {ti.task_id}')
             ti.set_state(State.FAILED)
 
