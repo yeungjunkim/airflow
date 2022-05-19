@@ -146,6 +146,7 @@ def _check(*args, **kwargs):
         timeout = process_default_timeout
     print(f'timeout = [{timeout}]')
 
+    timeout = 60
     time_count = 1
 
     while time_count < process_default_timeout:
