@@ -96,7 +96,7 @@ with dag:
         image='busybox:latest',
         name="k8s_test",
         cmds=["sleep"],
-        arguments=['20'],
+        arguments=['60'],
         task_id="docker_test",
         get_logs=True,
         dag=dag,
