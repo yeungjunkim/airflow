@@ -51,7 +51,7 @@ def check(*args, **kwargs):
             print(task_id, state)
         print('-' * 10)
         import time
-        time.sleep(1)
+        time.sleep(3)
     # print('set_state', set_dag_run_state_to_failed(
     #     dag=kwargs['dag_run'].dag,
     #     execution_date=kwargs['dag_run'].execution_date,
@@ -59,8 +59,8 @@ def check(*args, **kwargs):
     #     commit=True))
     # raise AirflowTaskTimeout()
     for ti in kwargs["dag_run"].get_task_instances():
-        ti.set_state(State.SKIPPED)
-        # ti.set_state(State.FAILED)
+        # ti.set_state(State.SKIPPED)
+        ti.set_state(State.FAILED)
 
 
 dag_id = 'timeout_test'
@@ -75,8 +75,9 @@ schedule = None
 dag = DAG(
     dag_id,
     schedule_interval=schedule,
-    default_args=default_args,
-    dagrun_timeout=timedelta(seconds=50))
+    default_args=default_args)
+# ,
+# dagrun_timeout=timedelta(seconds=50))
 
 with dag:
     start = DummyOperator(task_id='start')
@@ -93,7 +94,7 @@ with dag:
     t0 = KubernetesPodOperator(
         namespace='default',
         image='busybox:latest',
-        name="docker_test",
+        name="k8s_test",
         cmds=["sleep"],
         arguments=['20'],
         task_id="docker_test",
