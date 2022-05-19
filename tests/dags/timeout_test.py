@@ -5,6 +5,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from datetime import datetime, timedelta
 from airflow.utils.state import State
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+import threading
 
 # from airflow.api.common.mark_tasks import set_dag_run_state
 # from airflow.api.common.experimental.mark_tasks import (
@@ -20,6 +21,21 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 # from airflow.utils.session import create_session, provide_session
 # from airflow.utils.state import State
 # from airflow.utils.types import DagRunType
+count = 0
+max_time = 20
+
+
+def timer():
+    global count
+    count += 1
+    print(count)
+
+    timer = threading.Timer(1, timer)
+    timer.start()
+
+    if count == max_time:
+        print("타이머를 멈춥니다.")
+    timer.cancel()
 
 
 def hello_world_py(*args, **kwargs):
@@ -60,6 +76,8 @@ def check(*args, **kwargs):
     #     # run_id=kwargs['dag_run'].run_id,
     #     commit=True))
     # raise AirflowTaskTimeout()
+    timer()
+
     for ti in kwargs["dag_run"].get_task_instances():
         # ti.set_state(State.SKIPPED)
         ti.set_state(State.FAILED)
@@ -99,7 +117,7 @@ with dag:
         name="k8s_test",
         cmds=["sleep"],
         arguments=['60'],
-        task_id="docker_test",
+        task_id="k8s_test",
         get_logs=True,
         dag=dag,
     )
@@ -126,5 +144,5 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
-    start >> timer >> end
+    timer_pods = PythonOperator(task_id='timer_pods', provide_context=True, python_callable=check)
+    start >> timer_pods >> end
