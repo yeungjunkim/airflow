@@ -132,12 +132,12 @@ parameters = PythonOperator(task_id='make_parameters', python_callable=make_para
 
 def _check(*args, **kwargs):
 
-    for _ in range(len(kwargs["dag_run"].get_task_instances())):
-        for ti in kwargs["dag_run"].get_task_instances():
-            # 각 task instance의 id와 state를 확인한다.
-            task_id = ti.task_id
-            state = ti.current_state()
-            print(task_id, state)
+    # for _ in range(len(kwargs["dag_run"].get_task_instances())):
+    #     for ti in kwargs["dag_run"].get_task_instances():
+    #         # 각 task instance의 id와 state를 확인한다.
+    #         task_id = ti.task_id
+    #         state = ti.current_state()
+    #         print(task_id, state)
 
     import time
     process_default_timeout = 600
@@ -145,7 +145,18 @@ def _check(*args, **kwargs):
     if timeout == {}:
         timeout = process_default_timeout
     print(f'timeout = [{timeout}]')
-    time.sleep(timeout)
+
+    time_count = 1
+
+    if(time_count < process_default_timeout):
+        time.sleep(1)
+        time_count += 1
+
+        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
+        state = kwargs["dag_run"].get_task_instance('end').current_state()
+
+        if state == "success":
+            return True
 
     for ti in kwargs["dag_run"].get_task_instances():
         if ti.current_state() in ('running', None):
