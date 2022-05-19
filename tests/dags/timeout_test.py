@@ -42,6 +42,7 @@ def check(*args, **kwargs):
     #         TI.dag_id == dag.dag_id,
     #         TI.execution_date.in_(execution_dates)
     #     ).all()
+    print(kwargs["dag_run"].get_task_instances())
     for _ in range(5):
         for ti in kwargs["dag_run"].get_task_instances():
             # 각 task instance의 id와 state를 확인한다.
@@ -122,5 +123,5 @@ with dag:
     end = DummyOperator(task_id='end')
     start >> t0 >> t1 >> t2 >> t3 >> t4 >> t5 >> end
 
-    # timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
-    # start >> timer >> end
+    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=check)
+    start >> timer >> end
