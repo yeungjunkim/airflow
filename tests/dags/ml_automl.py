@@ -134,13 +134,13 @@ def which_path3(*args, **kwargs):
 
 def _check(*args, **kwargs):
 
-    for _ in range(len(kwargs["dag_run"].get_task_instances())):
-        for ti in kwargs["dag_run"].get_task_instances():
-            # 각 task instance의 id와 state를 확인한다.
-            task_id = ti.task_id
-            state = ti.current_state()
-            print(task_id, state)
-        print('-' * 10)
+    # for _ in range(len(kwargs["dag_run"].get_task_instances())):
+    #     for ti in kwargs["dag_run"].get_task_instances():
+    #         # 각 task instance의 id와 state를 확인한다.
+    #         task_id = ti.task_id
+    #         state = ti.current_state()
+    #         print(task_id, state)
+    #     print('-' * 10)
 
     import time
     experiment_default_timeout = 3600
@@ -148,8 +148,17 @@ def _check(*args, **kwargs):
     print(f'timeout = [{timeout}]')
     if timeout == {}:
         timeout = experiment_default_timeout
+    time_count = 1
 
-    time.sleep(timeout)
+    if(time_count < experiment_default_timeout):
+        time.sleep(1)
+        time_count += 1
+
+        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
+        state = kwargs["dag_run"].get_task_instance('end').current_state()
+
+        if state == "success":
+            return True
 
     for ti in kwargs["dag_run"].get_task_instances():
         if ti.current_state() in ('running', None):
