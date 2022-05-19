@@ -43,7 +43,9 @@ def check(*args, **kwargs):
     #         TI.execution_date.in_(execution_dates)
     #     ).all()
     print(kwargs["dag_run"].get_task_instances())
-    for _ in range(5):
+    print(len(kwargs["dag_run"].get_task_instances()))
+
+    for _ in range(len(kwargs["dag_run"].get_task_instances())):
         for ti in kwargs["dag_run"].get_task_instances():
             # 각 task instance의 id와 state를 확인한다.
             task_id = ti.task_id
