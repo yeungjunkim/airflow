@@ -5,6 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
+from airflow.utils.state import State
 import json
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
@@ -111,17 +112,6 @@ def make_worker_env(**kwargs):
 
 def make_env_var():
     env_dict = {
-        # 'ACCUTUNING_WORKSPACE': '{{dag_run.conf.ACCUTUNING_WORKSPACE}}',
-        # 'ACCUTUNING_LOG_LEVEL': '{{dag_run.conf.ACCUTUNING_LOG_LEVEL}}',
-        # 'ACCUTUNING_USE_LABELER': '{{dag_run.conf.ACCUTUNING_USE_LABELER}}',
-        # 'ACCUTUNING_USE_CLUSTERING': '{{dag_run.conf.ACCUTUNING_USE_CLUSTERING}}',
-        # 'DJANGO_SETTINGS_MODULE': '{{dag_run.conf.DJANGO_SETTINGS_MODULE}}',
-        # 'ACCUTUNING_DB_ENGINE': '{{dag_run.conf.ACCUTUNING_DB_ENGINE}}',
-        # 'ACCUTUNING_DB_HOST': '{{dag_run.conf.ACCUTUNING_DB_HOST}}',
-        # 'ACCUTUNING_DB_PORT': '{{dag_run.conf.ACCUTUNING_DB_PORT}}',
-        # 'ACCUTUNING_DB_NAME': '{{dag_run.conf.ACCUTUNING_DB_NAME}}',
-        # 'ACCUTUNING_DB_USER': '{{dag_run.conf.ACCUTUNING_DB_USER}}',
-        # 'ACCUTUNING_DB_PASSWORD': '{{dag_run.conf.ACCUTUNING_DB_PASSWORD}}',
         "ACCUTUNING_WORKSPACE": "{{ti.xcom_pull(key='ACCUTUNING_WORKSPACE', task_ids='make_parameters') }}",
         "ACCUTUNING_LOG_LEVEL": "{{ti.xcom_pull(key='ACCUTUNING_LOG_LEVEL', task_ids='make_parameters') }}",
         "ACCUTUNING_USE_LABELER": "{{ti.xcom_pull(key='ACCUTUNING_USE_LABELER', task_ids='make_parameters') }}",
@@ -138,6 +128,29 @@ def make_env_var():
 
 
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_parameters, dag=dag)
+
+
+def _check(*args, **kwargs):
+
+    for _ in range(len(kwargs["dag_run"].get_task_instances())):
+        for ti in kwargs["dag_run"].get_task_instances():
+            # 각 task instance의 id와 state를 확인한다.
+            task_id = ti.task_id
+            state = ti.current_state()
+            print(task_id, state)
+
+    import time
+    process_default_timeout = 600
+    timeout = kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('max_eval_time', process_default_timeout)
+    if timeout == {}:
+        timeout = process_default_timeout
+    print(f'timeout = [{timeout}]')
+    time.sleep(timeout)
+
+    for ti in kwargs["dag_run"].get_task_instances():
+        if ti.current_state() in ('running', None):
+            print(f'ti.task_id = {ti.task_id}')
+            ti.set_state(State.FAILED)
 
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
@@ -302,8 +315,11 @@ end = DummyOperator(
     dag=dag,
 )
 
+timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check)
 
 start >> parameters >> before_worker >> worker_env >> worker
 
 worker >> worker_success >> end
 worker >> worker_fail >> end
+
+start >> timer >> end
