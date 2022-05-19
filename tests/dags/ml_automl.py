@@ -4,8 +4,10 @@ from datetime import datetime, timedelta
 
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import BranchPythonOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.task_group import TaskGroup
+from airflow.utils.state import State
 import json
 
 default_args = {
@@ -130,6 +132,31 @@ def which_path3(*args, **kwargs):
     return next_process
 
 
+def _check(*args, **kwargs):
+
+    for _ in range(len(kwargs["dag_run"].get_task_instances())):
+        for ti in kwargs["dag_run"].get_task_instances():
+            # 각 task instance의 id와 state를 확인한다.
+            task_id = ti.task_id
+            state = ti.current_state()
+            print(task_id, state)
+        print('-' * 10)
+
+    import time
+    experiment_default_timeout = 3600
+    timeout = kwargs['params'].get('experiment_config', {}).get('experiment', {}).get('timeout', experiment_default_timeout)
+    print(f'timeout = [{timeout}]')
+    if timeout == {}:
+        timeout = experiment_default_timeout
+
+    time.sleep(timeout)
+
+    for ti in kwargs["dag_run"].get_task_instances():
+        if ti.current_state() in ('running', None):
+            print(f'ti.task_id = {ti.task_id}')
+            ti.set_state(State.FAILED)
+
+
 def _build(task_id):
     with TaskGroup(group_id=task_id) as tg:
         preprocess = TriggerDagRunWithConfigOperator(task_id='preprocess')
@@ -217,6 +244,8 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args, 
     parse_only = DummyOperator(task_id='parse_only')
     batch_automl = _build('batch_automl')
 
+    timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check)
+
     start >> start_branch >> [deploy, modelstat, predict, dataset_eda, cl_predict, lb_predict] >> end
 
     start_branch >> preprocess >> optuna >> ensemble_branch >> [ensemble, no_ensemble]
@@ -228,3 +257,5 @@ with DAG(dag_id='ml_automl', schedule_interval=None, default_args=default_args, 
     start_branch >> parse >> batch_branch >> yes_batch_automl >> batch_automl >> end
     start_branch >> cluster >> parse_cluster >> ml_cluster >> end
     start_branch >> labeling >> parse_labeling >> ml_labeling >> end
+
+    start >> timer >> end
