@@ -25,19 +25,6 @@ count = 0
 max_time = 20
 
 
-def timer():
-    global count
-    count += 1
-    print(count)
-
-    timer = threading.Timer(1, timer)
-    timer.start()
-
-    if count == max_time:
-        print("타이머를 멈춥니다.")
-    timer.cancel()
-
-
 def hello_world_py(*args, **kwargs):
     from pprint import pprint
     print('Hello World')
@@ -69,18 +56,20 @@ def check(*args, **kwargs):
             print(task_id, state)
         print('-' * 10)
         import time
-        time.sleep(3)
+
+    time.sleep(60)
     # print('set_state', set_dag_run_state_to_failed(
     #     dag=kwargs['dag_run'].dag,
     #     execution_date=kwargs['dag_run'].execution_date,
     #     # run_id=kwargs['dag_run'].run_id,
     #     commit=True))
     # raise AirflowTaskTimeout()
-    timer()
 
     for ti in kwargs["dag_run"].get_task_instances():
         # ti.set_state(State.SKIPPED)
-        ti.set_state(State.FAILED)
+        if ti.current_state() in ('running', 'None'):
+            print(f'ti.task_id = {ti.task_id}')
+            ti.set_state(State.FAILED)
 
 
 dag_id = 'timeout_test'
