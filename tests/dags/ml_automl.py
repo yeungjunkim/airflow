@@ -150,7 +150,7 @@ def _check(*args, **kwargs):
         timeout = experiment_default_timeout
     time_count = 1
 
-    if(time_count < experiment_default_timeout):
+    while time_count < experiment_default_timeout:
         time.sleep(1)
         time_count += 1
 
