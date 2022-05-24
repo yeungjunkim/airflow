@@ -160,8 +160,9 @@ def _check(*args, **kwargs):
 
     for ti in kwargs["dag_run"].get_task_instances():
         if ti.current_state() in ('running', None):
-            print(f'ti.task_id = {ti.task_id}')
-            ti.set_state(State.FAILED)
+            if ti.task_id not in ('worker_success', 'worker_fail', 'end'):
+                print(f'ti.task_id = {ti.task_id}')
+                ti.set_state(State.FAILED)
 
 
 class KubernetesPodExPreOperator(KubernetesPodOperator):
