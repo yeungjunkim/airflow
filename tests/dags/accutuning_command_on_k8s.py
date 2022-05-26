@@ -24,7 +24,7 @@ default_args = {
 custom_env_vars = {}
 
 dag = DAG(
-    'accutuning_command_on_k8s', default_args=default_args, schedule_interval=None)
+    'accutuning_command_on_k8s', default_args=default_args, max_active_runs=2, schedule_interval=None)
 
 start = DummyOperator(task_id='start', dag=dag)
 
