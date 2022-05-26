@@ -71,7 +71,7 @@ def _check(*args, **kwargs):
     else:
         estimator_cnt = len(estimator_dict)
 
-    timeout = (max_eval_time * estimator_cnt / 2)
+    timeout = (max_eval_time * estimator_cnt / 3)
 
     print(f'estimator_dict = [{estimator_dict}]')
     print(f'process_default_timeout = [{process_default_timeout}]')
