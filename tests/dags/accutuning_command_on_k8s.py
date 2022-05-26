@@ -62,19 +62,24 @@ def _check(*args, **kwargs):
 
     import time
     process_default_timeout = 600
-    timeout = kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('max_eval_time', process_default_timeout)
+    max_eval_time = kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('max_eval_time', process_default_timeout)
     estimator_dict = json.loads(kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('include_estimators_json'))
     estimator_cnt = 0
 
     if len(estimator_dict) == 0:
         estimator_cnt = 5
+    else:
+        estimator_cnt = len(estimator_dict)
 
-    if timeout == {}:
+    if max_eval_time == {}:
+        timeout = (process_default_timeout * estimator_cnt / 2) + 40
+    else:
         timeout = (process_default_timeout * estimator_cnt / 2) + 40
 
     print(f'estimator_dict = [{estimator_dict}]')
     print(f'process_default_timeout = [{process_default_timeout}]')
     print(f'estimator_cnt = [{estimator_cnt}]')
+    print(f'process_default_timeout = [{process_default_timeout}]')
     print(f'timeout = [{timeout}]')
 
     time_count = 1
