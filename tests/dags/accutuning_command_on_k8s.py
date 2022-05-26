@@ -5,6 +5,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc 
+from airflow.utils.state import State
 import json
 
 default_args = {
@@ -57,26 +58,63 @@ def make_env_parameters(**kwargs):
     return {}
 
 
+def _check(*args, **kwargs):
+
+    import time
+    process_default_timeout = 600
+    timeout = kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('max_eval_time', process_default_timeout)
+    estimator_dict = json.loads(kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('include_estimators_json'))
+    estimator_cnt = 0
+
+    if len(estimator_dict) == 0:
+        estimator_cnt = 5
+
+    if timeout == {}:
+        timeout = (process_default_timeout * estimator_cnt / 2) + 40
+
+    print(f'estimator_dict = [{estimator_dict}]')
+    print(f'process_default_timeout = [{process_default_timeout}]')
+    print(f'estimator_cnt = [{estimator_cnt}]')
+    print(f'timeout = [{timeout}]')
+
+    time_count = 1
+
+    while time_count < timeout:
+        time.sleep(1)
+        time_count += 1
+
+        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
+        state = kwargs["dag_run"].get_task_instance('end').current_state()
+
+        if state == "success":
+            return True
+
+    for ti in kwargs["dag_run"].get_task_instances():
+        if ti.current_state() in ('running', None):
+            if ti.task_id not in ('worker_success', 'worker_fail', 'end'):
+                print(f'ti.task_id = {ti.task_id}')
+                ti.set_state(State.FAILED)
+
+
 parameters = PythonOperator(task_id='make_parameters', python_callable=make_accutuning_k8s_command, provide_context=True, dag=dag)
 
 # template_fields: Sequence[str] = ('image', 'command', 'environment_str', 'container_name', 'volume_mount')
 
 
 class KubernetesPodExOperator(KubernetesPodOperator):
-    from typing import Sequence
-    template_fields: Sequence[str] = (
-        'image',
-        'cmds',
-        'arguments',
-        'env_vars',
-        'labels',
-        'config_file',
-        'pod_template_file',
-        'namespace',
-    )
+    # from typing import Sequence
+    # template_fields: Sequence[str] = (
+    #     'image',
+    #     'cmds',
+    #     'arguments',
+    #     'env_vars',
+    #     'labels',
+    #     'config_file',
+    #     'pod_template_file',
+    #     'namespace',
+    # )
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
     def pre_execute(self, *args, **kwargs):
@@ -129,8 +167,6 @@ command_worker = KubernetesPodExOperator(
     namespace='default',
     name="monitor",
     task_id="monitor",
-    # env_vars=make_env_parameters(),
-    # env_vars=custom_env_vars,
     env_vars={
         "ACCUTUNING_WORKSPACE": "{{ti.xcom_pull(key='ACCUTUNING_WORKSPACE', task_ids='make_parameters') }}",
         "ACCUTUNING_LOG_LEVEL": "{{ti.xcom_pull(key='ACCUTUNING_LOG_LEVEL', task_ids='make_parameters') }}",
@@ -156,5 +192,8 @@ end = DummyOperator(
     trigger_rule='one_success',
     dag=dag,
 )
+
+timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
+
 
 start >> parameters >> command_worker >> end
