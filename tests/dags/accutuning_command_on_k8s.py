@@ -198,4 +198,4 @@ timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_c
 
 start >> parameters >> command_worker >> end
 
-start >> timer >> end 
+start >> timer >> end
