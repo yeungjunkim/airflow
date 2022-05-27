@@ -362,9 +362,9 @@ end = DummyOperator(
 
 timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
 
-fail_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag('fail'), dag=dag)
+fail_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag, dag=dag)
 
-success_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag('success'), dag=dag)
+success_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag, dag=dag)
 
 start >> parameters >> before_worker >> worker_env >> worker
 
