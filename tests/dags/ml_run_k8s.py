@@ -263,6 +263,25 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
         return super().pre_execute(*args, **kwargs)
 
+    def post_execute(self, *args, **kwargs):
+        workspace_path = kwargs['context']['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+
+        if self.task_id == "worker_success":
+            flag_tag = "DONE"
+        else:
+            flag_tag = "ERROR"
+
+        print(f'flag_tag = {flag_tag}')
+
+        flag_path = os.path.join(workspace_path, "flag", flag_tag)
+
+        print(f'flag_path = {flag_path}')
+
+        f = open(flag_path, 'w')
+        f.close()
+
+        return super().post_execute(*args, **kwargs)
+
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
@@ -301,25 +320,6 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
  
         self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         return super().pre_execute(*args, **kwargs)
-
-    def post_execute(self, *args, **kwargs):
-        workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
-
-        if self.task_id == "worker_success":
-            flag_tag = "DONE"
-        else:
-            flag_tag = "ERROR"
-
-        print(f'flag_tag = {flag_tag}')
-
-        flag_path = os.path.join(workspace_path, "flag", flag_tag)
-
-        print(f'flag_path = {flag_path}')
-
-        f = open(flag_path, 'w')
-        f.close()
-
-        return super().post_execute(*args, **kwargs)
 
 
 before_worker = KubernetesPodExPreOperator(
