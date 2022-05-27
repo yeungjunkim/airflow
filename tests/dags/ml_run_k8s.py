@@ -194,7 +194,7 @@ def _write_flag(*args, **kwargs):
 
     print(f'flag_path = {flag_path}')
 
-    f = open(flag_path)
+    f = open(flag_path, 'w')
     f.close()
 
 
@@ -369,6 +369,6 @@ fail_flag = PythonOperator(task_id='fail_flag', provide_context=True, python_cal
 start >> parameters >> before_worker >> worker_env >> worker
 
 worker >> worker_success >> end
-worker >> fail_flag >> worker_fail >> end
+worker >> worker_fail >> fail_flag >> end
 
 start >> timer >> end
