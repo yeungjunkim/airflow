@@ -167,6 +167,35 @@ def _check(*args, **kwargs):
                 ti.set_state(State.FAILED)
 
 
+def _write_flag(*args, **kwargs):
+
+    # for _ in range(len(kwargs["dag_run"].get_task_instances())):
+    #     for ti in kwargs["dag_run"].get_task_instances():
+    #         # 각 task instance의 id와 state를 확인한다.
+    #         task_id = ti.task_id
+    #         state = ti.current_state()
+    #         print(task_id, state)
+
+    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+    import os
+    # path = os.path.join('folder_name', 'file_name')
+    print(f'flag = {args[0]}')
+
+    if args[0] == "success":
+        flag_tag = "DONE"
+    else:
+        flag_tag = "ERROR"
+
+    print(f'flag_tag = {flag_tag}')
+
+    flag_path = os.path.join(workspace_path, "flag", flag_tag)
+
+    print(f'flag_path = {flag_path}')
+
+    f = open(flag_path)
+    f.close()
+
+
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -331,9 +360,13 @@ end = DummyOperator(
 
 timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
 
+fail_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag('fail'), dag=dag)
+
+success_flag = PythonOperator(task_id='timer', provide_context=True, python_callable=_write_flag('success'), dag=dag)
+
 start >> parameters >> before_worker >> worker_env >> worker
 
-worker >> worker_success >> end
-worker >> worker_fail >> end
+worker >> success_flag >> worker_success >> end
+worker >> fail_flag >> worker_fail >> end
 
 start >> timer >> end
