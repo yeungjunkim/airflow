@@ -7,7 +7,6 @@ from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
 from airflow.utils.state import State
 import json
-import os
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
 
@@ -168,35 +167,6 @@ def _check(*args, **kwargs):
                 ti.set_state(State.FAILED)
 
 
-def _write_flag(*args, **kwargs):
-
-    # for _ in range(len(kwargs["dag_run"].get_task_instances())):
-    #     for ti in kwargs["dag_run"].get_task_instances():
-    #         # 각 task instance의 id와 state를 확인한다.
-    #         task_id = ti.task_id
-    #         state = ti.current_state()
-    #         print(task_id, state)
-
-    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
-    import os
-    # path = os.path.join('folder_name', 'file_name')
-    # print(f'flag = {args[0]}')
-
-    # if args[0] == "success":
-    flag_tag = "DONE"
-    # else:
-    #     flag_tag = "ERROR"
-
-    print(f'flag_tag = {flag_tag}')
-
-    flag_path = os.path.join(workspace_path, "flag", flag_tag)
-
-    print(f'flag_path = {flag_path}')
-
-    f = open(flag_path, 'w')
-    f.close()
-
-
 class KubernetesPodExPreOperator(KubernetesPodOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -263,24 +233,24 @@ class KubernetesPodExPostOperator(KubernetesPodOperator):
 
         return super().pre_execute(*args, **kwargs)
 
-    def post_execute(self, *args, **kwargs):
-        workspace_path = kwargs['context']['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+    # def post_execute(self, *args, **kwargs):
+    #     workspace_path = kwargs['context']['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
 
-        if self.task_id == "worker_success":
-            flag_tag = "DONE"
-        else:
-            flag_tag = "ERROR"
+    #     if self.task_id == "worker_success":
+    #         flag_tag = "DONE"
+    #     else:
+    #         flag_tag = "ERROR"
 
-        print(f'flag_tag = {flag_tag}')
+    #     print(f'flag_tag = {flag_tag}')
 
-        flag_path = os.path.join(workspace_path, "flag", flag_tag)
+    #     flag_path = os.path.join(workspace_path, "flag", flag_tag)
 
-        print(f'flag_path = {flag_path}')
+    #     print(f'flag_path = {flag_path}')
 
-        f = open(flag_path, 'w')
-        f.close()
+    #     f = open(flag_path, 'w')
+    #     f.close()
 
-        return super().post_execute(*args, **kwargs)
+    #     return super().post_execute(*args, **kwargs)
 
 
 class KubernetesPodExWorkerOperator(KubernetesPodOperator):
