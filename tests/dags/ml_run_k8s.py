@@ -7,6 +7,7 @@ from airflow.operators.python_operator import PythonOperator
 from kubernetes.client import models as k8s  # you should write this sentence when you could use volume, etc
 from airflow.utils.state import State
 import json
+import os
 # from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
 
@@ -301,6 +302,25 @@ class KubernetesPodExWorkerOperator(KubernetesPodOperator):
         self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
+    def post_execute(self, *args, **kwargs):
+        workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+
+        if self.task_id == "worker_success":
+            flag_tag = "DONE"
+        else:
+            flag_tag = "ERROR"
+
+        print(f'flag_tag = {flag_tag}')
+
+        flag_path = os.path.join(workspace_path, "flag", flag_tag)
+
+        print(f'flag_path = {flag_path}')
+
+        f = open(flag_path, 'w')
+        f.close()
+
+        return super().post_execute(*args, **kwargs)
+
 
 before_worker = KubernetesPodExPreOperator(
     namespace='{{ ti.xcom_pull(key="ACCUTUNING_K8S_WORKER_NAMESPACE")}}',
@@ -360,13 +380,9 @@ end = DummyOperator(
 
 timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
 
-fail_flag = PythonOperator(task_id='fail_flag', provide_context=True, python_callable=_write_flag, dag=dag)
-
-success_flag = PythonOperator(task_id='success_flag', provide_context=True, python_callable=_write_flag, dag=dag)
-
 start >> parameters >> before_worker >> worker_env >> worker
 
-worker >> worker_success >> success_flag >> end
-worker >> worker_fail >> fail_flag >> end
+worker >> worker_success >> end
+worker >> worker_fail >> end
 
 start >> timer >> end
