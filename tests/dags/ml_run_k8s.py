@@ -177,14 +177,16 @@ def _write_flag(*args, **kwargs):
     #         print(task_id, state)
 
     workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
+
+    workspace_path = kwargs['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
     import os
     # path = os.path.join('folder_name', 'file_name')
     print(f'flag = {args[0]}')
 
-    if args[0] == "success":
-        flag_tag = "DONE"
-    else:
-        flag_tag = "ERROR"
+    # if args[0] == "success":
+    #     flag_tag = "DONE"
+    # else:
+    flag_tag = "ERROR"
 
     print(f'flag_tag = {flag_tag}')
 
