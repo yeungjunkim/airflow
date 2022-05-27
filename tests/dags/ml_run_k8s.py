@@ -183,10 +183,10 @@ def _write_flag(*args, **kwargs):
     # path = os.path.join('folder_name', 'file_name')
     # print(f'flag = {args[0]}')
 
-    # if args[0] == "success":
-    #     flag_tag = "DONE"
-    # else:
-    flag_tag = "ERROR"
+    if args[0] == "success":
+        flag_tag = "DONE"
+    else:
+        flag_tag = "ERROR"
 
     print(f'flag_tag = {flag_tag}')
 
@@ -362,13 +362,13 @@ end = DummyOperator(
 
 timer = PythonOperator(task_id='timer', provide_context=True, python_callable=_check, dag=dag)
 
-fail_flag = PythonOperator(task_id='fail_flag', provide_context=True, python_callable=_write_flag, dag=dag)
+fail_flag = PythonOperator(task_id='fail_flag', provide_context=True, python_callable=_write_flag('success'), dag=dag)
 
-# success_flag = PythonOperator(task_id='success_flag', provide_context=True, python_callable=_write_flag, dag=dag)
+success_flag = PythonOperator(task_id='success_flag', provide_context=True, python_callable=_write_flag('fail'), dag=dag)
 
 start >> parameters >> before_worker >> worker_env >> worker
 
-worker >> worker_success >> end
+worker >> worker_success >> success_flag >> end
 worker >> worker_fail >> fail_flag >> end
 
 start >> timer >> end
