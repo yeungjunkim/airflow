@@ -154,10 +154,18 @@ def _check(*args, **kwargs):
         time.sleep(1)
         time_count += 1
 
-        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
-        state = kwargs["dag_run"].get_task_instance('end').current_state()
+        optuna_state = kwargs["dag_run"].get_task_instance('optuna').current_state()
+        if optuna_state == "failed":
+            return True
 
-        if state == "success":
+        ensemble_state = kwargs["dag_run"].get_task_instance('ensemble').current_state()
+        if ensemble_state == "failed":
+            return True
+
+        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
+        end_state = kwargs["dag_run"].get_task_instance('end').current_state()
+
+        if end_state in ["success", "failed"]:
             return True
 
     for ti in kwargs["dag_run"].get_task_instances():
