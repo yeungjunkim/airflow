@@ -23,7 +23,7 @@ default_args = {
     'provide_context': True,
 }
 dag = DAG(
-    'ml_run_k8s', default_args=default_args, max_active_runs=3, schedule_interval=None)
+    'ml_run_k8s', default_args=default_args, max_active_runs=2, schedule_interval=None)
 # dag = DAG(
 #     'ml_run_k8s', default_args=default_args, schedule_interval=None)
 
