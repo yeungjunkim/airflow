@@ -154,10 +154,22 @@ def _check(*args, **kwargs):
         time.sleep(1)
         time_count += 1
 
-        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
-        state = kwargs["dag_run"].get_task_instance('end').current_state()
+        # make_worker_env_state = kwargs["dag_run"].get_task_instance('make_worker_env').current_state()
+        # if make_worker_env_state == "failed":
+        #     return True
 
-        if state == "success":
+        # before_worker_state = kwargs["dag_run"].get_task_instance('before_worker').current_state()
+        # if before_worker_state == "failed":
+        #     return True
+
+        worker_state = kwargs["dag_run"].get_task_instance('worker').current_state()
+        if worker_state == "failed":
+            return True
+
+        # task_id = kwargs["dag_run"].get_task_instance('end').task_id
+        end_state = kwargs["dag_run"].get_task_instance('end').current_state()
+
+        if end_state in ["success", "failed"]:
             return True
 
     for ti in kwargs["dag_run"].get_task_instances():
