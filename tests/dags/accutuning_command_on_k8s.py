@@ -66,12 +66,13 @@ def _check(*args, **kwargs):
     estimator_dict = json.loads(kwargs['dag_run'].conf.get('experiment_config', {}).get('experiment', {}).get('include_estimators_json'))
     estimator_cnt = 0
 
+    # estimator 값이 없으면 optuna가 아니라고 가정하고 기본 타임아웃기준 적용
     if len(estimator_dict) == 0:
-        estimator_cnt = 5
+        estimator_cnt = 1
+        timeout = (max_eval_time * estimator_cnt)
     else:
         estimator_cnt = len(estimator_dict)
-
-    timeout = (max_eval_time * estimator_cnt / 3)
+        timeout = (max_eval_time * estimator_cnt / 3)
 
     print(f'estimator_dict = [{estimator_dict}]')
     print(f'process_default_timeout = [{process_default_timeout}]')
@@ -87,9 +88,9 @@ def _check(*args, **kwargs):
         time_count += 1
 
         # task_id = kwargs["dag_run"].get_task_instance('end').task_id
-        state = kwargs["dag_run"].get_task_instance('end').current_state()
+        end_state = kwargs["dag_run"].get_task_instance('end').current_state()
 
-        if state == "success":
+        if end_state in ["success", "failed"]:
             return True
 
     for ti in kwargs["dag_run"].get_task_instances():
