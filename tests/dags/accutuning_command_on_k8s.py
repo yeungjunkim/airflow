@@ -124,23 +124,44 @@ class KubernetesPodExOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
 
+        # for pvc (do not remove this code)
+        # -----------------------------------
         volume_mounts = k8s.V1VolumeMount(
-            # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
-            # mount_path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE"),
-            # sub_path=None, read_only=False
-            name=env_dict_str.get("ACCUTUNING_PVC_NAME"),
-            mount_path=env_dict_str.get("ACCUTUNING_WORKSPACE"),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
             sub_path=None, read_only=False
         )
         self.volume_mounts = [volume_mounts]
 
         volumes = k8s.V1Volume(
-            # name=kwargs['context']['dag_run'].conf.get("ACCUTUNING_PVC_NAME"),
-            # host_path=k8s.V1HostPathVolumeSource(path=kwargs['context']['dag_run'].conf.get("ACCUTUNING_WORKSPACE")),
-            name=env_dict_str.get("ACCUTUNING_PVC_NAME"),
-            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get("ACCUTUNING_WORKSPACE")),
+            name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
+            # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
+            host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
+        # -----------------------------------
+
+        # for nfs
+        # -----------------------------------
+        # volumes = k8s.V1Volume(
+        #     name='accutuning-workspace',
+        #     nfs=k8s.V1NFSVolumeSource(
+        #         path=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_PATH'),
+        #         # server=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_SERVER'),
+        #         server="fs-a43ef4c4.efs.ap-northeast-2.amazonaws.com",
+        #         readOnly=False,
+        #     )
+        # )
+        # self.volumes = [volumes]
+
+        # volume_mounts = k8s.V1VolumeMount(
+        #     name='accutuning-workspace',
+        #     mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
+        #     sub_path=None, read_only=False
+        # )
+        # self.volume_mounts = [volume_mounts]
+        # -----------------------------------
+
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
