@@ -276,7 +276,7 @@ before_worker = KubernetesPodExPreOperator(
 worker_env = PythonOperator(task_id='make_worker_env', python_callable=make_worker_env, dag=dag)
 
 worker = KubernetesPodExWorkerOperator(
-    namespace='{{ ti.xcom_pull(key="ACCUTUNING_K8S_WORKER_NAMESPACE")}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     # image="{{dag_run.conf.ACCUTUNING_WORKER_IMAGE}}",
     name="worker",
     task_id="worker",
@@ -288,7 +288,7 @@ worker = KubernetesPodExWorkerOperator(
 )
 
 worker_success = KubernetesPodExPostOperator(
-    namespace='{{ ti.xcom_pull(key="ACCUTUNING_K8S_WORKER_NAMESPACE")}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     name="worker_success",
     task_id="worker_success",
     env_vars=make_env_var(),
@@ -299,7 +299,7 @@ worker_success = KubernetesPodExPostOperator(
 )
 
 worker_fail = KubernetesPodExPostOperator(
-    namespace='{{ ti.xcom_pull(key="ACCUTUNING_K8S_WORKER_NAMESPACE")}}',
+    namespace='{{ ti.xcom_pull(key="worker_namespace")}}',
     name="worker_fail",
     task_id="worker_fail",
     env_vars=make_env_var(),
