@@ -186,7 +186,8 @@ class KubernetesPodExOperator(KubernetesPodOperator):
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
 
-        # for pvc
+        # for pvc (do not remove this code)
+        # -----------------------------------
         volume_mounts = k8s.V1VolumeMount(
             name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
             mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
@@ -200,8 +201,10 @@ class KubernetesPodExOperator(KubernetesPodOperator):
             host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
         )
         self.volumes = [volumes]
+        # -----------------------------------
 
-        #for nfs
+        # for nfs
+        # -----------------------------------
         # volumes = k8s.V1Volume(
         #     name='accutuning-workspace',
         #     nfs=k8s.V1NFSVolumeSource(
@@ -219,69 +222,15 @@ class KubernetesPodExOperator(KubernetesPodOperator):
         #     sub_path=None, read_only=False
         # )
         # self.volume_mounts = [volume_mounts]
+        # -----------------------------------
 
-        # self.arguments = kwargs['context']['task_instance'].xcom_pull(
-        #     task_ids='make_parameters', key='before_command').split()
         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
         if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
             self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
 
-        # self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-
         return super().pre_execute(*args, **kwargs)
 
-
-# class KubernetesPodExPreOperator(KubernetesPodOperator):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#     def pre_execute(self, *args, **kwargs):
-#         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-
-#         # for pvc
-#         # volume_mounts = k8s.V1VolumeMount(
-#         #     name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#         #     mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#         #     sub_path=None, read_only=False
-#         # )
-#         # self.volume_mounts = [volume_mounts]
-
-#         # volumes = k8s.V1Volume(
-#         #     name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#         #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#         #     host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
-#         # )
-#         # self.volumes = [volumes]
-
-#         #for nfs
-#         volumes = k8s.V1Volume(
-#             name='accutuning-workspace',
-#             nfs=k8s.V1NFSVolumeSource(
-#                 path=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_PATH'),
-#                 # server=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_SERVER'),
-#                 server="fs-a43ef4c4.efs.ap-northeast-2.amazonaws.com",
-#                 readOnly=False,
-#             )
-#         )
-#         self.volumes = [volumes]
-
-#         volume_mounts = k8s.V1VolumeMount(
-#             name='accutuning-workspace',
-#             mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#             sub_path=None, read_only=False
-#         )
-#         self.volume_mounts = [volume_mounts]
-
-#         self.arguments = kwargs['context']['task_instance'].xcom_pull(
-#             task_ids='make_parameters', key='before_command').split()
-#         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-#         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-#         if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
-#             self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
-
-#         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-#         return super().pre_execute(*args, **kwargs)
 
 class KubernetesPodExPreOperator(KubernetesPodExOperator):
     def pre_execute(self, *args, **kwargs):
@@ -290,77 +239,6 @@ class KubernetesPodExPreOperator(KubernetesPodExOperator):
             task_ids='make_parameters', key='before_command').split()
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
-
-
-# class KubernetesPodExPostOperator(KubernetesPodOperator):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#     def pre_execute(self, *args, **kwargs):
-#         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-
-#         # volume_mounts = k8s.V1VolumeMount(
-#         #     name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#         #     mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#         #     sub_path=None, read_only=False
-#         # )
-#         # self.volume_mounts = [volume_mounts]
-
-#         # volumes = k8s.V1Volume(
-#         #     name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#         #     # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#         #     host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
-#         # )
-#         # self.volumes = [volumes]
-
-#         #for nfs
-#         volumes = k8s.V1Volume(
-#             name='accutuning-workspace',
-#             nfs=k8s.V1NFSVolumeSource(
-#                 path=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_PATH'),
-#                 # server=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_SERVER'),
-#                 server="fs-a43ef4c4.efs.ap-northeast-2.amazonaws.com",
-#                 readOnly=False,
-#             )
-#         )
-#         self.volumes = [volumes]
-
-#         volume_mounts = k8s.V1VolumeMount(
-#             name='accutuning-workspace',
-#             mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#             sub_path=None, read_only=False
-#         )
-#         self.volume_mounts = [volume_mounts]
-
-#         self.arguments = kwargs['context']['task_instance'].xcom_pull(
-#             task_ids='make_parameters', key='after_command').split()
-
-#         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-#         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-#         if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
-#             self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
-#         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-
-#         return super().pre_execute(*args, **kwargs)
-
-#     # def post_execute(self, *args, **kwargs):
-#     #     workspace_path = kwargs['context']['task_instance'].xcom_pull(task_ids='before_worker', key='return_value')["worker_workspace"]
-
-#     #     if self.task_id == "worker_success":
-#     #         flag_tag = "DONE"
-#     #     else:
-#     #         flag_tag = "ERROR"
-
-#     #     print(f'flag_tag = {flag_tag}')
-
-#     #     flag_path = os.path.join(workspace_path, "flag", flag_tag)
-
-#     #     print(f'flag_path = {flag_path}')
-
-#     #     f = open(flag_path, 'w')
-#     #     f.close()
-
-#     #     return super().post_execute(*args, **kwargs)
 
 
 class KubernetesPodExPostOperator(KubernetesPodExOperator):
@@ -372,71 +250,14 @@ class KubernetesPodExPostOperator(KubernetesPodExOperator):
         return super().pre_execute(*args, **kwargs)
 
 
-# class KubernetesPodExWorkerOperator(KubernetesPodOperator):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#     def pre_execute(self, *args, **kwargs):
-#         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-#         volume_mounts = k8s.V1VolumeMount(
-#             name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#             mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#             sub_path=None, read_only=False
-#         )
-#         self.volume_mounts = [volume_mounts]
-
-#         volumes = k8s.V1Volume(
-#             name=env_dict_str.get('ACCUTUNING_PVC_NAME'),
-#             # persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume', read_only=False),
-#             host_path=k8s.V1HostPathVolumeSource(path=env_dict_str.get('ACCUTUNING_WORKSPACE')),
-#         )
-#         self.volumes = [volumes]
-
-#         # #for nfs
-#         # volumes = k8s.V1Volume(
-#         #     name='accutuning-workspace',
-#         #     nfs=k8s.V1NFSVolumeSource(
-#         #         path=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_PATH'),
-#         #         # server=env_dict_str.get('ACCUTUNING_K8S_VOLUME_MOUNT_SERVER'),
-#         #         server="fs-a43ef4c4.efs.ap-northeast-2.amazonaws.com",
-#         #         readOnly=False,
-#         #     )
-#         # )
-#         # self.volumes = [volumes]
-
-#         # volume_mounts = k8s.V1VolumeMount(
-#         #     name='accutuning-workspace',
-#         #     mount_path=env_dict_str.get('ACCUTUNING_WORKSPACE'),
-#         #     sub_path=None, read_only=False
-#         # )
-#         # self.volume_mounts = [volume_mounts]
-
-#         self.image_pull_policy = env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_POLICY')
-#         self.image_pull_secrets = [k8s.V1LocalObjectReference(env_dict_str.get('ACCUTUNING_K8S_IMAGE_PULL_SECRET'))]
-#         # resources=client.V1ResourceRequirements(
-#         #     requests={"cpu": "100m", "memory": "200Mi"},
-#         #     limits={"cpu": "500m", "memory": "500Mi"}
-#         # )
-#         self.resources = k8s.V1ResourceRequirements(
-#             # requests={"cpu": "100m", "memory": "200Mi"},
-#             # {"cpu": "1000.0m", "memory": "2000.0Mi", "gpu": "0.0m"}
-#             limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
-#                 task_ids='make_worker_env', key='resources_str'))
-#         )
-#         if env_dict_str.get('ACCUTUNING_K8S_NODETYPE'):
-#             self.node_selector = {'nodetype': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
- 
-#         self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
-#         return super().pre_execute(*args, **kwargs)
-
 class KubernetesPodExWorkerOperator(KubernetesPodExOperator):
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-        self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         self.resources = k8s.V1ResourceRequirements(
             limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
                 task_ids='make_worker_env', key='resources_str'))
         )
+        self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
