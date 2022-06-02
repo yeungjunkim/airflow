@@ -158,9 +158,9 @@ def _check(*args, **kwargs):
         # if make_worker_env_state == "failed":
         #     return True
 
-        # before_worker_state = kwargs["dag_run"].get_task_instance('before_worker').current_state()
-        # if before_worker_state == "failed":
-        #     return True
+        before_worker_state = kwargs["dag_run"].get_task_instance('before_worker').current_state()
+        if before_worker_state == "failed":
+            return True
 
         worker_state = kwargs["dag_run"].get_task_instance('worker').current_state()
         if worker_state == "failed":
