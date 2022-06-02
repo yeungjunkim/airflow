@@ -285,8 +285,10 @@ class KubernetesPodExOperator(KubernetesPodOperator):
 
 class KubernetesPodExPreOperator(KubernetesPodExOperator):
     def pre_execute(self, *args, **kwargs):
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='before_command').split()
+        self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -363,8 +365,10 @@ class KubernetesPodExPreOperator(KubernetesPodExOperator):
 
 class KubernetesPodExPostOperator(KubernetesPodExOperator):
     def pre_execute(self, *args, **kwargs):
+        env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
         self.arguments = kwargs['context']['task_instance'].xcom_pull(
             task_ids='make_parameters', key='after_command').split()
+        self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
         return super().pre_execute(*args, **kwargs)
 
 
@@ -428,7 +432,6 @@ class KubernetesPodExPostOperator(KubernetesPodExOperator):
 class KubernetesPodExWorkerOperator(KubernetesPodExOperator):
     def pre_execute(self, *args, **kwargs):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
-
         self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
         self.resources = k8s.V1ResourceRequirements(
             limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
