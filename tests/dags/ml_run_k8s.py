@@ -228,10 +228,7 @@ class KubernetesPodExOperator(KubernetesPodOperator):
             self.node_selector = {'node_type': env_dict_str.get('ACCUTUNING_K8S_NODETYPE')}
 
         self.image = str(env_dict_str.get("ACCUTUNING_APP_IMAGE"))
-        self.resources = k8s.V1ResourceRequirements(
-            limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
-                task_ids='make_worker_env', key='resources_str'))
-        )
+
         return super().pre_execute(*args, **kwargs)
 
 
@@ -433,6 +430,10 @@ class KubernetesPodExWorkerOperator(KubernetesPodExOperator):
         env_dict_str = json.loads(kwargs['context']['dag_run'].conf.get("accutuning_env_vars"))
 
         self.image = str(env_dict_str.get("ACCUTUNING_WORKER_IMAGE"))
+        self.resources = k8s.V1ResourceRequirements(
+            limits=json.loads(kwargs['context']['task_instance'].xcom_pull(
+                task_ids='make_worker_env', key='resources_str'))
+        )
         return super().pre_execute(*args, **kwargs)
 
 
